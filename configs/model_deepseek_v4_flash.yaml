@@ -1,0 +1,6 @@
+provider: deepseek
+model: deepseek-v4-flash
+base_url: https://api.deepseek.com/chat/completions
+temperature: 0.2
+max_tokens: 4096
+

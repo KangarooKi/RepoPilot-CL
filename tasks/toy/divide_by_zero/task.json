@@ -1,0 +1,20 @@
+{
+  "task_id": "toy_divide_by_zero",
+  "repo": "toy/calculator",
+  "issue": "The divide function crashes when dividing by zero. Return None when b is 0.",
+  "test_command": "python3 -m unittest discover -s . -p 'test_*.py'",
+  "fail_to_pass_tests": [
+    "test_calc.TestDivide.test_zero_divisor"
+  ],
+  "pass_to_pass_tests": [
+    "test_calc.TestDivide.test_regular_division"
+  ],
+  "initial_files": {
+    "calc.py": "def divide(a, b):\n    return a / b\n",
+    "test_calc.py": "import unittest\n\nfrom calc import divide\n\n\nclass TestDivide(unittest.TestCase):\n    def test_regular_division(self):\n        self.assertEqual(divide(10, 2), 5)\n\n    def test_zero_divisor(self):\n        self.assertIsNone(divide(10, 0))\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+  },
+  "metadata": {
+    "language": "python",
+    "source": "toy"
+  }
+}
