@@ -19,6 +19,8 @@ class ExperimentRunnerTest(unittest.TestCase):
             [variant.name for variant in variants],
             ["baseline", "memory_reranker"],
         )
+        self.assertFalse(variants[0].context_enabled)
+        self.assertTrue(variants[1].context_enabled)
         self.assertEqual(variants[0].num_candidates, 1)
         self.assertEqual(variants[1].num_candidates, 5)
 
@@ -50,12 +52,14 @@ class ExperimentRunnerTest(unittest.TestCase):
                 variants=[
                     ExperimentVariant(
                         name="baseline",
+                        context_enabled=False,
                         memory_enabled=False,
                         reranker="none",
                         num_candidates=1,
                     ),
                     ExperimentVariant(
                         name="memory_reranker",
+                        context_enabled=True,
                         memory_enabled=True,
                         reranker="rule",
                         num_candidates=3,
@@ -70,7 +74,9 @@ class ExperimentRunnerTest(unittest.TestCase):
         )
         self.assertEqual(result.variants[0].resolved_rate, 0.5)
         self.assertIn("--no-memory", calls[0])
+        self.assertIn("--no-context", calls[0])
         self.assertIn("--memory-store", calls[1])
+        self.assertNotIn("--no-context", calls[1])
         self.assertEqual(calls[1][calls[1].index("--reranker") + 1], "rule")
         self.assertEqual(calls[1][calls[1].index("--num-candidates") + 1], "3")
 
@@ -83,6 +89,7 @@ class ExperimentRunnerTest(unittest.TestCase):
                 variants=[
                     ExperimentVariant(
                         name="baseline",
+                        context_enabled=False,
                         memory_enabled=False,
                         reranker="none",
                         num_candidates=1,
@@ -93,7 +100,7 @@ class ExperimentRunnerTest(unittest.TestCase):
 
         markdown = render_markdown_report(result)
 
-        self.assertIn("| baseline | 1 | 1 | 1.000 |", markdown)
+        self.assertIn("| baseline | off | off | none | 1 | 1 | 1 | 1.000 |", markdown)
         self.assertIn("RepoPilot-CL Experiment Report", markdown)
 
 

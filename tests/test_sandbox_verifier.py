@@ -40,6 +40,49 @@ class SandboxVerifierTest(unittest.TestCase):
         self.assertEqual(apply_result.returncode, 0)
         self.assertIn("strip().lower()", content)
 
+    def test_apply_patch_recounts_malformed_hunk_lengths(self) -> None:
+        task = load_task(Path("tasks/toy/string_normalization/task.json"))
+        diff = (
+            "--- a/names.py\n"
+            "+++ b/names.py\n"
+            "@@ -1,1 +1,99 @@\n"
+            " def normalize_name(name):\n"
+            "-    return name.lower()\n"
+            "+    return name.strip().lower()\n"
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            apply_result = runner.apply_unified_diff(workdir, diff)
+            content = runner.read_file(workdir, "names.py")
+
+        self.assertEqual(apply_result.returncode, 0, apply_result.stderr)
+        self.assertIn("strip().lower()", content)
+
+    def test_apply_patch_repairs_unique_std_prefixed_path(self) -> None:
+        task = Task(
+            task_id="path_repair",
+            repo="toy/path-repair",
+            issue="Repair a rule file.",
+            test_command="python3 -c 'pass'",
+            initial_files={"src/rules/L060.py": "MESSAGE = 'old'\n"},
+        )
+        diff = (
+            "--- a/src/rules/std_L060.py\n"
+            "+++ b/src/rules/std_L060.py\n"
+            "@@ -1 +1 @@\n"
+            "-MESSAGE = 'old'\n"
+            "+MESSAGE = 'new'\n"
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            apply_result = runner.apply_unified_diff(workdir, diff)
+            content = runner.read_file(workdir, "src/rules/L060.py")
+
+        self.assertEqual(apply_result.returncode, 0, apply_result.stderr)
+        self.assertIn("MESSAGE = 'new'", content)
+
     def test_replace_text_requires_unique_match(self) -> None:
         task = Task(
             task_id="ambiguous_replace",

@@ -18,8 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("tasks", nargs="+", help="Task JSON file(s) or glob pattern(s).")
     parser.add_argument(
         "--variants",
-        default="baseline,memory,memory_reranker",
-        help="Comma-separated variants: baseline,memory,memory_reranker.",
+        default="baseline,context,memory,memory_reranker",
+        help="Comma-separated variants: baseline,context,memory,memory_reranker.",
     )
     parser.add_argument("--output-dir", default="data/experiments/latest")
     parser.add_argument(

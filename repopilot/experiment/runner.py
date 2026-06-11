@@ -13,6 +13,7 @@ from repopilot.cli.run_benchmark import main as run_benchmark_main
 @dataclass(frozen=True)
 class ExperimentVariant:
     name: str
+    context_enabled: bool
     memory_enabled: bool
     reranker: str
     num_candidates: int
@@ -21,6 +22,10 @@ class ExperimentVariant:
 @dataclass(frozen=True)
 class ExperimentVariantResult:
     variant: str
+    context_enabled: bool
+    memory_enabled: bool
+    reranker: str
+    num_candidates: int
     total: int
     resolved: int
     resolved_rate: float
@@ -43,18 +48,28 @@ class ExperimentResult:
 DEFAULT_VARIANTS = [
     ExperimentVariant(
         name="baseline",
+        context_enabled=False,
+        memory_enabled=False,
+        reranker="none",
+        num_candidates=1,
+    ),
+    ExperimentVariant(
+        name="context",
+        context_enabled=True,
         memory_enabled=False,
         reranker="none",
         num_candidates=1,
     ),
     ExperimentVariant(
         name="memory",
+        context_enabled=True,
         memory_enabled=True,
         reranker="none",
         num_candidates=1,
     ),
     ExperimentVariant(
         name="memory_reranker",
+        context_enabled=True,
         memory_enabled=True,
         reranker="rule",
         num_candidates=3,
@@ -78,6 +93,7 @@ def select_variants(
         if variant.reranker != "none":
             variant = ExperimentVariant(
                 name=variant.name,
+                context_enabled=variant.context_enabled,
                 memory_enabled=variant.memory_enabled,
                 reranker=variant.reranker,
                 num_candidates=num_candidates,
@@ -127,6 +143,8 @@ def run_experiment(
             argv.extend(["--memory-store", str(memory_path)])
         else:
             argv.append("--no-memory")
+        if not variant.context_enabled:
+            argv.append("--no-context")
 
         with contextlib.redirect_stdout(io.StringIO()):
             exit_code = run_benchmark(argv)
@@ -138,6 +156,10 @@ def run_experiment(
         results.append(
             ExperimentVariantResult(
                 variant=variant.name,
+                context_enabled=variant.context_enabled,
+                memory_enabled=variant.memory_enabled,
+                reranker=variant.reranker,
+                num_candidates=variant.num_candidates,
                 total=int(summary["total"]),
                 resolved=int(summary["resolved"]),
                 resolved_rate=float(summary["resolved_rate"]),
@@ -154,13 +176,15 @@ def render_markdown_report(result: ExperimentResult) -> str:
     lines = [
         "# RepoPilot-CL Experiment Report",
         "",
-        "| Variant | Resolved | Total | Resolved Rate |",
-        "|---|---:|---:|---:|",
+        "| Variant | Context | Memory | Reranker | N | Resolved | Total | Rate |",
+        "|---|---:|---:|---|---:|---:|---:|---:|",
     ]
     for variant in result.variants:
         lines.append(
             (
-                f"| {variant.variant} | {variant.resolved} | {variant.total} | "
+                f"| {variant.variant} | {_enabled_label(variant.context_enabled)} | "
+                f"{_enabled_label(variant.memory_enabled)} | {variant.reranker} | "
+                f"{variant.num_candidates} | {variant.resolved} | {variant.total} | "
                 f"{variant.resolved_rate:.3f} |"
             )
         )
@@ -176,3 +200,7 @@ def render_markdown_report(result: ExperimentResult) -> str:
             f"trajectory `{variant.trajectory_path}`"
         )
     return "\n".join(lines) + "\n"
+
+
+def _enabled_label(enabled: bool) -> str:
+    return "on" if enabled else "off"

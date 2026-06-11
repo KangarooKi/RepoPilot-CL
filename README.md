@@ -25,6 +25,9 @@ This first implementation provides a local, testable skeleton:
 - trajectory-to-memory distillation for continual learning
 - automatic memory retrieval and memory upsert in task/benchmark CLIs
 - rule-based patch reranking for best-of-N candidate selection
+- repository context packing and context/no-context ablation
+- robust patch application with hunk recounting, path repair, and patch previews
+- experiment runner for baseline, context, memory, and reranker variants
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -110,6 +113,8 @@ python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
   --context-lines 16
 ```
 
+Use `--no-context` when you want a pure prompt-only baseline for ablation.
+
 Run a task suite:
 
 ```bash
@@ -124,8 +129,17 @@ python3 -m repopilot.cli.run_experiment "tasks/toy/*/task.json" \
   --output-dir data/experiments/toy_ablation
 ```
 
-This runs `baseline`, `memory`, and `memory_reranker` variants with isolated
-artifacts, then writes `experiment_summary.json` and `report.md`.
+This runs `baseline`, `context`, `memory`, and `memory_reranker` variants with
+isolated artifacts, then writes `experiment_summary.json` and `report.md`.
+
+The default experiment variants are:
+
+| Variant | Context | Memory | Reranker |
+|---|---:|---:|---|
+| `baseline` | off | off | none |
+| `context` | on | off | none |
+| `memory` | on | on | none |
+| `memory_reranker` | on | on | rule-based best-of-N |
 
 Build reranker training data from trajectories:
 

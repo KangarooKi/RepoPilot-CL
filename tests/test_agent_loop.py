@@ -70,6 +70,8 @@ class AgentLoopTest(unittest.TestCase):
             ["good-guard", "bad-assert"],
         )
         self.assertEqual(apply_steps[0].metadata["candidate_id"], "good-guard")
+        self.assertIn("candidate_patch_preview", apply_steps[0].metadata)
+        self.assertIn("calc.py", apply_steps[0].metadata["candidate_patch_preview"])
 
     def test_agent_reverts_failed_candidate_before_next_candidate(self) -> None:
         task = load_task(Path("tasks/toy/divide_by_zero/task.json"))

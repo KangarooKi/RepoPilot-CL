@@ -148,6 +148,8 @@ class CodingAgent:
                     "candidate_id": candidate.candidate_id,
                     "returncode": apply_result.returncode,
                     "model": candidate.model,
+                    "candidate_patch_lines": _patch_line_count(candidate.diff),
+                    "candidate_patch_preview": _patch_preview(candidate.diff),
                 },
             )
             if apply_result.returncode != 0:
@@ -235,3 +237,14 @@ def _single_file_replace_diff(path: str, old: str, new: str) -> str:
             tofile=f"b/{path}",
         )
     )
+
+
+def _patch_line_count(diff: str) -> int:
+    return len([line for line in diff.splitlines() if line.strip()])
+
+
+def _patch_preview(diff: str, max_lines: int = 40, max_chars: int = 5000) -> str:
+    preview = "\n".join(diff.splitlines()[:max_lines])
+    if len(preview) > max_chars:
+        return preview[:max_chars] + "\n..."
+    return preview

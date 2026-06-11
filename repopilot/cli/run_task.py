@@ -94,6 +94,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--context-lines", type=int, default=12)
     parser.add_argument("--context-max-chars", type=int, default=12000)
     parser.add_argument(
+        "--no-context",
+        action="store_true",
+        help="Disable repository context packing for non-tool DeepSeek runs.",
+    )
+    parser.add_argument(
         "--reranker",
         choices=["rule", "learned", "none"],
         default="rule",
@@ -172,7 +177,8 @@ def main(argv: list[str] | None = None) -> int:
                 client,
                 temperature=args.temperature,
                 num_candidates=args.num_candidates,
-                context_builder=build_context_builder(args),
+                context_builder=None if args.no_context else build_context_builder(args),
+                use_context=not args.no_context,
             )
             agent = CodingAgent(
                 runner,

@@ -119,10 +119,12 @@ class SandboxRunner:
             )
 
     def apply_unified_diff(self, workdir: str | Path, diff: str) -> CommandResult:
+        workdir_path = Path(workdir)
         normalized_diff = diff if diff.endswith("\n") else diff + "\n"
+        normalized_diff = _repair_diff_paths(workdir_path, normalized_diff)
         completed = subprocess.run(
-            ["git", "apply", "--whitespace=nowarn"],
-            cwd=Path(workdir),
+            ["git", "apply", "--whitespace=nowarn", "--recount"],
+            cwd=workdir_path,
             input=normalized_diff,
             text=True,
             capture_output=True,
@@ -136,10 +138,12 @@ class SandboxRunner:
         )
 
     def revert_unified_diff(self, workdir: str | Path, diff: str) -> CommandResult:
+        workdir_path = Path(workdir)
         normalized_diff = diff if diff.endswith("\n") else diff + "\n"
+        normalized_diff = _repair_diff_paths(workdir_path, normalized_diff)
         completed = subprocess.run(
-            ["git", "apply", "-R", "--whitespace=nowarn"],
-            cwd=Path(workdir),
+            ["git", "apply", "-R", "--whitespace=nowarn", "--recount"],
+            cwd=workdir_path,
             input=normalized_diff,
             text=True,
             capture_output=True,
@@ -326,3 +330,89 @@ class SandboxRunner:
 
 def _cache_key(repo: str) -> str:
     return repo.replace("/", "__").replace(":", "_")
+
+
+def _repair_diff_paths(workdir: Path, diff: str) -> str:
+    replacements = {
+        path: repaired
+        for path in _iter_diff_paths(diff)
+        if (repaired := _find_unique_repair_path(workdir, path)) is not None
+    }
+    if not replacements:
+        return diff
+
+    repaired_lines = []
+    for line in diff.splitlines(keepends=True):
+        line_ending = "\n" if line.endswith("\n") else ""
+        body = line[:-1] if line_ending else line
+        repaired_lines.append(_repair_diff_line(body, replacements) + line_ending)
+    return "".join(repaired_lines)
+
+
+def _iter_diff_paths(diff: str) -> set[str]:
+    paths: set[str] = set()
+    for line in diff.splitlines():
+        if line.startswith("diff --git "):
+            parts = line.split()
+            if len(parts) >= 4:
+                paths.update(_strip_diff_prefix(part) for part in parts[2:4])
+        elif line.startswith("--- ") or line.startswith("+++ "):
+            path = line[4:].split("\t", 1)[0]
+            paths.add(_strip_diff_prefix(path))
+    return {path for path in paths if path and path != "/dev/null"}
+
+
+def _repair_diff_line(line: str, replacements: dict[str, str]) -> str:
+    if line.startswith("diff --git "):
+        parts = line.split()
+        if len(parts) >= 4:
+            parts[2] = _repair_prefixed_path(parts[2], replacements)
+            parts[3] = _repair_prefixed_path(parts[3], replacements)
+            return " ".join(parts)
+    if line.startswith("--- ") or line.startswith("+++ "):
+        prefix = line[:4]
+        rest = line[4:]
+        suffix = ""
+        path = rest
+        if "\t" in rest:
+            path, suffix = rest.split("\t", 1)
+            suffix = "\t" + suffix
+        return prefix + _repair_prefixed_path(path, replacements) + suffix
+    return line
+
+
+def _repair_prefixed_path(path: str, replacements: dict[str, str]) -> str:
+    prefix = ""
+    stripped = path
+    if path.startswith("a/") or path.startswith("b/"):
+        prefix = path[:2]
+        stripped = path[2:]
+    return prefix + replacements.get(stripped, stripped)
+
+
+def _strip_diff_prefix(path: str) -> str:
+    if path.startswith("a/") or path.startswith("b/"):
+        return path[2:]
+    return path
+
+
+def _find_unique_repair_path(workdir: Path, path: str) -> str | None:
+    if (workdir / path).exists():
+        return None
+
+    basename = Path(path).name
+    candidate_names = [basename]
+    if basename.startswith("std_"):
+        candidate_names.append(basename[len("std_") :])
+
+    matches: list[str] = []
+    for candidate_name in candidate_names:
+        for candidate in workdir.rglob(candidate_name):
+            if not candidate.is_file() or ".git" in candidate.parts:
+                continue
+            matches.append(candidate.relative_to(workdir).as_posix())
+
+    unique_matches = sorted(set(matches))
+    if len(unique_matches) == 1:
+        return unique_matches[0]
+    return None

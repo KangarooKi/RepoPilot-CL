@@ -20,11 +20,15 @@ class DeepSeekPatchProvider:
         temperature: float = 1.0,
         num_candidates: int = 1,
         context_builder: ContextPackBuilder | None = None,
+        use_context: bool = True,
     ) -> None:
         self.client = client
         self.temperature = temperature
         self.num_candidates = max(1, num_candidates)
-        self.context_builder = context_builder or ContextPackBuilder()
+        self.context_builder = (
+            context_builder if context_builder is not None else ContextPackBuilder()
+        )
+        self.use_context = use_context
 
     def propose(
         self,
@@ -39,6 +43,7 @@ class DeepSeekPatchProvider:
             runner,
             memories,
             context_builder=self.context_builder,
+            use_context=self.use_context,
         )
         candidates: list[PatchCandidate] = []
         seen_diffs: set[str] = set()
@@ -80,14 +85,23 @@ def build_patch_prompt(
     runner: SandboxRunner,
     memories: list[MemoryRecord],
     context_builder: ContextPackBuilder | None = None,
+    use_context: bool = True,
 ) -> str:
-    builder = context_builder or ContextPackBuilder()
-    context_pack = builder.build(
-        task=task,
-        workdir=workdir,
-        runner=runner,
-        memories=memories,
-    )
+    context_block = "Selected repository context:\nContext packing disabled."
+    if use_context:
+        builder = context_builder or ContextPackBuilder()
+        context_pack = builder.build(
+            task=task,
+            workdir=workdir,
+            runner=runner,
+            memories=memories,
+        )
+        context_block = "\n\n".join(
+            [
+                f"Context search queries:\n{context_pack.queries}",
+                "Selected repository context:\n" + context_pack.render(),
+            ]
+        )
 
     memory_block = "No prior memories."
     if memories:
@@ -110,11 +124,13 @@ def build_patch_prompt(
             f"Issue:\n{task.issue}",
             f"Test command:\n{task.test_command}",
             f"Relevant memories:\n{memory_block}",
-            f"Context search queries:\n{context_pack.queries}",
-            "Selected repository context:\n" + context_pack.render(),
+            context_block,
             (
                 "Produce a minimal unified diff that fixes the issue. The patch "
-                "must apply with `git apply` from the repository root."
+                "must apply with `git apply` from the repository root. Use exact "
+                "repository-relative file paths. If selected context is provided, "
+                "prefer paths exactly as shown there; do not invent legacy or "
+                "alternative filenames."
             ),
         ]
     )

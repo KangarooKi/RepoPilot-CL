@@ -64,6 +64,23 @@ diff --git a/calc.py b/calc.py
         self.assertIn("calc.py", prompt)
         self.assertIn("def divide", prompt)
 
+    def test_build_patch_prompt_can_disable_context_pack(self) -> None:
+        task = load_task("tasks/toy/divide_by_zero/task.json")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            prompt = build_patch_prompt(
+                task,
+                workdir,
+                runner,
+                memories=[],
+                use_context=False,
+            )
+
+        self.assertIn("Context packing disabled", prompt)
+        self.assertNotIn("Context search queries", prompt)
+        self.assertNotIn("def divide", prompt)
+
 
 class FakePatchClient:
     model = "fake-deepseek"
