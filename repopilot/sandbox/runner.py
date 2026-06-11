@@ -29,13 +29,24 @@ class SandboxRunner:
             shutil.rmtree(workdir)
         workdir.mkdir(parents=True, exist_ok=True)
 
-        for relative_path, content in task.initial_files.items():
-            destination = workdir / relative_path
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(content, encoding="utf-8")
+        if task.local_repo_path:
+            self._copy_local_repo(Path(task.local_repo_path), workdir)
+        elif task.repo_url:
+            self._clone_repo(task.repo_url, workdir)
+        else:
+            self._write_initial_files(task, workdir)
+            self._run_git(["git", "init"], workdir)
+            self._run_git(["git", "add", "."], workdir)
 
-        self._run_git(["git", "init"], workdir)
-        self._run_git(["git", "add", "."], workdir)
+        if task.base_commit:
+            self._run_git(["git", "checkout", task.base_commit], workdir)
+
+        if task.setup_command:
+            setup = self.run_command(workdir, task.setup_command, timeout_sec=600)
+            if setup.returncode != 0:
+                raise RuntimeError(
+                    f"Setup command failed for {task.task_id}: {setup.stderr or setup.stdout}"
+                )
         return workdir
 
     def run_command(
@@ -107,3 +118,31 @@ class SandboxRunner:
     @staticmethod
     def _run_git(args: list[str], workdir: Path) -> None:
         subprocess.run(args, cwd=workdir, capture_output=True, check=True)
+
+    @staticmethod
+    def _write_initial_files(task: Task, workdir: Path) -> None:
+        for relative_path, content in task.initial_files.items():
+            destination = workdir / relative_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(content, encoding="utf-8")
+
+    @staticmethod
+    def _copy_local_repo(source: Path, workdir: Path) -> None:
+        if not source.exists():
+            raise FileNotFoundError(f"Local repo path does not exist: {source}")
+        for item in source.iterdir():
+            destination = workdir / item.name
+            if item.is_dir():
+                shutil.copytree(item, destination)
+            else:
+                shutil.copy2(item, destination)
+
+    @staticmethod
+    def _clone_repo(repo_url: str, workdir: Path) -> None:
+        workdir.rmdir()
+        subprocess.run(
+            ["git", "clone", "--no-tags", repo_url, str(workdir)],
+            capture_output=True,
+            check=True,
+            text=True,
+        )

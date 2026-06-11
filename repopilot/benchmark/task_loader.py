@@ -20,6 +20,9 @@ class Task:
     issue: str
     test_command: str
     base_commit: str | None = None
+    repo_url: str | None = None
+    local_repo_path: str | None = None
+    setup_command: str | None = None
     fail_to_pass_tests: list[str] = field(default_factory=list)
     pass_to_pass_tests: list[str] = field(default_factory=list)
     initial_files: dict[str, str] = field(default_factory=dict)
@@ -39,6 +42,9 @@ class Task:
             issue=str(payload["issue"]),
             test_command=str(payload["test_command"]),
             base_commit=payload.get("base_commit"),
+            repo_url=payload.get("repo_url"),
+            local_repo_path=payload.get("local_repo_path"),
+            setup_command=payload.get("setup_command"),
             fail_to_pass_tests=list(payload.get("fail_to_pass_tests", [])),
             pass_to_pass_tests=list(payload.get("pass_to_pass_tests", [])),
             initial_files=dict(payload.get("initial_files", {})),
@@ -52,3 +58,14 @@ def load_task(path: str | Path) -> Task:
         payload = json.load(handle)
     return Task.from_dict(payload)
 
+
+def load_tasks(path: str | Path) -> list[Task]:
+    task_path = Path(path)
+    if task_path.suffix == ".jsonl":
+        tasks = []
+        with task_path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip():
+                    tasks.append(Task.from_dict(json.loads(line)))
+        return tasks
+    return [load_task(task_path)]

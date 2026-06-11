@@ -70,6 +70,17 @@ Run a task suite:
 python3 -m repopilot.cli.run_benchmark "tasks/toy/*/task.json" --provider deepseek-tools
 ```
 
+Run a SWE-bench-style JSONL subset:
+
+```bash
+python3 -m repopilot.cli.run_benchmark swebench_lite_subset.jsonl --input-format swebench --limit 5 --provider deepseek-tools
+```
+
+RepoPilot expects SWE-bench-style records with fields such as `instance_id`,
+`repo`, `base_commit`, `problem_statement`, `FAIL_TO_PASS`, and `PASS_TO_PASS`.
+For local dry runs, records may also provide `local_repo_path` and
+`test_command`.
+
 ## Model Plan
 
 | Component | Planned Model |

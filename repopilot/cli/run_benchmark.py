@@ -7,7 +7,7 @@ from pathlib import Path
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.agent.loop import CodingAgent, ScriptedPatchProvider
 from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
-from repopilot.benchmark.runner import discover_task_files, run_tasks
+from repopilot.benchmark.runner import discover_task_files, load_task_inputs, run_tasks
 from repopilot.benchmark.task_loader import Task
 from repopilot.models.deepseek_client import DeepSeekClient
 from repopilot.sandbox.runner import SandboxRunner
@@ -18,6 +18,13 @@ from repopilot.verifier.pytest_verifier import CommandVerifier
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a RepoPilot-CL task suite.")
     parser.add_argument("tasks", nargs="+", help="Task JSON file(s) or glob pattern(s).")
+    parser.add_argument(
+        "--input-format",
+        choices=["repopilot", "swebench"],
+        default="repopilot",
+        help="Input task format.",
+    )
+    parser.add_argument("--limit", type=int, default=None, help="Maximum tasks to run.")
     parser.add_argument("--runs-dir", default="runs", help="Directory for sandboxes.")
     parser.add_argument(
         "--provider",
@@ -44,6 +51,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="data/benchmarks/latest_summary.json",
         help="JSON file for benchmark summary.",
     )
+    parser.add_argument(
+        "--fail-on-unresolved",
+        action="store_true",
+        help="Exit with status 1 if any task is unresolved.",
+    )
     return parser
 
 
@@ -52,6 +64,9 @@ def main(argv: list[str] | None = None) -> int:
     task_files = discover_task_files(args.tasks)
     if not task_files:
         raise SystemExit("No task files matched.")
+    tasks = load_task_inputs(task_files, input_format=args.input_format, limit=args.limit)
+    if not tasks:
+        raise SystemExit("No tasks loaded.")
 
     trajectory_logger = TrajectoryLogger(args.trajectory_log)
 
@@ -63,12 +78,14 @@ def main(argv: list[str] | None = None) -> int:
         trajectory_logger.append(result.trajectory)
         return result
 
-    summary = run_tasks(task_files, run_one)
+    summary = run_tasks(tasks, run_one)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(summary.to_dict(), indent=2), encoding="utf-8")
     print(json.dumps(summary.to_dict(), indent=2))
-    return 0 if summary.resolved == summary.total else 1
+    if args.fail_on_unresolved and summary.resolved != summary.total:
+        return 1
+    return 0
 
 
 def build_agent(args, runner: SandboxRunner, verifier: CommandVerifier):
@@ -98,4 +115,3 @@ def build_agent(args, runner: SandboxRunner, verifier: CommandVerifier):
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

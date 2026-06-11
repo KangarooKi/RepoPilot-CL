@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import glob
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable
 
 from repopilot.agent.loop import AgentRunResult
-from repopilot.benchmark.task_loader import Task, load_task
+from repopilot.benchmark.swebench import load_swebench_jsonl
+from repopilot.benchmark.task_loader import Task, load_tasks
 
 
 @dataclass(frozen=True)
@@ -43,18 +45,17 @@ def discover_task_files(patterns: list[str]) -> list[Path]:
         if path.is_file():
             files.append(path)
             continue
-        files.extend(sorted(Path().glob(pattern)))
+        files.extend(Path(match) for match in sorted(glob.glob(pattern)))
     unique = sorted({file.resolve() for file in files})
     return unique
 
 
 def run_tasks(
-    task_files: list[Path],
+    tasks: list[Task],
     run_one: Callable[[Task], AgentRunResult],
 ) -> BenchmarkSummary:
     task_summaries: list[TaskRunSummary] = []
-    for task_file in task_files:
-        task = load_task(task_file)
+    for task in tasks:
         result = run_one(task)
         task_summaries.append(
             TaskRunSummary(
@@ -75,3 +76,28 @@ def run_tasks(
         tasks=task_summaries,
     )
 
+
+def load_task_inputs(
+    task_files: list[Path],
+    *,
+    input_format: str = "repopilot",
+    limit: int | None = None,
+) -> list[Task]:
+    tasks: list[Task] = []
+    for task_file in task_files:
+        if input_format == "swebench":
+            remaining = _remaining(limit, tasks)
+            if remaining == 0:
+                return tasks
+            tasks.extend(load_swebench_jsonl(task_file, limit=remaining))
+        else:
+            tasks.extend(load_tasks(task_file))
+        if limit is not None and len(tasks) >= limit:
+            return tasks[:limit]
+    return tasks
+
+
+def _remaining(limit: int | None, tasks: list[Task]) -> int | None:
+    if limit is None:
+        return None
+    return max(0, limit - len(tasks))
