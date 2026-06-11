@@ -94,6 +94,22 @@ The current reranker is a lightweight baseline. It scores candidate patches by
 patch size, hard-coded assertion risk, issue/error overlap, and retrieved memory
 overlap, then verifies candidates in ranked order.
 
+For repository tasks, the non-tool DeepSeek provider builds a compact context
+pack before asking for candidate patches. The context pack searches the prepared
+repository with terms from the issue, test command, benchmark test names, and
+retrieved memories, then includes a small set of line-numbered snippets:
+
+```bash
+python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
+  --input-format swebench \
+  --limit 1 \
+  --provider deepseek \
+  --num-candidates 3 \
+  --reranker rule \
+  --context-max-snippets 8 \
+  --context-lines 16
+```
+
 Run a task suite:
 
 ```bash

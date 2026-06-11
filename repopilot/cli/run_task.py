@@ -9,6 +9,7 @@ from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
 from repopilot.agent.loop import CodingAgent, ScriptedPatchProvider
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.benchmark.task_loader import load_task
+from repopilot.context.pack import ContextPackBuilder
 from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
 from repopilot.reranker.model import LearnedPatchReranker, load_model
@@ -88,6 +89,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=1,
         help="Number of DeepSeek patch candidates for non-tool providers.",
     )
+    parser.add_argument("--context-max-queries", type=int, default=8)
+    parser.add_argument("--context-max-snippets", type=int, default=6)
+    parser.add_argument("--context-lines", type=int, default=12)
+    parser.add_argument("--context-max-chars", type=int, default=12000)
     parser.add_argument(
         "--reranker",
         choices=["rule", "learned", "none"],
@@ -167,6 +172,7 @@ def main(argv: list[str] | None = None) -> int:
                 client,
                 temperature=args.temperature,
                 num_candidates=args.num_candidates,
+                context_builder=build_context_builder(args),
             )
             agent = CodingAgent(
                 runner,
@@ -213,6 +219,15 @@ def build_reranker(
     if name == "learned":
         return LearnedPatchReranker(load_model(model_path))
     return RuleBasedPatchReranker()
+
+
+def build_context_builder(args: argparse.Namespace) -> ContextPackBuilder:
+    return ContextPackBuilder(
+        max_queries=args.context_max_queries,
+        max_snippets=args.context_max_snippets,
+        context_lines=args.context_lines,
+        max_chars=args.context_max_chars,
+    )
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from repopilot.agent.loop import PatchCandidate
 from repopilot.benchmark.task_loader import Task
+from repopilot.context.pack import ContextPackBuilder
 from repopilot.memory.schema import MemoryRecord
 from repopilot.models.deepseek_client import ChatMessage, DeepSeekClient
 from repopilot.sandbox.runner import SandboxRunner
@@ -18,10 +19,12 @@ class DeepSeekPatchProvider:
         client: DeepSeekClient,
         temperature: float = 1.0,
         num_candidates: int = 1,
+        context_builder: ContextPackBuilder | None = None,
     ) -> None:
         self.client = client
         self.temperature = temperature
         self.num_candidates = max(1, num_candidates)
+        self.context_builder = context_builder or ContextPackBuilder()
 
     def propose(
         self,
@@ -30,7 +33,13 @@ class DeepSeekPatchProvider:
         runner: SandboxRunner,
         memories: list[MemoryRecord],
     ) -> list[PatchCandidate]:
-        prompt = build_patch_prompt(task, workdir, runner, memories)
+        prompt = build_patch_prompt(
+            task,
+            workdir,
+            runner,
+            memories,
+            context_builder=self.context_builder,
+        )
         candidates: list[PatchCandidate] = []
         seen_diffs: set[str] = set()
         for index in range(self.num_candidates):
@@ -70,11 +79,15 @@ def build_patch_prompt(
     workdir: Path,
     runner: SandboxRunner,
     memories: list[MemoryRecord],
+    context_builder: ContextPackBuilder | None = None,
 ) -> str:
-    files = []
-    for relative_path in sorted(task.initial_files):
-        content = runner.read_file(workdir, relative_path)
-        files.append(f"### {relative_path}\n```text\n{content}\n```")
+    builder = context_builder or ContextPackBuilder()
+    context_pack = builder.build(
+        task=task,
+        workdir=workdir,
+        runner=runner,
+        memories=memories,
+    )
 
     memory_block = "No prior memories."
     if memories:
@@ -97,7 +110,8 @@ def build_patch_prompt(
             f"Issue:\n{task.issue}",
             f"Test command:\n{task.test_command}",
             f"Relevant memories:\n{memory_block}",
-            "Repository files:\n" + "\n\n".join(files),
+            f"Context search queries:\n{context_pack.queries}",
+            "Selected repository context:\n" + context_pack.render(),
             (
                 "Produce a minimal unified diff that fixes the issue. The patch "
                 "must apply with `git apply` from the repository root."

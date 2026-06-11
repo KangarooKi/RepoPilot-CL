@@ -1,7 +1,11 @@
 import unittest
 import tempfile
 
-from repopilot.agent.deepseek_provider import DeepSeekPatchProvider, extract_unified_diff
+from repopilot.agent.deepseek_provider import (
+    DeepSeekPatchProvider,
+    build_patch_prompt,
+    extract_unified_diff,
+)
 from repopilot.benchmark.task_loader import load_task
 from repopilot.models.deepseek_client import ChatMessage
 from repopilot.sandbox.runner import SandboxRunner
@@ -48,6 +52,17 @@ diff --git a/calc.py b/calc.py
         )
         self.assertEqual(len(client.messages), 2)
         self.assertIn("Candidate 2 of 2", client.messages[1][-1].content)
+
+    def test_build_patch_prompt_includes_context_pack(self) -> None:
+        task = load_task("tasks/toy/divide_by_zero/task.json")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            prompt = build_patch_prompt(task, workdir, runner, memories=[])
+
+        self.assertIn("Selected repository context", prompt)
+        self.assertIn("calc.py", prompt)
+        self.assertIn("def divide", prompt)
 
 
 class FakePatchClient:

@@ -52,6 +52,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--allow-insecure-ssl", action="store_true")
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--max-test-runs", type=int, default=4)
+    parser.add_argument("--context-max-queries", type=int, default=8)
+    parser.add_argument("--context-max-snippets", type=int, default=6)
+    parser.add_argument("--context-lines", type=int, default=12)
+    parser.add_argument("--context-max-chars", type=int, default=12000)
     parser.add_argument(
         "--num-candidates",
         type=int,
@@ -106,6 +110,14 @@ def _common_benchmark_args(args: argparse.Namespace) -> list[str]:
         str(args.max_steps),
         "--max-test-runs",
         str(args.max_test_runs),
+        "--context-max-queries",
+        str(args.context_max_queries),
+        "--context-max-snippets",
+        str(args.context_max_snippets),
+        "--context-lines",
+        str(args.context_lines),
+        "--context-max-chars",
+        str(args.context_max_chars),
     ]
     optional_values = [
         ("--limit", args.limit),
