@@ -28,13 +28,20 @@ The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, 
 Run the toy task:
 
 ```bash
-python -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json
+python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json
+```
+
+Run the toy task with DeepSeek:
+
+```bash
+export DEEPSEEK_API_KEY="..."
+python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json --provider deepseek --model deepseek-v4-flash --reasoning-effort max
 ```
 
 Run unit tests:
 
 ```bash
-python -m unittest discover -s tests
+python3 -m unittest discover -s tests
 ```
 
 ## Model Plan
@@ -55,4 +62,3 @@ python -m unittest discover -s tests
 | SWE-Bench-CL | Continual learning, transfer, forgetting |
 | ContextBench | Memory retrieval quality |
 | SWE-CI | Long-term CI maintainability and regression |
-

@@ -6,6 +6,8 @@ __pycache__/
 .mypy_cache/
 .venv/
 venv/
+.env
+.env.*
 dist/
 build/
 *.egg-info/
@@ -13,4 +15,3 @@ runs/
 data/trajectories/
 data/memory/
 data/reranker/
-
