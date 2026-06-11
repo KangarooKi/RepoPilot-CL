@@ -1,0 +1,21 @@
+{
+  "task_id": "toy_string_normalization",
+  "repo": "toy/strings",
+  "issue": "normalize_name should trim surrounding whitespace and lowercase names.",
+  "test_command": "python3 -m unittest discover -s . -p 'test_*.py'",
+  "fail_to_pass_tests": [
+    "test_names.TestNormalizeName.test_trims_and_lowercases"
+  ],
+  "pass_to_pass_tests": [
+    "test_names.TestNormalizeName.test_empty_string"
+  ],
+  "initial_files": {
+    "names.py": "def normalize_name(name):\n    return name.lower()\n",
+    "test_names.py": "import unittest\n\nfrom names import normalize_name\n\n\nclass TestNormalizeName(unittest.TestCase):\n    def test_trims_and_lowercases(self):\n        self.assertEqual(normalize_name('  Alice  '), 'alice')\n\n    def test_empty_string(self):\n        self.assertEqual(normalize_name(''), '')\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+  },
+  "metadata": {
+    "language": "python",
+    "source": "toy"
+  }
+}
+

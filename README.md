@@ -19,6 +19,7 @@ This first implementation provides a local, testable skeleton:
 - trajectory JSONL logger
 - simple memory store and retrieval baseline
 - scripted patch provider for a toy repair task
+- iterative DeepSeek tool loop with JSON actions
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -37,6 +38,21 @@ Run the toy task with DeepSeek:
 export DEEPSEEK_API_KEY="..."
 python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json --provider deepseek --model deepseek-v4-flash --reasoning-effort max --temperature 1.0
 ```
+
+Run the toy task with the iterative DeepSeek tool loop:
+
+```bash
+export DEEPSEEK_API_KEY="..."
+python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json --provider deepseek-tools --model deepseek-v4-flash --reasoning-effort max --temperature 1.0
+```
+
+The iterative loop asks the model to emit one JSON action per turn:
+
+```json
+{"action": "read_file", "args": {"path": "calc.py", "start": 1, "end": 80}, "thought": "Inspect the buggy function."}
+```
+
+Supported actions are `search_code`, `read_file`, `apply_patch`, `run_tests`, `get_diff`, and `submit`.
 
 Run unit tests:
 

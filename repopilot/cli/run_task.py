@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
 from repopilot.agent.loop import CodingAgent, ScriptedPatchProvider
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.benchmark.task_loader import load_task
@@ -19,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--runs-dir", default="runs", help="Directory for sandboxes.")
     parser.add_argument(
         "--provider",
-        choices=["scripted", "deepseek"],
+        choices=["scripted", "deepseek", "deepseek-tools"],
         default="scripted",
         help="Patch provider to use.",
     )
@@ -46,6 +47,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Disable DeepSeek thinking mode.",
     )
     parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=12,
+        help="Maximum model/tool steps for deepseek-tools.",
+    )
+    parser.add_argument(
+        "--max-test-runs",
+        type=int,
+        default=4,
+        help="Maximum verifier test runs for deepseek-tools.",
+    )
+    parser.add_argument(
         "--trajectory-log",
         default="data/trajectories/latest.jsonl",
         help="JSONL file for trajectory output.",
@@ -59,18 +72,30 @@ def main(argv: list[str] | None = None) -> int:
     runner = SandboxRunner(root=args.runs_dir)
     verifier = CommandVerifier(runner)
 
-    if args.provider == "deepseek":
+    if args.provider in {"deepseek", "deepseek-tools"}:
         client = DeepSeekClient(
             model=args.model,
             base_url=args.base_url,
             reasoning_effort=args.reasoning_effort,
             thinking_enabled=not args.no_thinking,
         )
-        patch_provider = DeepSeekPatchProvider(client, temperature=args.temperature)
+        if args.provider == "deepseek-tools":
+            agent = DeepSeekToolAgent(
+                runner,
+                verifier,
+                client,
+                config=ToolLoopConfig(
+                    max_steps=args.max_steps,
+                    max_test_runs=args.max_test_runs,
+                    temperature=args.temperature,
+                ),
+            )
+        else:
+            patch_provider = DeepSeekPatchProvider(client, temperature=args.temperature)
+            agent = CodingAgent(runner, verifier, patch_provider)
     else:
         patch_provider = ScriptedPatchProvider()
-
-    agent = CodingAgent(runner, verifier, patch_provider)
+        agent = CodingAgent(runner, verifier, patch_provider)
     result = agent.run(task)
 
     TrajectoryLogger(args.trajectory_log).append(result.trajectory)

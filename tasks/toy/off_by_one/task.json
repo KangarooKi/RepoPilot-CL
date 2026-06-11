@@ -1,0 +1,21 @@
+{
+  "task_id": "toy_off_by_one",
+  "repo": "toy/ranges",
+  "issue": "The inclusive_range function should include the stop value, but it currently omits it.",
+  "test_command": "python3 -m unittest discover -s . -p 'test_*.py'",
+  "fail_to_pass_tests": [
+    "test_ranges.TestInclusiveRange.test_includes_stop"
+  ],
+  "pass_to_pass_tests": [
+    "test_ranges.TestInclusiveRange.test_single_value"
+  ],
+  "initial_files": {
+    "ranges.py": "def inclusive_range(start, stop):\n    return list(range(start, stop))\n",
+    "test_ranges.py": "import unittest\n\nfrom ranges import inclusive_range\n\n\nclass TestInclusiveRange(unittest.TestCase):\n    def test_includes_stop(self):\n        self.assertEqual(inclusive_range(1, 3), [1, 2, 3])\n\n    def test_single_value(self):\n        self.assertEqual(inclusive_range(2, 2), [2])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+  },
+  "metadata": {
+    "language": "python",
+    "source": "toy"
+  }
+}
+
