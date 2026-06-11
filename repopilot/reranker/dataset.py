@@ -67,6 +67,30 @@ def load_reranker_examples(paths: list[str | Path]) -> list[RerankerExample]:
     return examples
 
 
+def load_reranker_dataset(path: str | Path) -> list[RerankerExample]:
+    examples: list[RerankerExample] = []
+    with Path(path).open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            payload = json.loads(line)
+            examples.append(
+                RerankerExample(
+                    task_id=str(payload["task_id"]),
+                    candidate_id=str(payload.get("candidate_id", "")),
+                    issue=str(payload["issue"]),
+                    failing_tests=str(payload["failing_tests"]),
+                    repo_context=str(payload["repo_context"]),
+                    retrieved_memory=str(payload["retrieved_memory"]),
+                    candidate_patch=str(payload["candidate_patch"]),
+                    trajectory_summary=str(payload["trajectory_summary"]),
+                    resolved=bool(payload["resolved"]),
+                    regression=bool(payload.get("regression", False)),
+                )
+            )
+    return examples
+
+
 def write_reranker_examples(
     examples: list[RerankerExample],
     output_path: str | Path,

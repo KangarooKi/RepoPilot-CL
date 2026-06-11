@@ -11,6 +11,7 @@ from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.benchmark.task_loader import load_task
 from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
+from repopilot.reranker.model import LearnedPatchReranker, load_model
 from repopilot.reranker.score import RuleBasedPatchReranker
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.logger import TrajectoryLogger
@@ -89,9 +90,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--reranker",
-        choices=["rule", "none"],
+        choices=["rule", "learned", "none"],
         default="rule",
         help="Patch reranker for candidate-based providers.",
+    )
+    parser.add_argument(
+        "--reranker-model",
+        default="data/reranker/reranker_model.json",
+        help="Model JSON path for --reranker learned.",
     )
     parser.add_argument(
         "--trajectory-log",
@@ -133,7 +139,7 @@ def main(argv: list[str] | None = None) -> int:
         else MemoryRuntime.from_path(args.memory_store, top_k=args.memory_top_k)
     )
     memory_retriever = memory_runtime.retriever()
-    patch_reranker = build_reranker(args.reranker)
+    patch_reranker = build_reranker(args.reranker, args.reranker_model)
 
     if args.provider in {"deepseek", "deepseek-tools"}:
         client = DeepSeekClient(
@@ -198,9 +204,14 @@ def main(argv: list[str] | None = None) -> int:
     return 0 if result.resolved else 1
 
 
-def build_reranker(name: str) -> RuleBasedPatchReranker | None:
+def build_reranker(
+    name: str,
+    model_path: str,
+) -> RuleBasedPatchReranker | LearnedPatchReranker | None:
     if name == "none":
         return None
+    if name == "learned":
+        return LearnedPatchReranker(load_model(model_path))
     return RuleBasedPatchReranker()
 
 

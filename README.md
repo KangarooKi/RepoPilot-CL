@@ -123,6 +123,20 @@ Each verified candidate patch becomes one JSONL example with the issue, baseline
 failure, retrieved memory ids, candidate patch, trajectory summary, and verifier
 label.
 
+Train and use the lightweight learned reranker:
+
+```bash
+python3 -m repopilot.cli.train_reranker \
+  data/reranker/reranker_examples.jsonl \
+  --model-output data/reranker/reranker_model.json
+
+python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json \
+  --provider deepseek \
+  --num-candidates 3 \
+  --reranker learned \
+  --reranker-model data/reranker/reranker_model.json
+```
+
 Run a SWE-bench-style JSONL subset:
 
 ```bash

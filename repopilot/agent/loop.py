@@ -7,7 +7,7 @@ from typing import Protocol
 from repopilot.benchmark.task_loader import Task
 from repopilot.memory.retrieve import KeywordMemoryRetriever
 from repopilot.memory.schema import MemoryRecord
-from repopilot.reranker.score import PatchScore, RuleBasedPatchReranker
+from repopilot.reranker.score import PatchScore
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.schema import Trajectory
 from repopilot.verifier.pytest_verifier import CommandVerifier
@@ -38,6 +38,19 @@ class PatchProvider(Protocol):
         runner: SandboxRunner,
         memories: list[MemoryRecord],
     ) -> list[PatchCandidate]:
+        ...
+
+
+class PatchReranker(Protocol):
+    def score(
+        self,
+        candidate_id: str,
+        patch: str,
+        *,
+        issue: str = "",
+        baseline_error: str = "",
+        memories: list[MemoryRecord] | None = None,
+    ) -> PatchScore:
         ...
 
 
@@ -77,7 +90,7 @@ class CodingAgent:
         verifier: CommandVerifier,
         patch_provider: PatchProvider,
         memory_retriever: KeywordMemoryRetriever | None = None,
-        patch_reranker: RuleBasedPatchReranker | None = None,
+        patch_reranker: PatchReranker | None = None,
     ) -> None:
         self.runner = runner
         self.verifier = verifier
