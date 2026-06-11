@@ -15,10 +15,14 @@ from repopilot.benchmark.runner import (
     run_tasks,
 )
 from repopilot.benchmark.task_loader import Task
+from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.logger import TrajectoryLogger
 from repopilot.verifier.pytest_verifier import CommandVerifier
+
+
+DEFAULT_MEMORY_STORE = "data/memory/repopilot_memory.jsonl"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -71,6 +75,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSONL file for trajectory output.",
     )
     parser.add_argument(
+        "--memory-store",
+        default=DEFAULT_MEMORY_STORE,
+        help="JSONL file used for continual-learning memory.",
+    )
+    parser.add_argument("--memory-top-k", type=int, default=3)
+    parser.add_argument(
+        "--no-memory",
+        action="store_true",
+        help="Disable memory retrieval and learning for this benchmark run.",
+    )
+    parser.add_argument(
         "--output",
         default="data/benchmarks/latest_summary.json",
         help="JSON file for benchmark summary.",
@@ -101,6 +116,11 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("No tasks loaded.")
 
     trajectory_logger = TrajectoryLogger(args.trajectory_log)
+    memory_runtime = (
+        MemoryRuntime.disabled()
+        if args.no_memory
+        else MemoryRuntime.from_path(args.memory_store, top_k=args.memory_top_k)
+    )
 
     def run_one(task: Task):
         if args.setup_command is not None:
@@ -115,9 +135,10 @@ def main(argv: list[str] | None = None) -> int:
             install_repo=args.install_repo,
         )
         verifier = CommandVerifier(runner)
-        agent = build_agent(args, runner, verifier)
+        agent = build_agent(args, runner, verifier, memory_runtime.retriever())
         result = agent.run(task)
         trajectory_logger.append(result.trajectory)
+        memory_runtime.learn(result.trajectory)
         return result
 
     summary = run_tasks(tasks, run_one)
@@ -130,7 +151,12 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def build_agent(args, runner: SandboxRunner, verifier: CommandVerifier):
+def build_agent(
+    args,
+    runner: SandboxRunner,
+    verifier: CommandVerifier,
+    memory_retriever,
+):
     if args.provider in {"deepseek", "deepseek-tools"}:
         client = DeepSeekClient(
             model=args.model,
@@ -145,14 +171,25 @@ def build_agent(args, runner: SandboxRunner, verifier: CommandVerifier):
                 runner,
                 verifier,
                 client,
+                memory_retriever=memory_retriever,
                 config=ToolLoopConfig(
                     max_steps=args.max_steps,
                     max_test_runs=args.max_test_runs,
                     temperature=args.temperature,
                 ),
             )
-        return CodingAgent(runner, verifier, DeepSeekPatchProvider(client, args.temperature))
-    return CodingAgent(runner, verifier, ScriptedPatchProvider())
+        return CodingAgent(
+            runner,
+            verifier,
+            DeepSeekPatchProvider(client, args.temperature),
+            memory_retriever=memory_retriever,
+        )
+    return CodingAgent(
+        runner,
+        verifier,
+        ScriptedPatchProvider(),
+        memory_retriever=memory_retriever,
+    )
 
 
 if __name__ == "__main__":

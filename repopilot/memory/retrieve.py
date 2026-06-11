@@ -13,10 +13,12 @@ def tokenize(text: str) -> list[str]:
 class KeywordMemoryRetriever:
     """Small BM25-like retrieval baseline for MVP experiments."""
 
-    def __init__(self, records: list[MemoryRecord]) -> None:
+    def __init__(self, records: list[MemoryRecord], top_k: int = 3) -> None:
         self.records = records
+        self.top_k = top_k
 
-    def retrieve(self, query: str, top_k: int = 3) -> list[MemoryRecord]:
+    def retrieve(self, query: str, top_k: int | None = None) -> list[MemoryRecord]:
+        limit = self.top_k if top_k is None else top_k
         query_terms = Counter(tokenize(query))
         scored: list[tuple[float, MemoryRecord]] = []
         for record in self.records:
@@ -33,5 +35,4 @@ class KeywordMemoryRetriever:
             if score > 0:
                 scored.append((float(score), record))
         scored.sort(key=lambda item: item[0], reverse=True)
-        return [record for _, record in scored[:top_k]]
-
+        return [record for _, record in scored[:limit]]

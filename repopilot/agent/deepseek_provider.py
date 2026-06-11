@@ -68,6 +68,7 @@ def build_patch_prompt(
             [
                 (
                     f"- {memory.memory_id}: {memory.issue_summary}; "
+                    f"resolved={memory.resolved}; "
                     f"error={memory.error_signature}; files={memory.touched_files}; "
                     f"pattern={memory.patch_pattern}"
                 )

@@ -9,10 +9,14 @@ from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
 from repopilot.agent.loop import CodingAgent, ScriptedPatchProvider
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.benchmark.task_loader import load_task
+from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.logger import TrajectoryLogger
 from repopilot.verifier.pytest_verifier import CommandVerifier
+
+
+DEFAULT_MEMORY_STORE = "data/memory/repopilot_memory.jsonl"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -81,6 +85,17 @@ def build_parser() -> argparse.ArgumentParser:
         default="data/trajectories/latest.jsonl",
         help="JSONL file for trajectory output.",
     )
+    parser.add_argument(
+        "--memory-store",
+        default=DEFAULT_MEMORY_STORE,
+        help="JSONL file used for continual-learning memory.",
+    )
+    parser.add_argument("--memory-top-k", type=int, default=3)
+    parser.add_argument(
+        "--no-memory",
+        action="store_true",
+        help="Disable memory retrieval and learning for this run.",
+    )
     return parser
 
 
@@ -99,6 +114,12 @@ def main(argv: list[str] | None = None) -> int:
         install_repo=args.install_repo,
     )
     verifier = CommandVerifier(runner)
+    memory_runtime = (
+        MemoryRuntime.disabled()
+        if args.no_memory
+        else MemoryRuntime.from_path(args.memory_store, top_k=args.memory_top_k)
+    )
+    memory_retriever = memory_runtime.retriever()
 
     if args.provider in {"deepseek", "deepseek-tools"}:
         client = DeepSeekClient(
@@ -114,6 +135,7 @@ def main(argv: list[str] | None = None) -> int:
                 runner,
                 verifier,
                 client,
+                memory_retriever=memory_retriever,
                 config=ToolLoopConfig(
                     max_steps=args.max_steps,
                     max_test_runs=args.max_test_runs,
@@ -122,11 +144,22 @@ def main(argv: list[str] | None = None) -> int:
             )
         else:
             patch_provider = DeepSeekPatchProvider(client, temperature=args.temperature)
-            agent = CodingAgent(runner, verifier, patch_provider)
+            agent = CodingAgent(
+                runner,
+                verifier,
+                patch_provider,
+                memory_retriever=memory_retriever,
+            )
     else:
         patch_provider = ScriptedPatchProvider()
-        agent = CodingAgent(runner, verifier, patch_provider)
+        agent = CodingAgent(
+            runner,
+            verifier,
+            patch_provider,
+            memory_retriever=memory_retriever,
+        )
     result = agent.run(task)
+    learned_memory = memory_runtime.learn(result.trajectory)
 
     TrajectoryLogger(args.trajectory_log).append(result.trajectory)
     print(
@@ -136,6 +169,7 @@ def main(argv: list[str] | None = None) -> int:
                 "resolved": result.resolved,
                 "workdir": str(Path(result.workdir).resolve()),
                 "patch": result.patch,
+                "memory_id": learned_memory.memory_id if learned_memory else None,
             },
             indent=2,
             ensure_ascii=False,
