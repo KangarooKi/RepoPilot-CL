@@ -118,6 +118,20 @@ class AgentLoopTest(unittest.TestCase):
         self.assertEqual(apply_ids, ["bad-assert", "good-guard"])
         self.assertEqual(revert_ids, ["bad-assert"])
 
+    def test_agent_records_patch_provider_errors(self) -> None:
+        task = load_task(Path("tasks/toy/divide_by_zero/task.json"))
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            verifier = CommandVerifier(runner)
+            agent = CodingAgent(runner, verifier, RaisingPatchProvider())
+            result = agent.run(task)
+
+        self.assertFalse(result.resolved)
+        self.assertTrue(
+            any(step.action == "propose_patch_error" for step in result.trajectory.steps)
+        )
+
 
 class StaticPatchProvider:
     def __init__(self, candidates: list[PatchCandidate]) -> None:
@@ -125,6 +139,11 @@ class StaticPatchProvider:
 
     def propose(self, task, workdir, runner, memories):
         return self.candidates
+
+
+class RaisingPatchProvider:
+    def propose(self, task, workdir, runner, memories):
+        raise TimeoutError("provider timed out")
 
 
 def _replace_diff(path: str, old: str, new: str) -> str:

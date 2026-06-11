@@ -80,7 +80,18 @@ class DeepSeekToolAgent:
         submitted = False
 
         for step in range(1, self.config.max_steps + 1):
-            model_output = self.client.chat(messages, temperature=self.config.temperature)
+            try:
+                model_output = self.client.chat(
+                    messages,
+                    temperature=self.config.temperature,
+                )
+            except Exception as exc:
+                trajectory.add_step(
+                    "model_call_error",
+                    f"{type(exc).__name__}: {exc}",
+                    {"step": step, "model": self.client.model},
+                )
+                break
             try:
                 action = parse_action(model_output)
             except ValueError as exc:

@@ -24,6 +24,13 @@ class FakeChatClient:
         return json.dumps(self.actions.pop(0))
 
 
+class TimeoutChatClient:
+    model = "timeout-model"
+
+    def chat(self, messages: list[ChatMessage], temperature: float = 1.0) -> str:
+        raise TimeoutError("request timed out")
+
+
 class ToolAgentTest(unittest.TestCase):
     def test_tool_agent_solves_toy_task_with_action_loop(self) -> None:
         patch = (
@@ -111,6 +118,25 @@ class ToolAgentTest(unittest.TestCase):
         self.assertTrue(result.resolved)
         self.assertIn("if b == 0", result.patch)
         self.assertTrue(any(step.action == "tool:replace_text" for step in result.trajectory.steps))
+
+    def test_tool_agent_records_model_call_errors(self) -> None:
+        task = load_task(Path("tasks/toy/divide_by_zero/task.json"))
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            verifier = CommandVerifier(runner)
+            agent = DeepSeekToolAgent(
+                runner,
+                verifier,
+                TimeoutChatClient(),
+                config=ToolLoopConfig(max_steps=2, max_test_runs=2),
+            )
+            result = agent.run(task)
+
+        self.assertFalse(result.resolved)
+        self.assertTrue(
+            any(step.action == "model_call_error" for step in result.trajectory.steps)
+        )
 
 
 if __name__ == "__main__":

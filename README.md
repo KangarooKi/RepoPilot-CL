@@ -28,6 +28,7 @@ This first implementation provides a local, testable skeleton:
 - repository context packing and context/no-context ablation
 - robust patch application with hunk recounting, path repair, and patch previews
 - experiment runner for baseline, context, memory, and reranker variants
+- API call timeouts and trajectory logging for model-call failures
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -196,7 +197,9 @@ python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
   --repo-cache-dir data/repos \
   --use-venv \
   --install-repo \
-  --setup-command "python -m pip install pytest"
+  --setup-command "python -m pip install 'click<8.2' pytest" \
+  --provider deepseek-tools \
+  --api-timeout-sec 120
 ```
 
 ## Model Plan

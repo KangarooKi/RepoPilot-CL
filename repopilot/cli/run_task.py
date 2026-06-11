@@ -72,6 +72,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Disable TLS certificate verification for local debugging only.",
     )
     parser.add_argument(
+        "--api-timeout-sec",
+        type=int,
+        default=120,
+        help="Overall timeout for each DeepSeek API call.",
+    )
+    parser.add_argument(
         "--max-steps",
         type=int,
         default=12,
@@ -159,6 +165,7 @@ def main(argv: list[str] | None = None) -> int:
             thinking_enabled=not args.no_thinking,
             ca_bundle=args.ca_bundle,
             allow_insecure_ssl=args.allow_insecure_ssl,
+            timeout_sec=args.api_timeout_sec,
         )
         if args.provider == "deepseek-tools":
             agent = DeepSeekToolAgent(

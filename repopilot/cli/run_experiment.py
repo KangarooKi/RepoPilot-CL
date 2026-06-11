@@ -50,6 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-thinking", action="store_true")
     parser.add_argument("--ca-bundle", default=None)
     parser.add_argument("--allow-insecure-ssl", action="store_true")
+    parser.add_argument("--api-timeout-sec", type=int, default=120)
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--max-test-runs", type=int, default=4)
     parser.add_argument("--context-max-queries", type=int, default=8)
@@ -104,6 +105,8 @@ def _common_benchmark_args(args: argparse.Namespace) -> list[str]:
         args.base_url,
         "--reasoning-effort",
         args.reasoning_effort,
+        "--api-timeout-sec",
+        str(args.api_timeout_sec),
         "--clone-timeout-sec",
         str(args.clone_timeout_sec),
         "--max-steps",

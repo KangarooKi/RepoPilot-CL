@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import json
 import os
+import signal
 import ssl
+import threading
 import urllib.request
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from types import FrameType
+from typing import Iterator
 from urllib.parse import urljoin
 
 try:
@@ -78,12 +83,13 @@ class DeepSeekClient:
             },
             method="POST",
         )
-        with urllib.request.urlopen(
-            request,
-            timeout=self.timeout_sec,
-            context=self.ssl_context,
-        ) as response:
-            return json.loads(response.read().decode("utf-8"))
+        with _request_deadline(self.timeout_sec):
+            with urllib.request.urlopen(
+                request,
+                timeout=self.timeout_sec,
+                context=self.ssl_context,
+            ) as response:
+                return json.loads(response.read().decode("utf-8"))
 
     @property
     def chat_completions_url(self) -> str:
@@ -100,3 +106,24 @@ class DeepSeekClient:
         if certifi is not None:
             return ssl.create_default_context(cafile=certifi.where())
         return ssl.create_default_context()
+
+
+@contextmanager
+def _request_deadline(timeout_sec: int) -> Iterator[None]:
+    if timeout_sec <= 0 or threading.current_thread() is not threading.main_thread():
+        yield
+        return
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    previous_timer = signal.getitimer(signal.ITIMER_REAL)
+
+    def _raise_timeout(signum: int, frame: FrameType | None) -> None:
+        raise TimeoutError(f"DeepSeek request exceeded {timeout_sec} seconds.")
+
+    signal.signal(signal.SIGALRM, _raise_timeout)
+    signal.setitimer(signal.ITIMER_REAL, timeout_sec)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, *previous_timer)
+        signal.signal(signal.SIGALRM, previous_handler)

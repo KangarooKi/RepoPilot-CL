@@ -119,7 +119,14 @@ class CodingAgent:
             baseline.to_dict(),
         )
 
-        candidates = self.patch_provider.propose(task, workdir, self.runner, memories)
+        try:
+            candidates = self.patch_provider.propose(task, workdir, self.runner, memories)
+        except Exception as exc:
+            candidates = []
+            trajectory.add_step(
+                "propose_patch_error",
+                f"{type(exc).__name__}: {exc}",
+            )
         trajectory.add_step("propose_patch", f"Generated {len(candidates)} candidate(s).")
         candidates, scores = self._rerank_candidates(
             task=task,

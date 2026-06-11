@@ -70,6 +70,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-thinking", action="store_true")
     parser.add_argument("--ca-bundle", default=None)
     parser.add_argument("--allow-insecure-ssl", action="store_true")
+    parser.add_argument(
+        "--api-timeout-sec",
+        type=int,
+        default=120,
+        help="Overall timeout for each DeepSeek API call.",
+    )
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--max-test-runs", type=int, default=4)
     parser.add_argument(
@@ -195,6 +201,7 @@ def build_agent(
             thinking_enabled=not args.no_thinking,
             ca_bundle=args.ca_bundle,
             allow_insecure_ssl=args.allow_insecure_ssl,
+            timeout_sec=args.api_timeout_sec,
         )
         if args.provider == "deepseek-tools":
             return DeepSeekToolAgent(
