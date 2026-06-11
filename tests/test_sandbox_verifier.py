@@ -18,7 +18,25 @@ class SandboxVerifierTest(unittest.TestCase):
         self.assertFalse(result.resolved)
         self.assertNotEqual(result.returncode, 0)
 
+    def test_apply_patch_normalizes_missing_trailing_newline(self) -> None:
+        task = load_task(Path("tasks/toy/string_normalization/task.json"))
+        diff = (
+            "--- a/names.py\n"
+            "+++ b/names.py\n"
+            "@@ -1,2 +1,2 @@\n"
+            " def normalize_name(name):\n"
+            "-    return name.lower()\n"
+            "+    return name.strip().lower()"
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            apply_result = runner.apply_unified_diff(workdir, diff)
+            content = runner.read_file(workdir, "names.py")
+
+        self.assertEqual(apply_result.returncode, 0)
+        self.assertIn("strip().lower()", content)
+
 
 if __name__ == "__main__":
     unittest.main()
-

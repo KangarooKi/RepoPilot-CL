@@ -46,6 +46,10 @@ export DEEPSEEK_API_KEY="..."
 python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json --provider deepseek-tools --model deepseek-v4-flash --reasoning-effort max --temperature 1.0
 ```
 
+If your local Python runtime does not trust the system certificate chain, pass
+`--ca-bundle /path/to/cacert.pem`. For one-off local debugging only, the CLI also
+supports `--allow-insecure-ssl`.
+
 The iterative loop asks the model to emit one JSON action per turn:
 
 ```json
@@ -58,6 +62,12 @@ Run unit tests:
 
 ```bash
 python3 -m unittest discover -s tests
+```
+
+Run a task suite:
+
+```bash
+python3 -m repopilot.cli.run_benchmark "tasks/toy/*/task.json" --provider deepseek-tools
 ```
 
 ## Model Plan

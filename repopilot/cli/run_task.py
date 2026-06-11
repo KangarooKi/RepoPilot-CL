@@ -47,6 +47,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Disable DeepSeek thinking mode.",
     )
     parser.add_argument(
+        "--ca-bundle",
+        default=None,
+        help="Path to a CA bundle for DeepSeek HTTPS requests.",
+    )
+    parser.add_argument(
+        "--allow-insecure-ssl",
+        action="store_true",
+        help="Disable TLS certificate verification for local debugging only.",
+    )
+    parser.add_argument(
         "--max-steps",
         type=int,
         default=12,
@@ -78,6 +88,8 @@ def main(argv: list[str] | None = None) -> int:
             base_url=args.base_url,
             reasoning_effort=args.reasoning_effort,
             thinking_enabled=not args.no_thinking,
+            ca_bundle=args.ca_bundle,
+            allow_insecure_ssl=args.allow_insecure_ssl,
         )
         if args.provider == "deepseek-tools":
             agent = DeepSeekToolAgent(

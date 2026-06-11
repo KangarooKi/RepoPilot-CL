@@ -22,11 +22,12 @@ class DeepSeekClientTest(unittest.TestCase):
     def test_payload_matches_deepseek_v4_chat_format(self) -> None:
         captured = {}
 
-        def fake_urlopen(request, timeout):
+        def fake_urlopen(request, timeout, context):
             captured["url"] = request.full_url
             captured["body"] = json.loads(request.data.decode("utf-8"))
             captured["headers"] = dict(request.header_items())
             captured["timeout"] = timeout
+            captured["context"] = context
             return _FakeResponse()
 
         client = DeepSeekClient(
@@ -48,6 +49,7 @@ class DeepSeekClientTest(unittest.TestCase):
         self.assertEqual(captured["body"]["reasoning_effort"], "max")
         self.assertFalse(captured["body"]["stream"])
         self.assertEqual(captured["body"]["messages"][0]["content"], "Hello!")
+        self.assertIsNotNone(captured["context"])
 
 
 if __name__ == "__main__":

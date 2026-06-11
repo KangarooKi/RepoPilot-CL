@@ -2,9 +2,16 @@ from __future__ import annotations
 
 import json
 import os
+import ssl
 import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urljoin
+
+try:
+    import certifi
+except ImportError:  # pragma: no cover - optional runtime dependency
+    certifi = None
 
 
 @dataclass(frozen=True)
@@ -27,6 +34,8 @@ class DeepSeekClient:
         base_url: str = "https://api.deepseek.com",
         reasoning_effort: str = "max",
         thinking_enabled: bool = True,
+        ca_bundle: str | None = None,
+        allow_insecure_ssl: bool = False,
         timeout_sec: int = 120,
     ) -> None:
         self.api_key = api_key or os.environ.get("DEEPSEEK_API_KEY")
@@ -34,6 +43,10 @@ class DeepSeekClient:
         self.base_url = base_url.rstrip("/")
         self.reasoning_effort = reasoning_effort
         self.thinking_enabled = thinking_enabled
+        self.ca_bundle = ca_bundle or os.environ.get("SSL_CERT_FILE")
+        self.allow_insecure_ssl = allow_insecure_ssl or (
+            os.environ.get("REPOPILOT_ALLOW_INSECURE_SSL") == "1"
+        )
         self.timeout_sec = timeout_sec
 
     def chat(self, messages: list[ChatMessage], temperature: float = 1.0) -> str:
@@ -65,7 +78,11 @@ class DeepSeekClient:
             },
             method="POST",
         )
-        with urllib.request.urlopen(request, timeout=self.timeout_sec) as response:
+        with urllib.request.urlopen(
+            request,
+            timeout=self.timeout_sec,
+            context=self.ssl_context,
+        ) as response:
             return json.loads(response.read().decode("utf-8"))
 
     @property
@@ -73,3 +90,13 @@ class DeepSeekClient:
         if self.base_url.endswith("/chat/completions"):
             return self.base_url
         return urljoin(f"{self.base_url}/", "chat/completions")
+
+    @property
+    def ssl_context(self) -> ssl.SSLContext:
+        if self.allow_insecure_ssl:
+            return ssl._create_unverified_context()
+        if self.ca_bundle:
+            return ssl.create_default_context(cafile=str(Path(self.ca_bundle)))
+        if certifi is not None:
+            return ssl.create_default_context(cafile=certifi.where())
+        return ssl.create_default_context()

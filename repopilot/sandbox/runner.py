@@ -70,10 +70,11 @@ class SandboxRunner:
             )
 
     def apply_unified_diff(self, workdir: str | Path, diff: str) -> CommandResult:
+        normalized_diff = diff if diff.endswith("\n") else diff + "\n"
         completed = subprocess.run(
             ["git", "apply", "--whitespace=nowarn"],
             cwd=Path(workdir),
-            input=diff,
+            input=normalized_diff,
             text=True,
             capture_output=True,
             check=False,
@@ -106,4 +107,3 @@ class SandboxRunner:
     @staticmethod
     def _run_git(args: list[str], workdir: Path) -> None:
         subprocess.run(args, cwd=workdir, capture_output=True, check=True)
-
