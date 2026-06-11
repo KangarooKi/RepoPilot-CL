@@ -2,7 +2,12 @@ from pathlib import Path
 import unittest
 
 from repopilot.agent.loop import AgentRunResult
-from repopilot.benchmark.runner import discover_task_files, load_task_inputs, run_tasks
+from repopilot.benchmark.runner import (
+    discover_task_files,
+    filter_tasks,
+    load_task_inputs,
+    run_tasks,
+)
 from repopilot.benchmark.task_loader import Task
 from repopilot.trajectory.schema import Trajectory
 
@@ -31,6 +36,18 @@ class BenchmarkRunnerTest(unittest.TestCase):
         self.assertEqual(summary.resolved, 1)
         self.assertEqual(summary.resolved_rate, 1.0)
         self.assertEqual(summary.tasks[0].patch_lines, 2)
+
+    def test_filter_tasks_by_repo_and_test_counts(self) -> None:
+        tasks = load_task_inputs([Path("tasks/toy/divide_by_zero/task.json")])
+
+        self.assertEqual(
+            len(filter_tasks(tasks, repo_contains="calculator", max_pass_to_pass=1)),
+            1,
+        )
+        self.assertEqual(
+            len(filter_tasks(tasks, repo_contains="strings")),
+            0,
+        )
 
 
 if __name__ == "__main__":

@@ -1,7 +1,9 @@
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
+from repopilot.benchmark.task_loader import Task
 from repopilot.benchmark.task_loader import load_task
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.verifier.pytest_verifier import CommandVerifier
@@ -37,6 +39,53 @@ class SandboxVerifierTest(unittest.TestCase):
         self.assertEqual(apply_result.returncode, 0)
         self.assertIn("strip().lower()", content)
 
+    def test_prepare_remote_repo_uses_cache_dir(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source"
+            source.mkdir()
+            (source / "hello.py").write_text("VALUE = 1\n", encoding="utf-8")
+            _git(source, "init")
+            _git(source, "add", ".")
+            _git(
+                source,
+                "-c",
+                "user.name=RepoPilot",
+                "-c",
+                "user.email=test@example.com",
+                "commit",
+                "-m",
+                "initial",
+            )
+            base_commit = _git(source, "rev-parse", "HEAD").strip()
+            task = Task(
+                task_id="cached_repo_task",
+                repo="local/cache-demo",
+                repo_url=str(source),
+                base_commit=base_commit,
+                issue="Inspect cached clone.",
+                test_command="python3 -c 'import hello; assert hello.VALUE == 1'",
+            )
+
+            runner = SandboxRunner(root=root / "runs", repo_cache_dir=root / "cache")
+            workdir = runner.prepare(task)
+            result = runner.run_command(workdir, task.test_command)
+
+            self.assertEqual(result.returncode, 0)
+            self.assertTrue((root / "cache" / "local__cache-demo").exists())
+            self.assertTrue((workdir / "hello.py").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _git(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return completed.stdout

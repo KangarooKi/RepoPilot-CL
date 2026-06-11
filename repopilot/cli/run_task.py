@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 from pathlib import Path
 
 from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
@@ -18,6 +19,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run one RepoPilot-CL task.")
     parser.add_argument("task", help="Path to task JSON.")
     parser.add_argument("--runs-dir", default="runs", help="Directory for sandboxes.")
+    parser.add_argument("--repo-cache-dir", default=None)
+    parser.add_argument("--clone-timeout-sec", type=int, default=600)
+    parser.add_argument("--setup-command", default=None)
     parser.add_argument(
         "--provider",
         choices=["scripted", "deepseek", "deepseek-tools"],
@@ -79,7 +83,13 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     task = load_task(args.task)
-    runner = SandboxRunner(root=args.runs_dir)
+    if args.setup_command is not None:
+        task = replace(task, setup_command=args.setup_command)
+    runner = SandboxRunner(
+        root=args.runs_dir,
+        repo_cache_dir=args.repo_cache_dir,
+        clone_timeout_sec=args.clone_timeout_sec,
+    )
     verifier = CommandVerifier(runner)
 
     if args.provider in {"deepseek", "deepseek-tools"}:

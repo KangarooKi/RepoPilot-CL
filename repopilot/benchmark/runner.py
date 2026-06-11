@@ -97,6 +97,31 @@ def load_task_inputs(
     return tasks
 
 
+def filter_tasks(
+    tasks: list[Task],
+    *,
+    repo_contains: str | None = None,
+    max_fail_to_pass: int | None = None,
+    max_pass_to_pass: int | None = None,
+) -> list[Task]:
+    filtered = tasks
+    if repo_contains:
+        filtered = [task for task in filtered if repo_contains in task.repo]
+    if max_fail_to_pass is not None:
+        filtered = [
+            task
+            for task in filtered
+            if len(task.fail_to_pass_tests) <= max_fail_to_pass
+        ]
+    if max_pass_to_pass is not None:
+        filtered = [
+            task
+            for task in filtered
+            if len(task.pass_to_pass_tests) <= max_pass_to_pass
+        ]
+    return filtered
+
+
 def _remaining(limit: int | None, tasks: list[Task]) -> int | None:
     if limit is None:
         return None

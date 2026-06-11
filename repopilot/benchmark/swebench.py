@@ -57,6 +57,7 @@ def swebench_record_to_task(
         issue=issue,
         test_command=command,
         setup_command=record.get("setup_command"),
+        test_patch=str(record.get("test_patch") or ""),
         fail_to_pass_tests=fail_to_pass,
         pass_to_pass_tests=pass_to_pass,
         metadata=metadata,

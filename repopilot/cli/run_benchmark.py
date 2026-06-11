@@ -2,12 +2,18 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import replace
 from pathlib import Path
 
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.agent.loop import CodingAgent, ScriptedPatchProvider
 from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
-from repopilot.benchmark.runner import discover_task_files, load_task_inputs, run_tasks
+from repopilot.benchmark.runner import (
+    discover_task_files,
+    filter_tasks,
+    load_task_inputs,
+    run_tasks,
+)
 from repopilot.benchmark.task_loader import Task
 from repopilot.models.deepseek_client import DeepSeekClient
 from repopilot.sandbox.runner import SandboxRunner
@@ -25,7 +31,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="Input task format.",
     )
     parser.add_argument("--limit", type=int, default=None, help="Maximum tasks to run.")
+    parser.add_argument("--repo-contains", default=None)
+    parser.add_argument("--max-fail-to-pass", type=int, default=None)
+    parser.add_argument("--max-pass-to-pass", type=int, default=None)
     parser.add_argument("--runs-dir", default="runs", help="Directory for sandboxes.")
+    parser.add_argument(
+        "--repo-cache-dir",
+        default=None,
+        help="Optional directory for cached GitHub repo clones.",
+    )
+    parser.add_argument("--clone-timeout-sec", type=int, default=600)
+    parser.add_argument(
+        "--setup-command",
+        default=None,
+        help="Override setup command for every loaded task.",
+    )
     parser.add_argument(
         "--provider",
         choices=["scripted", "deepseek", "deepseek-tools"],
@@ -64,14 +84,28 @@ def main(argv: list[str] | None = None) -> int:
     task_files = discover_task_files(args.tasks)
     if not task_files:
         raise SystemExit("No task files matched.")
-    tasks = load_task_inputs(task_files, input_format=args.input_format, limit=args.limit)
+    tasks = load_task_inputs(task_files, input_format=args.input_format)
+    tasks = filter_tasks(
+        tasks,
+        repo_contains=args.repo_contains,
+        max_fail_to_pass=args.max_fail_to_pass,
+        max_pass_to_pass=args.max_pass_to_pass,
+    )
+    if args.limit is not None:
+        tasks = tasks[: args.limit]
     if not tasks:
         raise SystemExit("No tasks loaded.")
 
     trajectory_logger = TrajectoryLogger(args.trajectory_log)
 
     def run_one(task: Task):
-        runner = SandboxRunner(root=args.runs_dir)
+        if args.setup_command is not None:
+            task = replace(task, setup_command=args.setup_command)
+        runner = SandboxRunner(
+            root=args.runs_dir,
+            repo_cache_dir=args.repo_cache_dir,
+            clone_timeout_sec=args.clone_timeout_sec,
+        )
         verifier = CommandVerifier(runner)
         agent = build_agent(args, runner, verifier)
         result = agent.run(task)

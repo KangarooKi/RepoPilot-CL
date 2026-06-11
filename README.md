@@ -81,6 +81,25 @@ RepoPilot expects SWE-bench-style records with fields such as `instance_id`,
 For local dry runs, records may also provide `local_repo_path` and
 `test_command`.
 
+Download and inspect a SWE-bench Lite subset:
+
+```bash
+python3 -m repopilot.cli.download_swebench --split dev --length 5 --output data/swebench/lite_dev_5.jsonl
+python3 -m repopilot.cli.inspect_tasks data/swebench/lite_dev_5.jsonl --input-format swebench
+```
+
+For real SWE-bench dry runs, cache GitHub repositories and provide a setup
+command when needed:
+
+```bash
+python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
+  --input-format swebench \
+  --limit 1 \
+  --max-pass-to-pass 0 \
+  --repo-cache-dir data/repos \
+  --setup-command "python3 -m pip install pytest"
+```
+
 ## Model Plan
 
 | Component | Planned Model |

@@ -16,3 +16,5 @@ data/trajectories/
 data/memory/
 data/reranker/
 data/benchmarks/
+data/swebench/
+data/repos/

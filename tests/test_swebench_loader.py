@@ -54,13 +54,28 @@ class SwebenchLoaderTest(unittest.TestCase):
             base_commit = _git(repo, "rev-parse", "HEAD").strip()
 
             jsonl = root / "swebench.jsonl"
+            test_patch = (
+                "diff --git a/test_calc_regression.py b/test_calc_regression.py\n"
+                "new file mode 100644\n"
+                "--- /dev/null\n"
+                "+++ b/test_calc_regression.py\n"
+                "@@ -0,0 +1,7 @@\n"
+                "+import unittest\n"
+                "+from calc import divide\n"
+                "+\n"
+                "+\n"
+                "+class TestRegression(unittest.TestCase):\n"
+                "+    def test_zero(self):\n"
+                "+        self.assertIsNone(divide(4, 0))\n"
+            )
             record = {
                 "instance_id": "local__calc-1",
                 "repo": "local/calc",
                 "local_repo_path": str(repo),
                 "base_commit": base_commit,
                 "problem_statement": "Return None when dividing by zero.",
-                "test_command": "python3 -m unittest discover -s . -p 'test_*.py'",
+                "test_command": "python3 -m unittest discover -s . -p 'test_*regression.py'",
+                "test_patch": test_patch,
                 "FAIL_TO_PASS": ["test_calc.TestDivide.test_zero"],
                 "PASS_TO_PASS": ["test_calc.TestDivide.test_regular"],
             }
@@ -71,9 +86,14 @@ class SwebenchLoaderTest(unittest.TestCase):
             workdir = runner.prepare(task)
             result = CommandVerifier(runner).verify(workdir, task.test_command)
             calc_exists = (workdir / "calc.py").exists()
+            test_patch_exists = (workdir / "test_calc_regression.py").exists()
+            clean_after_prepare = runner.git_diff(workdir) == ""
 
         self.assertEqual(task.task_id, "local__calc-1")
+        self.assertTrue(task.test_patch)
         self.assertTrue(calc_exists)
+        self.assertTrue(test_patch_exists)
+        self.assertTrue(clean_after_prepare)
         self.assertFalse(result.resolved)
 
 

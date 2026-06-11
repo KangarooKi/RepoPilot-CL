@@ -23,6 +23,7 @@ class Task:
     repo_url: str | None = None
     local_repo_path: str | None = None
     setup_command: str | None = None
+    test_patch: str = ""
     fail_to_pass_tests: list[str] = field(default_factory=list)
     pass_to_pass_tests: list[str] = field(default_factory=list)
     initial_files: dict[str, str] = field(default_factory=dict)
@@ -45,6 +46,7 @@ class Task:
             repo_url=payload.get("repo_url"),
             local_repo_path=payload.get("local_repo_path"),
             setup_command=payload.get("setup_command"),
+            test_patch=str(payload.get("test_patch", "")),
             fail_to_pass_tests=list(payload.get("fail_to_pass_tests", [])),
             pass_to_pass_tests=list(payload.get("pass_to_pass_tests", [])),
             initial_files=dict(payload.get("initial_files", {})),
