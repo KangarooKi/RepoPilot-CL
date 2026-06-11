@@ -25,6 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--model", default="deepseek-v4-flash", help="DeepSeek model name.")
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=1.0,
+        help="DeepSeek sampling temperature.",
+    )
+    parser.add_argument(
         "--base-url",
         default="https://api.deepseek.com",
         help="DeepSeek API base URL.",
@@ -60,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
             reasoning_effort=args.reasoning_effort,
             thinking_enabled=not args.no_thinking,
         )
-        patch_provider = DeepSeekPatchProvider(client)
+        patch_provider = DeepSeekPatchProvider(client, temperature=args.temperature)
     else:
         patch_provider = ScriptedPatchProvider()
 

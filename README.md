@@ -35,7 +35,7 @@ Run the toy task with DeepSeek:
 
 ```bash
 export DEEPSEEK_API_KEY="..."
-python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json --provider deepseek --model deepseek-v4-flash --reasoning-effort max
+python3 -m repopilot.cli.run_task tasks/toy/divide_by_zero/task.json --provider deepseek --model deepseek-v4-flash --reasoning-effort max --temperature 1.0
 ```
 
 Run unit tests:

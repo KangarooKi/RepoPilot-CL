@@ -13,7 +13,7 @@ from repopilot.sandbox.runner import SandboxRunner
 class DeepSeekPatchProvider:
     """Patch provider that asks DeepSeek for a unified diff candidate."""
 
-    def __init__(self, client: DeepSeekClient, temperature: float = 0.2) -> None:
+    def __init__(self, client: DeepSeekClient, temperature: float = 1.0) -> None:
         self.client = client
         self.temperature = temperature
 

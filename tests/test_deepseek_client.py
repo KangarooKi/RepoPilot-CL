@@ -43,6 +43,7 @@ class DeepSeekClientTest(unittest.TestCase):
         self.assertEqual(content, "hello")
         self.assertEqual(captured["url"], "https://api.deepseek.com/chat/completions")
         self.assertEqual(captured["body"]["model"], "deepseek-v4-flash")
+        self.assertEqual(captured["body"]["temperature"], 1.0)
         self.assertEqual(captured["body"]["thinking"], {"type": "enabled"})
         self.assertEqual(captured["body"]["reasoning_effort"], "max")
         self.assertFalse(captured["body"]["stream"])
@@ -51,4 +52,3 @@ class DeepSeekClientTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

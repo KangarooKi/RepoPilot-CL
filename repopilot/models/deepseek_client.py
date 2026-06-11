@@ -36,14 +36,14 @@ class DeepSeekClient:
         self.thinking_enabled = thinking_enabled
         self.timeout_sec = timeout_sec
 
-    def chat(self, messages: list[ChatMessage], temperature: float = 0.2) -> str:
+    def chat(self, messages: list[ChatMessage], temperature: float = 1.0) -> str:
         payload = self.chat_payload(messages, temperature=temperature)
         return payload["choices"][0]["message"]["content"]
 
     def chat_payload(
         self,
         messages: list[ChatMessage],
-        temperature: float = 0.2,
+        temperature: float = 1.0,
     ) -> dict[str, object]:
         if not self.api_key:
             raise RuntimeError("DEEPSEEK_API_KEY is required for DeepSeekClient.chat().")
