@@ -20,6 +20,8 @@ This first implementation provides a local, testable skeleton:
 - simple memory store and retrieval baseline
 - scripted patch provider for a toy repair task
 - iterative DeepSeek tool loop with JSON actions
+- robust edit actions for exact text replacement and unified diff patches
+- per-task virtualenv setup for repository benchmarks
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -56,7 +58,8 @@ The iterative loop asks the model to emit one JSON action per turn:
 {"action": "read_file", "args": {"path": "calc.py", "start": 1, "end": 80}, "thought": "Inspect the buggy function."}
 ```
 
-Supported actions are `search_code`, `read_file`, `apply_patch`, `run_tests`, `get_diff`, and `submit`.
+Supported actions are `search_code`, `read_file`, `replace_text`,
+`apply_patch`, `run_tests`, `get_diff`, and `submit`.
 
 Run unit tests:
 
@@ -97,7 +100,9 @@ python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
   --limit 1 \
   --max-pass-to-pass 0 \
   --repo-cache-dir data/repos \
-  --setup-command "python3 -m pip install pytest"
+  --use-venv \
+  --install-repo \
+  --setup-command "python -m pip install pytest"
 ```
 
 ## Model Plan

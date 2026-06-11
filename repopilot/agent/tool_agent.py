@@ -177,6 +177,18 @@ class DeepSeekToolAgent:
             end = _optional_int(action.args.get("end"))
             return _read_file_slice(self.runner, workdir, path, start, end), current_result, False, test_runs
 
+        if action.name == "replace_text":
+            path = _required_str(action, "path")
+            old = _required_str(action, "old")
+            new = _required_str_allow_empty(action, "new")
+            result = self.runner.replace_text(workdir, path, old, new)
+            observation = {
+                "returncode": result.returncode,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+            }
+            return json.dumps(observation, indent=2), current_result, False, test_runs
+
         if action.name == "apply_patch":
             diff = _required_str(action, "diff")
             result = self.runner.apply_unified_diff(workdir, diff)
@@ -221,13 +233,16 @@ Return exactly one JSON object per turn. Do not use markdown.
 Allowed actions:
 - {"action": "search_code", "args": {"query": "...", "limit": 20}, "thought": "..."}
 - {"action": "read_file", "args": {"path": "...", "start": 1, "end": 120}, "thought": "..."}
+- {"action": "replace_text", "args": {"path": "...", "old": "...", "new": "..."}, "thought": "..."}
 - {"action": "apply_patch", "args": {"diff": "..."}, "thought": "..."}
 - {"action": "run_tests", "args": {}, "thought": "..."}
 - {"action": "get_diff", "args": {}, "thought": "..."}
 - {"action": "submit", "args": {}, "thought": "..."}
 
-Use minimal patches. Run tests after applying a patch. Submit only when the
-diff is ready to be evaluated.
+Use minimal patches. Prefer replace_text for small local edits because it
+avoids fragile diff formatting. Use apply_patch for larger multi-location
+edits. Run tests after applying a patch. Submit only when the diff is ready to
+be evaluated.
 """
 
 
@@ -287,6 +302,13 @@ def _required_str(action: AgentAction, key: str) -> str:
     return value
 
 
+def _required_str_allow_empty(action: AgentAction, key: str) -> str:
+    value = action.args.get(key)
+    if not isinstance(value, str):
+        raise ValueError(f"Action `{action.name}` requires string arg `{key}`.")
+    return value
+
+
 def _optional_int(value: object) -> int | None:
     if value is None:
         return None
@@ -297,4 +319,3 @@ def _truncate(text: str, max_chars: int) -> str:
     if len(text) <= max_chars:
         return text
     return text[:max_chars] + "\n...[truncated]"
-

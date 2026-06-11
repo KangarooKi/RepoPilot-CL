@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,10 +27,19 @@ class SandboxRunner:
         root: str | Path = "runs",
         repo_cache_dir: str | Path | None = None,
         clone_timeout_sec: int = 600,
+        use_venv: bool = False,
+        venv_root: str | Path | None = None,
+        python_executable: str | Path | None = None,
+        install_repo: bool = False,
     ) -> None:
-        self.root = Path(root)
-        self.repo_cache_dir = Path(repo_cache_dir) if repo_cache_dir else None
+        self.root = Path(root).resolve()
+        self.repo_cache_dir = Path(repo_cache_dir).resolve() if repo_cache_dir else None
         self.clone_timeout_sec = clone_timeout_sec
+        self.use_venv = use_venv
+        self.venv_root = Path(venv_root).resolve() if venv_root else self.root / ".venvs"
+        self.python_executable = str(python_executable or sys.executable)
+        self.install_repo = install_repo
+        self._venvs_by_workdir: dict[Path, Path] = {}
 
     def prepare(self, task: Task, clean: bool = True) -> Path:
         workdir = self.root / task.task_id
@@ -51,6 +62,21 @@ class SandboxRunner:
         if task.test_patch:
             self._apply_test_patch(workdir, task.test_patch)
 
+        if self.use_venv:
+            self._prepare_venv(task, workdir, clean=clean)
+
+        if self.install_repo:
+            install = self.run_command(
+                workdir,
+                "python -m pip install -e .",
+                timeout_sec=900,
+            )
+            if install.returncode != 0:
+                raise RuntimeError(
+                    f"Repo install failed for {task.task_id}: "
+                    + (install.stderr or install.stdout)
+                )
+
         if task.setup_command:
             setup = self.run_command(workdir, task.setup_command, timeout_sec=600)
             if setup.returncode != 0:
@@ -66,14 +92,16 @@ class SandboxRunner:
         timeout_sec: int = 120,
     ) -> CommandResult:
         try:
+            workdir_path = Path(workdir)
             completed = subprocess.run(
                 command,
-                cwd=Path(workdir),
+                cwd=workdir_path,
                 shell=True,
                 text=True,
                 capture_output=True,
                 timeout=timeout_sec,
                 check=False,
+                env=self._command_env(workdir_path),
             )
             return CommandResult(
                 command=command,
@@ -105,6 +133,48 @@ class SandboxRunner:
             returncode=completed.returncode,
             stdout=completed.stdout,
             stderr=completed.stderr,
+        )
+
+    def replace_text(
+        self,
+        workdir: str | Path,
+        relative_path: str,
+        old: str,
+        new: str,
+    ) -> CommandResult:
+        if not old:
+            return CommandResult(
+                command=f"replace_text {relative_path}",
+                returncode=2,
+                stdout="",
+                stderr="Replacement target `old` must not be empty.",
+            )
+
+        try:
+            content = self.read_file(workdir, relative_path)
+        except OSError as exc:
+            return CommandResult(
+                command=f"replace_text {relative_path}",
+                returncode=1,
+                stdout="",
+                stderr=str(exc),
+            )
+
+        matches = content.count(old)
+        if matches != 1:
+            return CommandResult(
+                command=f"replace_text {relative_path}",
+                returncode=1,
+                stdout="",
+                stderr=f"Expected exactly one match for `old`, found {matches}.",
+            )
+
+        self.write_file(workdir, relative_path, content.replace(old, new, 1))
+        return CommandResult(
+            command=f"replace_text {relative_path}",
+            returncode=0,
+            stdout=f"Replaced one occurrence in {relative_path}.",
+            stderr="",
         )
 
     def git_diff(self, workdir: str | Path) -> str:
@@ -193,6 +263,33 @@ class SandboxRunner:
             self._clone_repo(task.repo_url or task.repo, temp_cache, self.clone_timeout_sec)
             temp_cache.rename(cache_path)
         self._copy_local_repo(cache_path, workdir)
+
+    def _prepare_venv(self, task: Task, workdir: Path, clean: bool) -> Path:
+        venv_dir = self.venv_root / _cache_key(task.task_id)
+        if clean and venv_dir.exists():
+            shutil.rmtree(venv_dir)
+        if not venv_dir.exists():
+            venv_dir.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(
+                [self.python_executable, "-m", "venv", str(venv_dir)],
+                cwd=workdir,
+                capture_output=True,
+                check=True,
+                text=True,
+            )
+        self._venvs_by_workdir[workdir.resolve()] = venv_dir.resolve()
+        return venv_dir
+
+    def _command_env(self, workdir: Path) -> dict[str, str]:
+        env = os.environ.copy()
+        venv_dir = self._venvs_by_workdir.get(workdir.resolve())
+        if venv_dir is None:
+            return env
+
+        bin_dir = venv_dir / ("Scripts" if os.name == "nt" else "bin")
+        env["VIRTUAL_ENV"] = str(venv_dir)
+        env["PATH"] = str(bin_dir) + os.pathsep + env.get("PATH", "")
+        return env
 
     @staticmethod
     def _ensure_git_identity(workdir: Path) -> None:

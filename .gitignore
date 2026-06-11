@@ -12,6 +12,8 @@ dist/
 build/
 *.egg-info/
 runs/
+runs/.venvs/
+runs_*/
 data/trajectories/
 data/memory/
 data/reranker/

@@ -9,6 +9,7 @@ from typing import Any
 ALLOWED_ACTIONS = {
     "search_code",
     "read_file",
+    "replace_text",
     "apply_patch",
     "run_tests",
     "get_diff",
@@ -68,4 +69,3 @@ def extract_json_object(text: str) -> dict[str, Any] | None:
     except json.JSONDecodeError:
         return None
     return payload if isinstance(payload, dict) else None
-

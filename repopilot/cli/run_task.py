@@ -21,6 +21,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--runs-dir", default="runs", help="Directory for sandboxes.")
     parser.add_argument("--repo-cache-dir", default=None)
     parser.add_argument("--clone-timeout-sec", type=int, default=600)
+    parser.add_argument("--use-venv", action="store_true")
+    parser.add_argument("--venv-root", default=None)
+    parser.add_argument("--python-executable", default=None)
+    parser.add_argument("--install-repo", action="store_true")
     parser.add_argument("--setup-command", default=None)
     parser.add_argument(
         "--provider",
@@ -89,6 +93,10 @@ def main(argv: list[str] | None = None) -> int:
         root=args.runs_dir,
         repo_cache_dir=args.repo_cache_dir,
         clone_timeout_sec=args.clone_timeout_sec,
+        use_venv=args.use_venv,
+        venv_root=args.venv_root,
+        python_executable=args.python_executable,
+        install_repo=args.install_repo,
     )
     verifier = CommandVerifier(runner)
 
