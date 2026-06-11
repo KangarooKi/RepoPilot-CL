@@ -7,6 +7,7 @@ from typing import Protocol
 from repopilot.benchmark.task_loader import Task
 from repopilot.memory.retrieve import KeywordMemoryRetriever
 from repopilot.memory.schema import MemoryRecord
+from repopilot.reranker.score import PatchScore, RuleBasedPatchReranker
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.schema import Trajectory
 from repopilot.verifier.pytest_verifier import CommandVerifier
@@ -76,11 +77,13 @@ class CodingAgent:
         verifier: CommandVerifier,
         patch_provider: PatchProvider,
         memory_retriever: KeywordMemoryRetriever | None = None,
+        patch_reranker: RuleBasedPatchReranker | None = None,
     ) -> None:
         self.runner = runner
         self.verifier = verifier
         self.patch_provider = patch_provider
         self.memory_retriever = memory_retriever
+        self.patch_reranker = patch_reranker
 
     def run(self, task: Task) -> AgentRunResult:
         workdir = self.runner.prepare(task)
@@ -105,6 +108,21 @@ class CodingAgent:
 
         candidates = self.patch_provider.propose(task, workdir, self.runner, memories)
         trajectory.add_step("propose_patch", f"Generated {len(candidates)} candidate(s).")
+        candidates, scores = self._rerank_candidates(
+            task=task,
+            candidates=candidates,
+            memories=memories,
+            baseline_error=baseline.error_summary or baseline.stderr or baseline.stdout,
+        )
+        if scores:
+            trajectory.add_step(
+                "rerank_patches",
+                "Ranked patch candidates with rule-based reranker.",
+                {
+                    "scores": [score.to_dict() for score in scores],
+                    "ranked_candidate_ids": [candidate.candidate_id for candidate in candidates],
+                },
+            )
 
         best_patch = ""
         final_result = baseline
@@ -123,6 +141,7 @@ class CodingAgent:
                 continue
 
             verification = self.verifier.verify(workdir, task.test_command)
+            candidate_patch = self.runner.git_diff(workdir)
             trajectory.add_step(
                 "verify_candidate",
                 verification.error_summary or f"resolved={verification.resolved}",
@@ -131,10 +150,20 @@ class CodingAgent:
                     **verification.to_dict(),
                 },
             )
-            best_patch = self.runner.git_diff(workdir)
+            best_patch = candidate_patch
             final_result = verification
             if verification.resolved:
                 break
+
+            revert_result = self.runner.revert_unified_diff(workdir, candidate.diff)
+            trajectory.add_step(
+                "revert_candidate",
+                revert_result.stderr or f"Reverted {candidate.candidate_id}.",
+                {
+                    "candidate_id": candidate.candidate_id,
+                    "returncode": revert_result.returncode,
+                },
+            )
 
         trajectory.final_patch = best_patch
         trajectory.resolved = final_result.resolved
@@ -147,6 +176,36 @@ class CodingAgent:
             workdir=workdir,
             trajectory=trajectory,
         )
+
+    def _rerank_candidates(
+        self,
+        *,
+        task: Task,
+        candidates: list[PatchCandidate],
+        memories: list[MemoryRecord],
+        baseline_error: str,
+    ) -> tuple[list[PatchCandidate], list[PatchScore]]:
+        if self.patch_reranker is None or len(candidates) <= 1:
+            return candidates, []
+
+        scores = [
+            self.patch_reranker.score(
+                candidate.candidate_id,
+                candidate.diff,
+                issue=task.issue,
+                baseline_error=baseline_error,
+                memories=memories,
+            )
+            for candidate in candidates
+        ]
+        score_by_candidate_id = {score.candidate_id: score for score in scores}
+        ranked = sorted(
+            candidates,
+            key=lambda candidate: score_by_candidate_id[candidate.candidate_id].final_score,
+            reverse=True,
+        )
+        scores.sort(key=lambda score: score.final_score, reverse=True)
+        return ranked, scores
 
 
 def _single_file_replace_diff(path: str, old: str, new: str) -> str:
@@ -162,4 +221,3 @@ def _single_file_replace_diff(path: str, old: str, new: str) -> str:
             tofile=f"b/{path}",
         )
     )
-

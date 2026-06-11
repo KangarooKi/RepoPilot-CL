@@ -1,6 +1,10 @@
 import unittest
+import tempfile
 
-from repopilot.agent.deepseek_provider import extract_unified_diff
+from repopilot.agent.deepseek_provider import DeepSeekPatchProvider, extract_unified_diff
+from repopilot.benchmark.task_loader import load_task
+from repopilot.models.deepseek_client import ChatMessage
+from repopilot.sandbox.runner import SandboxRunner
 
 
 class DeepSeekProviderTest(unittest.TestCase):
@@ -24,7 +28,52 @@ diff --git a/calc.py b/calc.py
         self.assertTrue(diff.startswith("diff --git"))
         self.assertIn("if b == 0", diff)
 
+    def test_patch_provider_generates_multiple_unique_candidates(self) -> None:
+        client = FakePatchClient(
+            [
+                _patch("    if b == 0:\n        return None\n    return a / b\n"),
+                _patch("    return None if b == 0 else a / b\n"),
+            ]
+        )
+        task = load_task("tasks/toy/divide_by_zero/task.json")
+        provider = DeepSeekPatchProvider(client, num_candidates=2)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            candidates = provider.propose(task, workdir, runner, memories=[])
+
+        self.assertEqual(
+            [candidate.candidate_id for candidate in candidates],
+            ["deepseek-0", "deepseek-1"],
+        )
+        self.assertEqual(len(client.messages), 2)
+        self.assertIn("Candidate 2 of 2", client.messages[1][-1].content)
+
+
+class FakePatchClient:
+    model = "fake-deepseek"
+
+    def __init__(self, outputs: list[str]) -> None:
+        self.outputs = outputs
+        self.messages: list[list[ChatMessage]] = []
+
+    def chat(self, messages: list[ChatMessage], temperature: float = 1.0) -> str:
+        self.messages.append(list(messages))
+        return self.outputs.pop(0)
+
+
+def _patch(replacement: str) -> str:
+    added_lines = "".join(f"+{line}\n" for line in replacement.splitlines())
+    return (
+        "diff --git a/calc.py b/calc.py\n"
+        "--- a/calc.py\n"
+        "+++ b/calc.py\n"
+        "@@ -1,2 +1,4 @@\n"
+        " def divide(a, b):\n"
+        "-    return a / b\n"
+        f"{added_lines}"
+    )
+
 
 if __name__ == "__main__":
     unittest.main()
-

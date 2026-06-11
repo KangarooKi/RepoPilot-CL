@@ -17,6 +17,7 @@ from repopilot.benchmark.runner import (
 from repopilot.benchmark.task_loader import Task
 from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
+from repopilot.reranker.score import RuleBasedPatchReranker
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.logger import TrajectoryLogger
 from repopilot.verifier.pytest_verifier import CommandVerifier
@@ -69,6 +70,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--allow-insecure-ssl", action="store_true")
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--max-test-runs", type=int, default=4)
+    parser.add_argument(
+        "--num-candidates",
+        type=int,
+        default=1,
+        help="Number of DeepSeek patch candidates for non-tool providers.",
+    )
+    parser.add_argument(
+        "--reranker",
+        choices=["rule", "none"],
+        default="rule",
+        help="Patch reranker for candidate-based providers.",
+    )
     parser.add_argument(
         "--trajectory-log",
         default="data/trajectories/benchmark.jsonl",
@@ -157,6 +170,7 @@ def build_agent(
     verifier: CommandVerifier,
     memory_retriever,
 ):
+    patch_reranker = build_reranker(args.reranker)
     if args.provider in {"deepseek", "deepseek-tools"}:
         client = DeepSeekClient(
             model=args.model,
@@ -181,15 +195,27 @@ def build_agent(
         return CodingAgent(
             runner,
             verifier,
-            DeepSeekPatchProvider(client, args.temperature),
+            DeepSeekPatchProvider(
+                client,
+                temperature=args.temperature,
+                num_candidates=args.num_candidates,
+            ),
             memory_retriever=memory_retriever,
+            patch_reranker=patch_reranker,
         )
     return CodingAgent(
         runner,
         verifier,
         ScriptedPatchProvider(),
         memory_retriever=memory_retriever,
+        patch_reranker=patch_reranker,
     )
+
+
+def build_reranker(name: str) -> RuleBasedPatchReranker | None:
+    if name == "none":
+        return None
+    return RuleBasedPatchReranker()
 
 
 if __name__ == "__main__":

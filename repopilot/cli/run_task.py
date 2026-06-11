@@ -11,6 +11,7 @@ from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.benchmark.task_loader import load_task
 from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
+from repopilot.reranker.score import RuleBasedPatchReranker
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.logger import TrajectoryLogger
 from repopilot.verifier.pytest_verifier import CommandVerifier
@@ -81,6 +82,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum verifier test runs for deepseek-tools.",
     )
     parser.add_argument(
+        "--num-candidates",
+        type=int,
+        default=1,
+        help="Number of DeepSeek patch candidates for non-tool providers.",
+    )
+    parser.add_argument(
+        "--reranker",
+        choices=["rule", "none"],
+        default="rule",
+        help="Patch reranker for candidate-based providers.",
+    )
+    parser.add_argument(
         "--trajectory-log",
         default="data/trajectories/latest.jsonl",
         help="JSONL file for trajectory output.",
@@ -120,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
         else MemoryRuntime.from_path(args.memory_store, top_k=args.memory_top_k)
     )
     memory_retriever = memory_runtime.retriever()
+    patch_reranker = build_reranker(args.reranker)
 
     if args.provider in {"deepseek", "deepseek-tools"}:
         client = DeepSeekClient(
@@ -143,12 +157,17 @@ def main(argv: list[str] | None = None) -> int:
                 ),
             )
         else:
-            patch_provider = DeepSeekPatchProvider(client, temperature=args.temperature)
+            patch_provider = DeepSeekPatchProvider(
+                client,
+                temperature=args.temperature,
+                num_candidates=args.num_candidates,
+            )
             agent = CodingAgent(
                 runner,
                 verifier,
                 patch_provider,
                 memory_retriever=memory_retriever,
+                patch_reranker=patch_reranker,
             )
     else:
         patch_provider = ScriptedPatchProvider()
@@ -157,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
             verifier,
             patch_provider,
             memory_retriever=memory_retriever,
+            patch_reranker=patch_reranker,
         )
     result = agent.run(task)
     learned_memory = memory_runtime.learn(result.trajectory)
@@ -176,6 +196,12 @@ def main(argv: list[str] | None = None) -> int:
         )
     )
     return 0 if result.resolved else 1
+
+
+def build_reranker(name: str) -> RuleBasedPatchReranker | None:
+    if name == "none":
+        return None
+    return RuleBasedPatchReranker()
 
 
 if __name__ == "__main__":

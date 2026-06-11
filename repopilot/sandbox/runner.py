@@ -135,6 +135,23 @@ class SandboxRunner:
             stderr=completed.stderr,
         )
 
+    def revert_unified_diff(self, workdir: str | Path, diff: str) -> CommandResult:
+        normalized_diff = diff if diff.endswith("\n") else diff + "\n"
+        completed = subprocess.run(
+            ["git", "apply", "-R", "--whitespace=nowarn"],
+            cwd=Path(workdir),
+            input=normalized_diff,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        return CommandResult(
+            command="git apply -R --whitespace=nowarn",
+            returncode=completed.returncode,
+            stdout=completed.stdout,
+            stderr=completed.stderr,
+        )
+
     def replace_text(
         self,
         workdir: str | Path,

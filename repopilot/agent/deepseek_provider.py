@@ -11,11 +11,17 @@ from repopilot.sandbox.runner import SandboxRunner
 
 
 class DeepSeekPatchProvider:
-    """Patch provider that asks DeepSeek for a unified diff candidate."""
+    """Patch provider that asks DeepSeek for one or more unified diff candidates."""
 
-    def __init__(self, client: DeepSeekClient, temperature: float = 1.0) -> None:
+    def __init__(
+        self,
+        client: DeepSeekClient,
+        temperature: float = 1.0,
+        num_candidates: int = 1,
+    ) -> None:
         self.client = client
         self.temperature = temperature
+        self.num_candidates = max(1, num_candidates)
 
     def propose(
         self,
@@ -25,30 +31,38 @@ class DeepSeekPatchProvider:
         memories: list[MemoryRecord],
     ) -> list[PatchCandidate]:
         prompt = build_patch_prompt(task, workdir, runner, memories)
-        content = self.client.chat(
-            [
-                ChatMessage(
-                    role="system",
-                    content=(
-                        "You are RepoPilot-CL, a coding agent. Return only a valid "
-                        "unified diff patch. Do not wrap the answer in markdown."
+        candidates: list[PatchCandidate] = []
+        seen_diffs: set[str] = set()
+        for index in range(self.num_candidates):
+            content = self.client.chat(
+                [
+                    ChatMessage(
+                        role="system",
+                        content=(
+                            "You are RepoPilot-CL, a coding agent. Return only a valid "
+                            "unified diff patch. Do not wrap the answer in markdown."
+                        ),
                     ),
-                ),
-                ChatMessage(role="user", content=prompt),
-            ],
-            temperature=self.temperature,
-        )
-        diff = extract_unified_diff(content)
-        if not diff:
-            return []
-        return [
-            PatchCandidate(
-                candidate_id="deepseek-0",
-                diff=diff,
-                rationale="DeepSeek-generated candidate patch.",
-                model=self.client.model,
+                    ChatMessage(
+                        role="user",
+                        content=_candidate_prompt(prompt, index, self.num_candidates),
+                    ),
+                ],
+                temperature=self.temperature,
             )
-        ]
+            diff = extract_unified_diff(content)
+            if not diff or diff in seen_diffs:
+                continue
+            seen_diffs.add(diff)
+            candidates.append(
+                PatchCandidate(
+                    candidate_id=f"deepseek-{index}",
+                    diff=diff,
+                    rationale="DeepSeek-generated candidate patch.",
+                    model=self.client.model,
+                )
+            )
+        return candidates
 
 
 def build_patch_prompt(
@@ -101,3 +115,18 @@ def extract_unified_diff(text: str) -> str:
         if line.startswith("diff --git ") or line.startswith("--- "):
             return "\n".join(lines[index:]).strip() + "\n"
     return ""
+
+
+def _candidate_prompt(prompt: str, index: int, total: int) -> str:
+    if total == 1:
+        return prompt
+    return "\n\n".join(
+        [
+            prompt,
+            (
+                f"Candidate {index + 1} of {total}: produce an independent minimal "
+                "patch candidate. Prefer a different repair strategy if multiple "
+                "reasonable fixes exist."
+            ),
+        ]
+    )
