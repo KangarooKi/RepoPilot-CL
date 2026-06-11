@@ -21,6 +21,7 @@ dev = [
 [project.scripts]
 repopilot-run-task = "repopilot.cli.run_task:main"
 repopilot-run-experiment = "repopilot.cli.run_experiment:main"
+repopilot-build-reranker-dataset = "repopilot.cli.build_reranker_dataset:main"
 
 [tool.setuptools.packages.find]
 include = ["repopilot*"]

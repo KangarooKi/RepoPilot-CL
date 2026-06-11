@@ -147,6 +147,7 @@ class CodingAgent:
                 verification.error_summary or f"resolved={verification.resolved}",
                 {
                     "candidate_id": candidate.candidate_id,
+                    "candidate_patch": candidate_patch,
                     **verification.to_dict(),
                 },
             )

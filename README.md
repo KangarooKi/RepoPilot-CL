@@ -111,6 +111,18 @@ python3 -m repopilot.cli.run_experiment "tasks/toy/*/task.json" \
 This runs `baseline`, `memory`, and `memory_reranker` variants with isolated
 artifacts, then writes `experiment_summary.json` and `report.md`.
 
+Build reranker training data from trajectories:
+
+```bash
+python3 -m repopilot.cli.build_reranker_dataset \
+  data/experiments/toy_ablation/memory_reranker/trajectory.jsonl \
+  --output data/reranker/reranker_examples.jsonl
+```
+
+Each verified candidate patch becomes one JSONL example with the issue, baseline
+failure, retrieved memory ids, candidate patch, trajectory summary, and verifier
+label.
+
 Run a SWE-bench-style JSONL subset:
 
 ```bash
