@@ -100,6 +100,17 @@ Run a task suite:
 python3 -m repopilot.cli.run_benchmark "tasks/toy/*/task.json" --provider deepseek-tools
 ```
 
+Run an ablation experiment:
+
+```bash
+python3 -m repopilot.cli.run_experiment "tasks/toy/*/task.json" \
+  --provider scripted \
+  --output-dir data/experiments/toy_ablation
+```
+
+This runs `baseline`, `memory`, and `memory_reranker` variants with isolated
+artifacts, then writes `experiment_summary.json` and `report.md`.
+
 Run a SWE-bench-style JSONL subset:
 
 ```bash

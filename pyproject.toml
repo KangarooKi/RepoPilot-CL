@@ -20,7 +20,7 @@ dev = [
 
 [project.scripts]
 repopilot-run-task = "repopilot.cli.run_task:main"
+repopilot-run-experiment = "repopilot.cli.run_experiment:main"
 
 [tool.setuptools.packages.find]
 include = ["repopilot*"]
-
