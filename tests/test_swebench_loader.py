@@ -30,6 +30,22 @@ class SwebenchLoaderTest(unittest.TestCase):
         self.assertIn("Hints", task.issue)
         self.assertIn("tests/test_calc.py::test_zero", task.test_command)
 
+    def test_convert_swebench_record_quotes_and_relaxes_pytest_node_ids(self) -> None:
+        record = {
+            "instance_id": "demo__repo-2",
+            "repo": "demo/repo",
+            "base_commit": "abc123",
+            "problem_statement": "Fix a parameterized test.",
+            "FAIL_TO_PASS": ["tests/test_parser.py::test_case[select id"],
+        }
+
+        task = swebench_record_to_task(record)
+
+        self.assertEqual(
+            task.test_command,
+            "python3 -m pytest tests/test_parser.py::test_case",
+        )
+
     def test_load_jsonl_and_prepare_local_repo(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

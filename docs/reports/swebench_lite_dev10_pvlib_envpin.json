@@ -1,0 +1,58 @@
+{
+  "total": 3,
+  "resolved": 0,
+  "resolved_rate": 0.0,
+  "avg_patch_lines": 0.0,
+  "avg_model_steps": 0.0,
+  "avg_tool_steps": 0.0,
+  "avg_test_runs": 1.0,
+  "model_error_tasks": 0,
+  "timeout_tasks": 0,
+  "tasks": [
+    {
+      "task_id": "pvlib__pvlib-python-1707",
+      "repo": "pvlib/pvlib-python",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 0,
+      "tool_steps": 0,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "regression: iam.physical returns nan for aoi > 90\u00b0 when n = 1",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1072",
+      "repo": "pvlib/pvlib-python",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 0,
+      "tool_steps": 0,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "temperature.fuentes errors when given tz-aware inputs on pandas>=1.0.0",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1606",
+      "repo": "pvlib/pvlib-python",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 0,
+      "tool_steps": 0,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "golden-section search fails when upper and lower bounds are equal",
+      "patch_preview": ""
+    }
+  ]
+}

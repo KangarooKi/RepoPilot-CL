@@ -1,0 +1,177 @@
+{
+  "total": 10,
+  "resolved": 6,
+  "resolved_rate": 0.6,
+  "avg_patch_lines": 16.1,
+  "avg_model_steps": 12.1,
+  "avg_tool_steps": 12.1,
+  "avg_test_runs": 3.0,
+  "model_error_tasks": 1,
+  "timeout_tasks": 1,
+  "tasks": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1625",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 12,
+      "tool_steps": 12,
+      "test_runs": 3,
+      "changed_files": [
+        "src/sqlfluff/rules/L031.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "TSQL - L031 incorrectly triggers \"Avoid using aliases in join condition\" when no join present",
+      "patch_preview": "diff --git a/src/sqlfluff/rules/L031.py b/src/sqlfluff/rules/L031.py\nindex 838c6ce5d..6069afe70 100644\n--- a/src/sqlfluff/rules/L031.py\n+++ b/src/sqlfluff/rules/L031.py\n@@ -211,7 +211,7 @@ class Rule_L031(BaseRule):\n             violation_buff.append(\n                 LintResult(\n                     anchor=alias_info.alias_identifier_ref,\n-                    description=\"Avoid using aliases in join condition\",\n+                    description=\"Avoid aliases in from clauses and join conditions.\",\n                     fixes=fixes,\n                 )\n             )\n"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-2419",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 14,
+      "model_steps": 13,
+      "tool_steps": 13,
+      "test_runs": 3,
+      "changed_files": [
+        "src/sqlfluff/rules/L060.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Rule L060 could give a specific error message",
+      "patch_preview": "diff --git a/src/sqlfluff/rules/L060.py b/src/sqlfluff/rules/L060.py\nindex 836941edc..853ceeb6f 100644\n--- a/src/sqlfluff/rules/L060.py\n+++ b/src/sqlfluff/rules/L060.py\n@@ -59,4 +59,8 @@ class Rule_L060(BaseRule):\n             ],\n         )\n \n-        return LintResult(context.segment, [fix])\n+        return LintResult(\n+            context.segment,\n+            [fix],\n+            description=f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\",\n+        )\n"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1733",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 59,
+      "model_steps": 15,
+      "tool_steps": 15,
+      "test_runs": 6,
+      "changed_files": [
+        "src/sqlfluff/rules/L039.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Extra space when first field moved to new line in a WITH statement",
+      "patch_preview": "diff --git a/src/sqlfluff/rules/L039.py b/src/sqlfluff/rules/L039.py\nindex 0e0846725..650d2d32b 100644\n--- a/src/sqlfluff/rules/L039.py\n+++ b/src/sqlfluff/rules/L039.py\n@@ -33,36 +33,34 @@ class Rule_L039(BaseRule):\n     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:\n         \"\"\"Unnecessary whitespace.\"\"\"\n         # For the given segment, lint whitespace directly within it.\n-        prev_newline = True\n+        after_newline = True\n         prev_whitespace = None\n         violations = []\n         for seg in context.segment.segments:\n             if seg.is_type(\"newline\"):\n-                prev_newline = True\n+                after_newline = True\n                 prev_whitespace = None\n             elif seg.is_type(\"whitespace\"):\n-                # This is to avoid indents\n-                if not prev_newline:\n+                # This is to avoid indents including multiple consecutive whitespace\n+                if not after_newline:\n                     prev_whitespace = seg\n-                prev_newline = False\n..."
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1517",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 15,
+      "tool_steps": 15,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "\"Dropped elements in sequence matching\" when doubled semicolon",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1763",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 14,
+      "tool_steps": 14,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 2,
+      "issue_title": "dbt postgres fix command errors with UnicodeEncodeError and also wipes the .sql file",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1359",
+      "repo": "marshmallow-code/marshmallow",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 16,
+      "tool_steps": 16,
+      "test_runs": 5,
+      "changed_files": [
+        "src/marshmallow/fields.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "3.0: DateTime fields cannot be used as inner field for List or Tuple fields",
+      "patch_preview": "diff --git a/src/marshmallow/fields.py b/src/marshmallow/fields.py\nindex 0b18e7dd..55e36e26 100644\n--- a/src/marshmallow/fields.py\n+++ b/src/marshmallow/fields.py\n@@ -1114,7 +1114,7 @@ class DateTime(Field):\n         super()._bind_to_schema(field_name, schema)\n         self.format = (\n             self.format\n-            or getattr(schema.opts, self.SCHEMA_OPTS_VAR_NAME)\n+            or getattr(self.root.opts, self.SCHEMA_OPTS_VAR_NAME)\n             or self.DEFAULT_FORMAT\n         )\n \n"
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "resolved": false,
+      "patch_lines": 25,
+      "model_steps": 16,
+      "tool_steps": 16,
+      "test_runs": 1,
+      "changed_files": [
+        "src/marshmallow/marshalling.py"
+      ],
+      "failure_type": "unresolved_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "[version 2.20.0] TypeError: 'NoneType' object is not subscriptable",
+      "patch_preview": "diff --git a/src/marshmallow/marshalling.py b/src/marshmallow/marshalling.py\nindex feb7d1aa..e60288cc 100644\n--- a/src/marshmallow/marshalling.py\n+++ b/src/marshmallow/marshalling.py\n@@ -10,10 +10,8 @@ and from primitive types.\n \n from __future__ import unicode_literals\n \n-import collections\n-\n+from marshmallow.compat import Mapping, text_type, iteritems\n from marshmallow.utils import is_collection, missing, set_value\n-from marshmallow.compat import text_type, iteritems\n from marshmallow.exceptions import (\n     ValidationError,\n )\n@@ -250,7 +248,7 @@ class Unmarshaller(ErrorStore):\n \n         ret = dict_class()\n \n-        if not isinstance(data, collections.Mapping):\n+        if not isinstance(data, Mapping):\n             errors = self.get_errors(index=index)\n             msg = 'Invalid input type.'\n..."
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1707",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 24,
+      "model_steps": 13,
+      "tool_steps": 13,
+      "test_runs": 6,
+      "changed_files": [
+        "pvlib/iam.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "regression: iam.physical returns nan for aoi > 90\u00b0 when n = 1",
+      "patch_preview": "diff --git a/pvlib/iam.py b/pvlib/iam.py\nindex 3eaa6b4c..60828e2e 100644\n--- a/pvlib/iam.py\n+++ b/pvlib/iam.py\n@@ -212,9 +212,19 @@ def physical(aoi, n=1.526, K=4.0, L=0.002, *, n_ar=None):\n     tau_p *= np.exp(-K * L / costheta)\n     tau_0 *= np.exp(-K * L)\n \n+    # incidence angle modifier\n     # incidence angle modifier\n     iam = (tau_s + tau_p) / 2 / tau_0\n \n+    # set IAM to zero for AOI >= 90 degrees\n+    aoi_gte_90 = np.full_like(aoi, False, dtype='bool')\n+    np.greater_equal(np.abs(aoi), 90, where=~np.isnan(aoi), out=aoi_gte_90)\n+    iam = np.where(aoi_gte_90, 0, iam)\n+    iam = np.maximum(0, iam)\n+\n+    if isinstance(aoi, pd.Series):\n+        iam = pd.Series(iam, index=aoi.index)\n+\n     return iam\n \n \n"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1072",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 5,
+      "tool_steps": 5,
+      "test_runs": 3,
+      "changed_files": [
+        "pvlib/temperature.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "temperature.fuentes errors when given tz-aware inputs on pandas>=1.0.0",
+      "patch_preview": "diff --git a/pvlib/temperature.py b/pvlib/temperature.py\nindex 1d98736b..eb46d518 100644\n--- a/pvlib/temperature.py\n+++ b/pvlib/temperature.py\n@@ -599,7 +599,7 @@ def fuentes(poa_global, temp_air, wind_speed, noct_installed, module_height=5,\n     # n.b. the way Fuentes calculates the first timedelta makes it seem like\n     # the value doesn't matter -- rather than recreate it here, just assume\n     # it's the same as the second timedelta:\n-    timedelta_hours = np.diff(poa_global.index).astype(float) / 1e9 / 60 / 60\n+    timedelta_hours = np.diff(poa_global.index.asi8) / 1e9 / 60 / 60\n     timedelta_hours = np.append([timedelta_hours[0]], timedelta_hours)\n \n     tamb_array = temp_air + 273.15\n"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1606",
+      "repo": "pvlib/pvlib-python",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 2,
+      "tool_steps": 2,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "model_timeout",
+      "model_errors": 1,
+      "invalid_actions": 0,
+      "issue_title": "golden-section search fails when upper and lower bounds are equal",
+      "patch_preview": ""
+    }
+  ]
+}

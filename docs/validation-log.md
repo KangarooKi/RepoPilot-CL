@@ -1,5 +1,81 @@
 # Validation Log
 
+## 2026-06-12: SWE-bench Lite 10-task tool-agent benchmark
+
+- Tasks: first 10 records from the SWE-bench Lite dev split
+- Repositories: `sqlfluff/sqlfluff`, `marshmallow-code/marshmallow`,
+  `pvlib/pvlib-python`
+- Model: `deepseek-v4-flash`
+- Reasoning: `reasoning_effort=max`, `temperature=1.0`
+- Environment: cached repository clones, per-task virtualenvs, editable
+  installs, pytest verifier
+- Setup command: `python -m pip install 'pytest<8' 'click<8.2' 'numpy<2' 'scipy<1.10' 'pandas<2' simplejson pytz pytest-mock pytest-timeout pytest-rerunfailures pytest-remotedata`
+
+Environment calibration:
+
+- Added shell quoting for SWE-bench pytest node ids.
+- Relaxed incomplete parameterized pytest node ids to the containing function
+  when SWE-bench Lite records are truncated at whitespace.
+- Pinned `scipy<1.10` and `pandas<2` for pvlib tasks so the verifier reaches
+  task-specific failures instead of dependency import errors.
+
+Formal run:
+
+```bash
+python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_10.jsonl \
+  --input-format swebench \
+  --limit 10 \
+  --repo-cache-dir data/repos \
+  --use-venv \
+  --install-repo \
+  --setup-command "python -m pip install 'pytest<8' 'click<8.2' 'numpy<2' 'scipy<1.10' 'pandas<2' simplejson pytz pytest-mock pytest-timeout pytest-rerunfailures pytest-remotedata" \
+  --provider deepseek-tools \
+  --model deepseek-v4-flash \
+  --reasoning-effort max \
+  --temperature 1.0 \
+  --api-timeout-sec 120 \
+  --max-steps 16 \
+  --max-test-runs 5 \
+  --runs-dir runs_swebench_lite_dev10_tools_envpin \
+  --trajectory-log data/trajectories/swebench_lite_dev10_tools_envpin.jsonl \
+  --memory-store data/memory/swebench_lite_dev10_tools_envpin_memory.jsonl \
+  --output data/benchmarks/swebench_lite_dev10_tools_envpin.json
+```
+
+Result:
+
+| Task | Resolved | Failure Type | Changed Files |
+|---|---:|---|---|
+| `sqlfluff__sqlfluff-1625` | yes | `resolved` | `src/sqlfluff/rules/L031.py` |
+| `sqlfluff__sqlfluff-2419` | yes | `resolved` | `src/sqlfluff/rules/L060.py` |
+| `sqlfluff__sqlfluff-1733` | yes | `resolved` | `src/sqlfluff/rules/L039.py` |
+| `sqlfluff__sqlfluff-1517` | no | `no_patch` | none |
+| `sqlfluff__sqlfluff-1763` | no | `no_patch` | none |
+| `marshmallow-code__marshmallow-1359` | yes | `resolved` | `src/marshmallow/fields.py` |
+| `marshmallow-code__marshmallow-1343` | no | `unresolved_patch` | `src/marshmallow/marshalling.py` |
+| `pvlib__pvlib-python-1707` | yes | `resolved` | `pvlib/iam.py` |
+| `pvlib__pvlib-python-1072` | yes | `resolved` | `pvlib/temperature.py` |
+| `pvlib__pvlib-python-1606` | no | `model_timeout` | none |
+
+Aggregate: `6/10` resolved, average `12.1` model/tool steps per task,
+average `3.0` verifier runs per task, and one model timeout.
+
+Generated reports:
+
+- Markdown: `docs/reports/swebench_lite_dev10_tools_envpin.md`
+- JSON: `docs/reports/swebench_lite_dev10_tools_envpin.json`
+- Environment checks: `docs/reports/swebench_lite_dev10_envcheck.md`,
+  `docs/reports/swebench_lite_dev10_envfix.md`,
+  `docs/reports/swebench_lite_dev10_pvlib_envpin.md`
+
+Local regression suite:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+Result: `52` tests passed after adding the truncated-node-id regression test.
+
 ## 2026-06-12: SWE-bench Lite 3-task tool-agent benchmark
 
 - Tasks: `sqlfluff__sqlfluff-1625`, `sqlfluff__sqlfluff-2419`,

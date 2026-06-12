@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 from pathlib import Path
 from typing import Any
 
@@ -109,4 +110,19 @@ def _default_pytest_command(
     tests = fail_to_pass or pass_to_pass
     if not tests:
         return "python3 -m pytest"
-    return "python3 -m pytest " + " ".join(tests)
+    quoted_tests = [shlex.quote(_normalize_pytest_node_id(test)) for test in tests]
+    return "python3 -m pytest " + " ".join(quoted_tests)
+
+
+def _normalize_pytest_node_id(test: str) -> str:
+    """Relax incomplete parameterized node ids to the full test function.
+
+    Some SWE-bench Lite rows contain parameterized pytest node ids truncated at
+    the first space, for example ``test_file.py::test_case[select``. Running the
+    containing test function is broader but still executes the injected
+    regression test instead of failing collection before the agent starts.
+    """
+
+    if "[" in test and "]" not in test:
+        return test.split("[", 1)[0]
+    return test

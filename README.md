@@ -33,6 +33,21 @@ This first implementation provides a local, testable skeleton:
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
 
+## Validated Result
+
+Latest local benchmark: DeepSeek-V4-Flash tool-agent on a 10-task SWE-bench
+Lite dev slice.
+
+| Split | Tasks | Model | Resolved | Report |
+|---|---:|---|---:|---|
+| SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | 6/10 | [`swebench_lite_dev10_tools_envpin.md`](docs/reports/swebench_lite_dev10_tools_envpin.md) |
+
+The run uses cached upstream repositories, per-task virtualenvs, editable
+installs, pytest verification, trajectory memory, and the JSON tool-action
+loop. The subset covers `sqlfluff`, `marshmallow`, and `pvlib`; unresolved
+cases are kept in the report with failure types so they can seed the next
+debugging and continual-learning stage.
+
 ## Quick Start
 
 Run the toy task:
