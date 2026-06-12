@@ -58,6 +58,11 @@ Result:
 
 Aggregate: `3/3` resolved.
 
+Generated reports:
+
+- Markdown: `docs/reports/swebench_lite_dev3_tools_envfix.md`
+- JSON: `docs/reports/swebench_lite_dev3_tools_envfix.json`
+
 Engineering changes made during this stage:
 
 - Added `--api-timeout-sec` to task, benchmark, and experiment CLIs.
@@ -65,6 +70,7 @@ Engineering changes made during this stage:
 - Recorded `model_call_error` in tool-agent trajectories instead of crashing or
   hanging a batch.
 - Recorded `propose_patch_error` for non-tool patch provider failures.
+- Added `repopilot.cli.report_benchmark` for Markdown/JSON benchmark reports.
 
 Local regression suite:
 

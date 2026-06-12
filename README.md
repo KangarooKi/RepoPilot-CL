@@ -202,6 +202,17 @@ python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
   --api-timeout-sec 120
 ```
 
+Render a benchmark report from a summary and trajectory log:
+
+```bash
+python3 -m repopilot.cli.report_benchmark \
+  --summary data/benchmarks/swebench_lite_dev3_tools_envfix.json \
+  --trajectory data/trajectories/swebench_lite_dev3_tools_envfix.jsonl \
+  --output-md docs/reports/swebench_lite_dev3_tools_envfix.md \
+  --output-json docs/reports/swebench_lite_dev3_tools_envfix.json \
+  --title "SWE-bench Lite Dev-3 Tool-Agent Report"
+```
+
 ## Model Plan
 
 | Component | Planned Model |
