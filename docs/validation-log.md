@@ -1,5 +1,49 @@
 # Validation Log
 
+## 2026-06-12: Hard-case rescue loop for SWE-bench Lite dev-10
+
+- Source run: `docs/reports/swebench_lite_dev10_tools_envpin.json`
+- Rescue task ids: `docs/reports/swebench_lite_dev10_unresolved_task_ids.txt`
+- Plan: `docs/reports/swebench_lite_dev10_rescue_plan.md`
+- Model: `deepseek-v4-flash`
+- Rescue budget: `max_steps=24`, `max_test_runs=8`, `api_timeout_sec=180`,
+  `model_retries=1`
+
+Engineering changes made during this stage:
+
+- Added `--task-id` and `--task-ids-file` to `run_benchmark` so failed subsets
+  can be replayed directly.
+- Added `repopilot.cli.plan_rescue` to extract unresolved cases from a benchmark
+  report and render a hard-case rerun plan.
+- Added configurable model-call retry support for the DeepSeek tool-agent.
+- Changed tool execution failures, such as a model reading a misspelled path, to
+  become observations instead of crashing the whole benchmark batch.
+
+Rescue outcomes:
+
+| Task | Previous Failure | Rescue Outcome | Main Change |
+|---|---|---:|---|
+| `sqlfluff__sqlfluff-1517` | `no_patch` | no | Still no patch after the larger budget. |
+| `sqlfluff__sqlfluff-1763` | `no_patch` | yes | Added safe atomic replacement for linted file writes. |
+| `marshmallow-code__marshmallow-1343` | `unresolved_patch` | no | Tool-error handling kept the batch alive, but no final patch was produced. |
+| `pvlib__pvlib-python-1606` | `model_timeout` | yes | Guarded golden-section width when upper and lower bounds are equal. |
+
+Aggregate after merging rescue trajectories with the original dev-10 run:
+`8/10` resolved.
+
+Generated reports:
+
+- Markdown: `docs/reports/swebench_lite_dev10_after_rescue.md`
+- JSON: `docs/reports/swebench_lite_dev10_after_rescue.json`
+
+Local regression suite:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+Result: `59` tests passed.
+
 ## 2026-06-12: SWE-bench Lite 10-task tool-agent benchmark
 
 - Tasks: first 10 records from the SWE-bench Lite dev split

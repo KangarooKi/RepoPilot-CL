@@ -100,11 +100,14 @@ def load_task_inputs(
 def filter_tasks(
     tasks: list[Task],
     *,
+    task_ids: set[str] | None = None,
     repo_contains: str | None = None,
     max_fail_to_pass: int | None = None,
     max_pass_to_pass: int | None = None,
 ) -> list[Task]:
     filtered = tasks
+    if task_ids is not None:
+        filtered = [task for task in filtered if task.task_id in task_ids]
     if repo_contains:
         filtered = [task for task in filtered if repo_contains in task.repo]
     if max_fail_to_pass is not None:

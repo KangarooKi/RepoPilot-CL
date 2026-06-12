@@ -29,6 +29,7 @@ class ChatClient(Protocol):
 class ToolLoopConfig:
     max_steps: int = 12
     max_test_runs: int = 4
+    max_model_retries: int = 0
     max_observation_chars: int = 6000
     temperature: float = 1.0
 
@@ -80,17 +81,8 @@ class DeepSeekToolAgent:
         submitted = False
 
         for step in range(1, self.config.max_steps + 1):
-            try:
-                model_output = self.client.chat(
-                    messages,
-                    temperature=self.config.temperature,
-                )
-            except Exception as exc:
-                trajectory.add_step(
-                    "model_call_error",
-                    f"{type(exc).__name__}: {exc}",
-                    {"step": step, "model": self.client.model},
-                )
+            model_output = self._chat_with_retries(messages, trajectory, step)
+            if model_output is None:
                 break
             try:
                 action = parse_action(model_output)
@@ -111,13 +103,19 @@ class DeepSeekToolAgent:
                 {"step": step, "action": action.to_dict()},
             )
 
-            observation, final_result, did_submit, test_runs = self._execute_action(
-                action=action,
-                task=task,
-                workdir=workdir,
-                current_result=final_result,
-                test_runs=test_runs,
-            )
+            tool_error = None
+            try:
+                observation, final_result, did_submit, test_runs = self._execute_action(
+                    action=action,
+                    task=task,
+                    workdir=workdir,
+                    current_result=final_result,
+                    test_runs=test_runs,
+                )
+            except Exception as exc:
+                tool_error = f"{type(exc).__name__}: {exc}"
+                observation = f"Tool action error: {tool_error}"
+                did_submit = False
             submitted = submitted or did_submit
             trajectory.add_step(
                 f"tool:{action.name}",
@@ -127,6 +125,7 @@ class DeepSeekToolAgent:
                     "action": action.to_dict(),
                     "resolved": final_result.resolved,
                     "test_runs": test_runs,
+                    "tool_error": tool_error,
                 },
             )
 
@@ -235,6 +234,35 @@ class DeepSeekToolAgent:
             return json.dumps(observation, indent=2), verification, True, test_runs + 1
 
         raise ValueError(f"Unsupported action: {action.name}")
+
+    def _chat_with_retries(
+        self,
+        messages: list[ChatMessage],
+        trajectory: Trajectory,
+        step: int,
+    ) -> str | None:
+        attempts = max(0, self.config.max_model_retries) + 1
+        for attempt in range(1, attempts + 1):
+            try:
+                return self.client.chat(
+                    messages,
+                    temperature=self.config.temperature,
+                )
+            except Exception as exc:
+                retriable = attempt < attempts
+                trajectory.add_step(
+                    "model_call_error",
+                    f"{type(exc).__name__}: {exc}",
+                    {
+                        "step": step,
+                        "attempt": attempt,
+                        "model": self.client.model,
+                        "retriable": retriable,
+                    },
+                )
+                if not retriable:
+                    return None
+        return None
 
 
 SYSTEM_PROMPT = """You are RepoPilot-CL, a repository-level coding agent.

@@ -49,6 +49,18 @@ class BenchmarkRunnerTest(unittest.TestCase):
             0,
         )
 
+    def test_filter_tasks_by_task_id(self) -> None:
+        tasks = load_task_inputs(
+            [
+                Path("tasks/toy/divide_by_zero/task.json"),
+                Path("tasks/toy/off_by_one/task.json"),
+            ]
+        )
+
+        filtered = filter_tasks(tasks, task_ids={"toy_off_by_one"})
+
+        self.assertEqual([task.task_id for task in filtered], ["toy_off_by_one"])
+
 
 if __name__ == "__main__":
     unittest.main()

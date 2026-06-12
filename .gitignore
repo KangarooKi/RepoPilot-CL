@@ -17,6 +17,7 @@ runs_*/
 data/trajectories/
 data/memory/
 data/reranker/
+data/rescue/
 data/benchmarks/
 data/experiments/
 data/swebench/

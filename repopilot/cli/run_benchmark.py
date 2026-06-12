@@ -38,6 +38,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Input task format.",
     )
     parser.add_argument("--limit", type=int, default=None, help="Maximum tasks to run.")
+    parser.add_argument(
+        "--task-id",
+        action="append",
+        default=[],
+        help="Run only the specified task id. May be passed multiple times.",
+    )
+    parser.add_argument(
+        "--task-ids-file",
+        default=None,
+        help="Newline-delimited task ids to run, for rescue/hard-case subsets.",
+    )
     parser.add_argument("--repo-contains", default=None)
     parser.add_argument("--max-fail-to-pass", type=int, default=None)
     parser.add_argument("--max-pass-to-pass", type=int, default=None)
@@ -78,6 +89,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--max-test-runs", type=int, default=4)
+    parser.add_argument(
+        "--model-retries",
+        type=int,
+        default=0,
+        help="Retry failed DeepSeek tool-agent model calls before giving up.",
+    )
     parser.add_argument(
         "--num-candidates",
         type=int,
@@ -139,8 +156,10 @@ def main(argv: list[str] | None = None) -> int:
     if not task_files:
         raise SystemExit("No task files matched.")
     tasks = load_task_inputs(task_files, input_format=args.input_format)
+    task_ids = _load_task_id_filter(args.task_id, args.task_ids_file)
     tasks = filter_tasks(
         tasks,
+        task_ids=task_ids,
         repo_contains=args.repo_contains,
         max_fail_to_pass=args.max_fail_to_pass,
         max_pass_to_pass=args.max_pass_to_pass,
@@ -212,6 +231,7 @@ def build_agent(
                 config=ToolLoopConfig(
                     max_steps=args.max_steps,
                     max_test_runs=args.max_test_runs,
+                    max_model_retries=args.model_retries,
                     temperature=args.temperature,
                 ),
             )
@@ -255,6 +275,21 @@ def build_context_builder(args) -> ContextPackBuilder:
         context_lines=args.context_lines,
         max_chars=args.context_max_chars,
     )
+
+
+def _load_task_id_filter(
+    task_ids: list[str],
+    task_ids_file: str | None,
+) -> set[str] | None:
+    selected = {task_id.strip() for task_id in task_ids if task_id.strip()}
+    if task_ids_file is not None:
+        with Path(task_ids_file).open("r", encoding="utf-8") as handle:
+            selected.update(
+                line.strip()
+                for line in handle
+                if line.strip() and not line.lstrip().startswith("#")
+            )
+    return selected or None
 
 
 if __name__ == "__main__":

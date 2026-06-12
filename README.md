@@ -29,6 +29,8 @@ This first implementation provides a local, testable skeleton:
 - robust patch application with hunk recounting, path repair, and patch previews
 - experiment runner for baseline, context, memory, and reranker variants
 - API call timeouts and trajectory logging for model-call failures
+- model-call retries and tool-error observations for hard-case recovery
+- rescue planner for rerunning unresolved benchmark cases
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -36,11 +38,12 @@ The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, 
 ## Validated Result
 
 Latest local benchmark: DeepSeek-V4-Flash tool-agent on a 10-task SWE-bench
-Lite dev slice.
+Lite dev slice, followed by a hard-case rescue pass over unresolved tasks.
 
-| Split | Tasks | Model | Resolved | Report |
-|---|---:|---|---:|---|
-| SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | 6/10 | [`swebench_lite_dev10_tools_envpin.md`](docs/reports/swebench_lite_dev10_tools_envpin.md) |
+| Split | Tasks | Model | Stage | Resolved | Report |
+|---|---:|---|---|---:|---|
+| SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | initial tool-agent | 6/10 | [`swebench_lite_dev10_tools_envpin.md`](docs/reports/swebench_lite_dev10_tools_envpin.md) |
+| SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | after rescue | 8/10 | [`swebench_lite_dev10_after_rescue.md`](docs/reports/swebench_lite_dev10_after_rescue.md) |
 
 The run uses cached upstream repositories, per-task virtualenvs, editable
 installs, pytest verification, trajectory memory, and the JSON tool-action
@@ -227,6 +230,18 @@ python3 -m repopilot.cli.report_benchmark \
   --output-json docs/reports/swebench_lite_dev3_tools_envfix.json \
   --title "SWE-bench Lite Dev-3 Tool-Agent Report"
 ```
+
+Create a hard-case rescue plan from unresolved benchmark cases:
+
+```bash
+python3 -m repopilot.cli.plan_rescue \
+  --report docs/reports/swebench_lite_dev10_tools_envpin.json \
+  --output-task-ids docs/reports/swebench_lite_dev10_unresolved_task_ids.txt \
+  --output-md docs/reports/swebench_lite_dev10_rescue_plan.md
+```
+
+Then rerun only those unresolved task ids with a larger step/test budget,
+model-call retries, and the same environment pins.
 
 ## Model Plan
 

@@ -31,6 +31,20 @@ class TimeoutChatClient:
         raise TimeoutError("request timed out")
 
 
+class FlakyChatClient(FakeChatClient):
+    model = "flaky-tool-model"
+
+    def __init__(self, actions: list[dict[str, object]]) -> None:
+        super().__init__(actions)
+        self.failed_once = False
+
+    def chat(self, messages: list[ChatMessage], temperature: float = 1.0) -> str:
+        if not self.failed_once:
+            self.failed_once = True
+            raise TimeoutError("first call timed out")
+        return super().chat(messages, temperature=temperature)
+
+
 class ToolAgentTest(unittest.TestCase):
     def test_tool_agent_solves_toy_task_with_action_loop(self) -> None:
         patch = (
@@ -137,6 +151,93 @@ class ToolAgentTest(unittest.TestCase):
         self.assertTrue(
             any(step.action == "model_call_error" for step in result.trajectory.steps)
         )
+
+    def test_tool_agent_retries_model_call_errors(self) -> None:
+        client = FlakyChatClient(
+            [
+                {
+                    "action": "replace_text",
+                    "args": {
+                        "path": "calc.py",
+                        "old": "    return a / b\n",
+                        "new": (
+                            "    if b == 0:\n"
+                            "        return None\n"
+                            "    return a / b\n"
+                        ),
+                    },
+                    "thought": "guard zero division",
+                },
+                {"action": "submit", "args": {}, "thought": "verify and submit"},
+            ]
+        )
+        task = load_task(Path("tasks/toy/divide_by_zero/task.json"))
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            verifier = CommandVerifier(runner)
+            agent = DeepSeekToolAgent(
+                runner,
+                verifier,
+                client,
+                config=ToolLoopConfig(
+                    max_steps=4,
+                    max_test_runs=3,
+                    max_model_retries=1,
+                ),
+            )
+            result = agent.run(task)
+
+        errors = [
+            step for step in result.trajectory.steps if step.action == "model_call_error"
+        ]
+        self.assertTrue(result.resolved)
+        self.assertEqual(len(errors), 1)
+        self.assertTrue(errors[0].metadata["retriable"])
+
+    def test_tool_agent_returns_tool_errors_to_model(self) -> None:
+        client = FakeChatClient(
+            [
+                {
+                    "action": "read_file",
+                    "args": {"path": "missing.py"},
+                    "thought": "try the guessed path",
+                },
+                {
+                    "action": "replace_text",
+                    "args": {
+                        "path": "calc.py",
+                        "old": "    return a / b\n",
+                        "new": (
+                            "    if b == 0:\n"
+                            "        return None\n"
+                            "    return a / b\n"
+                        ),
+                    },
+                    "thought": "use the actual file",
+                },
+                {"action": "submit", "args": {}, "thought": "verify and submit"},
+            ]
+        )
+        task = load_task(Path("tasks/toy/divide_by_zero/task.json"))
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            verifier = CommandVerifier(runner)
+            agent = DeepSeekToolAgent(
+                runner,
+                verifier,
+                client,
+                config=ToolLoopConfig(max_steps=5, max_test_runs=3),
+            )
+            result = agent.run(task)
+
+        read_steps = [
+            step for step in result.trajectory.steps if step.action == "tool:read_file"
+        ]
+        self.assertTrue(result.resolved)
+        self.assertIn("Tool action error", read_steps[0].observation)
+        self.assertIn("FileNotFoundError", read_steps[0].metadata["tool_error"])
 
 
 if __name__ == "__main__":

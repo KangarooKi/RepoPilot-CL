@@ -90,6 +90,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum verifier test runs for deepseek-tools.",
     )
     parser.add_argument(
+        "--model-retries",
+        type=int,
+        default=0,
+        help="Retry failed DeepSeek tool-agent model calls before giving up.",
+    )
+    parser.add_argument(
         "--num-candidates",
         type=int,
         default=1,
@@ -176,6 +182,7 @@ def main(argv: list[str] | None = None) -> int:
                 config=ToolLoopConfig(
                     max_steps=args.max_steps,
                     max_test_runs=args.max_test_runs,
+                    max_model_retries=args.model_retries,
                     temperature=args.temperature,
                 ),
             )
