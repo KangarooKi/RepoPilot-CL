@@ -96,6 +96,66 @@ class BenchmarkReportTest(unittest.TestCase):
         self.assertEqual(report.tasks[0].failure_type, "setup_error")
         self.assertEqual(report.failure_types, {"setup_error": 1})
 
+    def test_load_report_classifies_invalid_test_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            summary_path = root / "summary.json"
+            trajectory_path = root / "trajectory.jsonl"
+            summary_path.write_text(
+                json.dumps(
+                    {
+                        "total": 1,
+                        "resolved": 0,
+                        "resolved_rate": 0.0,
+                        "tasks": [
+                            {
+                                "task_id": "case_bad_test",
+                                "repo": "demo/repo",
+                                "resolved": False,
+                                "patch_lines": 0,
+                                "workdir": "runs/case_bad_test",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            trajectory_path.write_text(
+                json.dumps(
+                    {
+                        "task_id": "case_bad_test",
+                        "repo": "demo/repo",
+                        "issue": "Bad test selector",
+                        "steps": [
+                            {
+                                "action": "prepare",
+                                "observation": "Created sandbox",
+                                "metadata": {},
+                            },
+                            {
+                                "action": "verify_baseline",
+                                "observation": "ERROR: file or directory not found: bad_selector",
+                                "metadata": {
+                                    "error_summary": "ERROR: file or directory not found: bad_selector"
+                                },
+                            },
+                        ],
+                        "verifier": {
+                            "error_summary": "ERROR: file or directory not found: bad_selector"
+                        },
+                        "final_patch": "",
+                        "resolved": False,
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = load_benchmark_report(summary_path, trajectory_path)
+
+        self.assertEqual(report.tasks[0].failure_type, "test_command_error")
+        self.assertEqual(report.failure_types, {"test_command_error": 1})
+
     def test_report_cli_writes_markdown_and_json(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

@@ -43,6 +43,31 @@ class FailureCriticTest(unittest.TestCase):
         self.assertIn("src/pkg/schema.py", hint.focus_files)
         self.assertTrue(any("previous patch" in rule for rule in hint.avoid))
 
+    def test_build_failure_hint_for_invalid_test_command(self) -> None:
+        trajectory = _trajectory(final_patch="", resolved=False)
+        trajectory["steps"] = [
+            {
+                "action": "prepare",
+                "observation": "Created sandbox",
+                "metadata": {},
+            },
+            {
+                "action": "verify_baseline",
+                "observation": "ERROR: file or directory not found: bad_selector",
+                "metadata": {
+                    "error_summary": "ERROR: file or directory not found: bad_selector"
+                },
+            },
+        ]
+        trajectory["verifier"] = {
+            "resolved": False,
+            "error_summary": "ERROR: file or directory not found: bad_selector",
+        }
+
+        hint = build_failure_hint(trajectory)
+
+        self.assertEqual(hint.failure_type, "test_command_error")
+
     def test_render_failure_hints_markdown(self) -> None:
         hint = build_failure_hint(_trajectory(final_patch="", resolved=False))
 

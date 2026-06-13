@@ -1,5 +1,55 @@
 # Validation Log
 
+## 2026-06-13: SWE-bench Lite scale-30 shard construction
+
+- Local task file: `data/swebench/lite_scale30.jsonl`
+- Composition: first 23 rows from `dev` plus first 7 rows from `test`
+- Scale plan: `docs/reports/swebench_lite_scale30_plan.md`
+- New-7 environment smoke report:
+  `docs/reports/swebench_lite_scale30_new7_env_smoke.md`
+
+Task mix:
+
+| Repository | Tasks |
+|---|---:|
+| `astropy/astropy` | 6 |
+| `sqlfluff/sqlfluff` | 5 |
+| `pvlib/pvlib-python` | 5 |
+| `pylint-dev/astroid` | 5 |
+| `pydicom/pydicom` | 5 |
+| `marshmallow-code/marshmallow` | 2 |
+| `pyvista/pyvista` | 1 |
+| `django/django` | 1 |
+
+New-7 environment smoke:
+
+```bash
+python3 -m repopilot.cli.run_benchmark data/swebench/lite_scale30.jsonl \
+  --input-format swebench \
+  --task-id astropy__astropy-12907 \
+  --task-id astropy__astropy-14182 \
+  --task-id astropy__astropy-14365 \
+  --task-id astropy__astropy-14995 \
+  --task-id astropy__astropy-6938 \
+  --task-id astropy__astropy-7746 \
+  --task-id django__django-10914 \
+  --provider scripted \
+  --no-memory
+```
+
+Result:
+
+| Failure Type | Tasks |
+|---|---:|
+| `repo_install_error` | 6 |
+| `test_command_error` | 1 |
+
+Engineering changes made during this stage:
+
+- Added `test_command_error` classification to benchmark reports and failure
+  critic hints so invalid SWE-bench test selectors are not confused with agent
+  no-patch failures.
+
 ## 2026-06-13: SWE-bench Lite dev-23 scaling groundwork
 
 - Dataset: `data/swebench/lite_dev_23.jsonl`

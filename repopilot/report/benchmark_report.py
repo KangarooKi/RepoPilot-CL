@@ -184,7 +184,12 @@ def _build_task_report(
         tool_steps=sum(1 for step in steps if str(step.get("action", "")).startswith("tool:")),
         test_runs=_max_test_runs(steps),
         changed_files=_changed_files(final_patch),
-        failure_type=_failure_type(resolved, final_patch, steps),
+        failure_type=_failure_type(
+            resolved,
+            final_patch,
+            steps,
+            trajectory.get("verifier", {}),
+        ),
         model_errors=model_errors,
         invalid_actions=invalid_actions,
         issue_title=_issue_title(str(trajectory.get("issue", ""))),
@@ -206,7 +211,12 @@ def _load_trajectories(path: str | Path) -> dict[str, dict[str, Any]]:
     return trajectories
 
 
-def _failure_type(resolved: bool, patch: str, steps: list[dict[str, Any]]) -> str:
+def _failure_type(
+    resolved: bool,
+    patch: str,
+    steps: list[dict[str, Any]],
+    verifier: dict[str, Any] | None = None,
+) -> str:
     if resolved:
         return "resolved"
     for step in steps:
@@ -227,9 +237,22 @@ def _failure_type(resolved: bool, patch: str, steps: list[dict[str, Any]]) -> st
             return "model_call_error"
     if any(step.get("action") == "propose_patch_error" for step in steps):
         return "patch_provider_error"
+    verifier_text = _verifier_text(verifier or {})
+    if "ERROR: file or directory not found:" in verifier_text:
+        return "test_command_error"
+    if "ERROR: not found:" in verifier_text:
+        return "test_command_error"
     if not patch.strip():
         return "no_patch"
     return "unresolved_patch"
+
+
+def _verifier_text(verifier: dict[str, Any]) -> str:
+    return "\n".join(
+        str(verifier.get(key, ""))
+        for key in ("error_summary", "stderr", "stdout")
+        if verifier.get(key)
+    )
 
 
 def _max_test_runs(steps: list[dict[str, Any]]) -> int:

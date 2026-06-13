@@ -55,10 +55,11 @@ loop. The subset covers `sqlfluff`, `marshmallow`, and `pvlib`; unresolved
 cases are kept in the report with failure types so they can seed the next
 debugging and continual-learning stage.
 
-The next scale-up target is the full available SWE-bench Lite dev split returned
-by the Hugging Face rows API in this environment: 23 tasks across `sqlfluff`,
-`marshmallow`, `pvlib`, `astroid`, `pyvista`, and `pydicom`. The scale plan and
-environment findings are tracked in
+The next scale-up target is a 30-task SWE-bench Lite shard built as `dev23 +
+test7`, because the Hugging Face rows API returned 23 rows for the Lite `dev`
+split in this environment. The scale-30 plan is tracked in
+[`swebench_lite_scale30_plan.md`](docs/reports/swebench_lite_scale30_plan.md);
+the dev-23 environment notes remain in
 [`swebench_lite_dev23_scale_plan.md`](docs/reports/swebench_lite_dev23_scale_plan.md).
 
 ## Quick Start

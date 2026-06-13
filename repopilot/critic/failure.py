@@ -29,7 +29,7 @@ def build_failure_hint(trajectory: dict[str, Any]) -> FailureHint:
     final_patch = str(trajectory.get("final_patch") or "")
     resolved = bool(trajectory.get("resolved", False))
     issue = str(trajectory.get("issue", ""))
-    failure_type = _failure_type(resolved, final_patch, steps)
+    failure_type = _failure_type(resolved, final_patch, steps, trajectory)
     baseline_error = _baseline_error(steps)
     last_failure = _last_failure(steps, trajectory)
     focus_files = _focus_files(final_patch, steps, baseline_error, last_failure)
@@ -174,6 +174,7 @@ def _failure_type(
     resolved: bool,
     final_patch: str,
     steps: list[dict[str, Any]],
+    trajectory: dict[str, Any] | None = None,
 ) -> str:
     if resolved:
         return "resolved"
@@ -198,9 +199,25 @@ def _failure_type(
     if any(step.get("action") == "model_action_invalid" for step in steps):
         if not final_patch.strip():
             return "invalid_action_no_patch"
+    verifier_text = _trajectory_verifier_text(trajectory or {})
+    if "ERROR: file or directory not found:" in verifier_text:
+        return "test_command_error"
+    if "ERROR: not found:" in verifier_text:
+        return "test_command_error"
     if not final_patch.strip():
         return "no_patch"
     return "unresolved_patch"
+
+
+def _trajectory_verifier_text(trajectory: dict[str, Any]) -> str:
+    verifier = trajectory.get("verifier", {})
+    if not isinstance(verifier, dict):
+        return ""
+    return "\n".join(
+        str(verifier.get(key, ""))
+        for key in ("error_summary", "stderr", "stdout")
+        if verifier.get(key)
+    )
 
 
 def _baseline_error(steps: list[dict[str, Any]]) -> str:
