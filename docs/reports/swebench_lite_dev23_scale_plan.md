@@ -51,6 +51,16 @@ An environment smoke run reached `pylint-dev/astroid` but failed during pip
 dependency download from `files.pythonhosted.org` with a read timeout. This is
 an environment/setup failure rather than an agent repair failure.
 
+A follow-up dev-12 environment smoke succeeded across the calibrated shard:
+
+- Report: `docs/reports/swebench_lite_dev12_env_smoke.md`
+- Tasks: 12
+- Repositories: `sqlfluff/sqlfluff`, `marshmallow-code/marshmallow`,
+  `pvlib/pvlib-python`
+- Prepare/setup errors: 0
+- Baseline verifier steps: 12
+- Provider: `scripted`, so no repair patches or model calls were expected.
+
 ## New Evaluation Robustness
 
 To make larger benchmark runs usable, `run_benchmark` now catches task
@@ -69,12 +79,12 @@ can separate agent failures from environment failures.
 
 ## Recommended Run Order
 
-1. Re-run the calibrated first 10 tasks only when a fresh baseline is needed.
-2. Run the two additional `pvlib` tasks to extend the calibrated slice to 12.
-3. Run `astroid`, `pydicom`, and `pyvista` as separate repo shards after their
+1. Re-run the calibrated first 12 tasks with DeepSeek once `DEEPSEEK_API_KEY`
+   is available in the shell.
+2. Run `astroid`, `pydicom`, and `pyvista` as separate repo shards after their
    setup commands are pinned.
-4. Merge shard reports into a dev-23 report.
-5. Apply rescue and failure critic loops only to agent failures, not setup
+3. Merge shard reports into a dev-23 report.
+4. Apply rescue and failure critic loops only to agent failures, not setup
    failures.
 
 ## Candidate Commands

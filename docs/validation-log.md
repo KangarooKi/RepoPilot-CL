@@ -36,6 +36,37 @@ Environment finding:
   setup issue, not a model repair failure. The next formal score run should use
   repo shards and pinned setup commands.
 
+Dev-12 environment smoke:
+
+```bash
+python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_23.jsonl \
+  --input-format swebench \
+  --limit 12 \
+  --repo-cache-dir data/repos \
+  --use-venv \
+  --install-repo \
+  --setup-command "python -m pip install 'pytest<8' 'click<8.2' 'numpy<2' 'scipy<1.10' 'pandas<2' simplejson pytz pytest-mock pytest-timeout pytest-rerunfailures pytest-remotedata" \
+  --provider scripted \
+  --no-memory \
+  --runs-dir runs_swebench_lite_dev12_env_smoke \
+  --trajectory-log data/trajectories/swebench_lite_dev12_env_smoke.jsonl \
+  --output data/benchmarks/swebench_lite_dev12_env_smoke.json
+```
+
+Result:
+
+| Metric | Value |
+|---|---:|
+| Tasks | 12 |
+| Prepare/setup errors | 0 |
+| Baseline verifier steps | 12 |
+| Model calls | 0 |
+
+Generated smoke reports:
+
+- Markdown: `docs/reports/swebench_lite_dev12_env_smoke.md`
+- JSON: `docs/reports/swebench_lite_dev12_env_smoke.json`
+
 Local regression suite:
 
 ```bash
