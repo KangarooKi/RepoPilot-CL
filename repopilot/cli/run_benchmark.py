@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import replace
 from pathlib import Path
 
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
 from repopilot.agent.loop import AgentRunResult, CodingAgent, ScriptedPatchProvider
 from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
+from repopilot.benchmark.profiles import (
+    apply_environment_profile,
+    load_environment_profiles,
+    profile_install_repo,
+)
 from repopilot.benchmark.runner import (
     discover_task_files,
     filter_tasks,
@@ -69,6 +73,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--setup-command",
         default=None,
         help="Override setup command for every loaded task.",
+    )
+    parser.add_argument(
+        "--env-profiles-file",
+        default=None,
+        help="Optional JSON file with repo/task environment overrides.",
     )
     parser.add_argument(
         "--provider",
@@ -187,10 +196,15 @@ def main(argv: list[str] | None = None) -> int:
         if args.no_memory
         else MemoryRuntime.from_path(args.memory_store, top_k=args.memory_top_k)
     )
+    env_profiles = load_environment_profiles(args.env_profiles_file)
 
     def run_one(task: Task):
-        if args.setup_command is not None:
-            task = replace(task, setup_command=args.setup_command)
+        profile = env_profiles.for_task(task)
+        task = apply_environment_profile(
+            task,
+            profile,
+            global_setup_command=args.setup_command,
+        )
         runner = SandboxRunner(
             root=args.runs_dir,
             repo_cache_dir=args.repo_cache_dir,
@@ -198,7 +212,7 @@ def main(argv: list[str] | None = None) -> int:
             use_venv=args.use_venv,
             venv_root=args.venv_root,
             python_executable=args.python_executable,
-            install_repo=args.install_repo,
+            install_repo=profile_install_repo(profile, default=args.install_repo),
         )
         verifier = CommandVerifier(runner)
         agent = build_agent(

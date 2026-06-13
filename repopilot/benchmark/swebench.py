@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shlex
 from pathlib import Path
 from typing import Any
@@ -37,7 +38,7 @@ def swebench_record_to_task(
     command = test_command or str(
         record.get("test_command")
         or record.get("eval_command")
-        or _default_pytest_command(fail_to_pass, pass_to_pass)
+        or _default_test_command(repo, fail_to_pass, pass_to_pass)
     )
 
     metadata = {
@@ -114,6 +115,27 @@ def _default_pytest_command(
     return "python3 -m pytest " + " ".join(quoted_tests)
 
 
+def _default_test_command(
+    repo: str,
+    fail_to_pass: list[str],
+    pass_to_pass: list[str],
+) -> str:
+    if repo == "django/django":
+        return _default_django_command(fail_to_pass, pass_to_pass)
+    return _default_pytest_command(fail_to_pass, pass_to_pass)
+
+
+def _default_django_command(
+    fail_to_pass: list[str],
+    pass_to_pass: list[str],
+) -> str:
+    tests = fail_to_pass or pass_to_pass
+    if not tests:
+        return "python3 tests/runtests.py"
+    labels = [shlex.quote(_normalize_django_test_label(test)) for test in tests]
+    return "python3 tests/runtests.py " + " ".join(labels)
+
+
 def _normalize_pytest_node_id(test: str) -> str:
     """Relax incomplete parameterized node ids to the full test function.
 
@@ -125,4 +147,11 @@ def _normalize_pytest_node_id(test: str) -> str:
 
     if "[" in test and "]" not in test:
         return test.split("[", 1)[0]
+    return test
+
+
+def _normalize_django_test_label(test: str) -> str:
+    match = re.fullmatch(r"([A-Za-z_][\w]*) \(([^)]+)\)", test.strip())
+    if match:
+        return f"{match.group(2)}.{match.group(1)}"
     return test

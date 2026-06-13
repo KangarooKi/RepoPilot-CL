@@ -1,0 +1,9 @@
+{
+  "repos": {
+    "astropy/astropy": {
+      "install_repo": false,
+      "setup_command": "python -m pip install --timeout 120 --retries 10 'setuptools<60' wheel packaging 'cython<3' 'numpy<2' extension-helpers setuptools_scm pyerfa PyYAML 'pytest<8' pytest-astropy pytest-doctestplus pytest-astropy-header && python -m pip install --timeout 120 --retries 10 --no-build-isolation -e ."
+    }
+  },
+  "tasks": {}
+}

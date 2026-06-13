@@ -1,5 +1,40 @@
 # Validation Log
 
+## 2026-06-14: SWE-bench scale-30 environment profiles
+
+- Added repo/task-level environment profiles:
+  `configs/swebench_lite_scale30_env_profiles.json`
+- Added `--env-profiles-file` to `run_benchmark`.
+- Added deterministic Django SWE-bench selector conversion:
+  `test_method (module.Class)` -> `module.Class.test_method`, executed through
+  `python3 tests/runtests.py`.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_swebench_loader tests.test_environment_profiles
+python3 -m unittest discover -s tests
+python3 -m repopilot.cli.inspect_tasks data/swebench/lite_scale30.jsonl --input-format swebench
+```
+
+Result:
+
+| Check | Outcome |
+|---|---|
+| Focused unit tests | `7` passed |
+| Full unit suite | `73` passed |
+| Django command inspection | `django__django-10914` now uses `python3 tests/runtests.py test_utils.tests.OverrideSettingsTests.test_override_file_upload_permissions` |
+
+Smoke runs:
+
+| Task | Result | Report |
+|---|---|---|
+| `django__django-10914` | reaches baseline verifier; scripted run classified as `no_patch` | `docs/reports/swebench_lite_scale30_django_envfix.md` |
+| `astropy__astropy-14182` | profile moves past earlier Python packaging errors, then fails on local macOS native bundled cfitsio/zlib build | `docs/reports/swebench_lite_scale30_astropy_envprofile.md` |
+
+The scale-30 plan was updated with the new profile file and current blocker:
+`docs/reports/swebench_lite_scale30_plan.md`.
+
 ## 2026-06-13: SWE-bench Lite scale-30 shard construction
 
 - Local task file: `data/swebench/lite_scale30.jsonl`

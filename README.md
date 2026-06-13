@@ -34,6 +34,8 @@ This first implementation provides a local, testable skeleton:
 - failure critic hints distilled from unsuccessful trajectories
 - prepare/setup failure capture for larger benchmark shards
 - failure-type distribution in benchmark reports
+- repo/task-level environment profiles for scale-out benchmark shards
+- Django SWE-bench selector normalization for `tests/runtests.py`
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -230,6 +232,10 @@ python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_5.jsonl \
   --provider deepseek-tools \
   --api-timeout-sec 120
 ```
+
+For larger mixed-repository shards, add `--env-profiles-file` to apply
+repo/task-specific setup overrides, for example
+`configs/swebench_lite_scale30_env_profiles.json`.
 
 Render a benchmark report from a summary and trajectory log:
 

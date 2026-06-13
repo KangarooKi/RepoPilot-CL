@@ -29,7 +29,7 @@ environment, so scale-30 uses `dev23 + test7` instead of a non-existent
 | Shard | Tasks | Status | Evidence |
 |---|---:|---|---|
 | `dev12` calibrated shard | 12 | ready for DeepSeek run | `docs/reports/swebench_lite_dev12_env_smoke.md` |
-| `test7` scale-out shard | 7 | blocked by environment/test-command setup | `docs/reports/swebench_lite_scale30_new7_env_smoke.md` |
+| `test7` scale-out shard | 7 | partially unblocked | `docs/reports/swebench_lite_scale30_django_envfix.md`, `docs/reports/swebench_lite_scale30_astropy_envprofile.md` |
 | remaining `dev23` new repos | 11 | needs repo-specific setup pins | `astroid` smoke exposed pip/build setup failure |
 
 ## New-7 Smoke Result
@@ -43,16 +43,43 @@ execution.
 | `repo_install_error` | 6 | `astropy` tasks failed during editable install/build setup. |
 | `test_command_error` | 1 | `django` prepared successfully, but the raw SWE-bench test selector is not a valid pytest path. |
 
+## Environment Profile Update
+
+This stage added declaration-based environment profiles:
+`configs/swebench_lite_scale30_env_profiles.json`. `run_benchmark` now accepts
+`--env-profiles-file`, and each profile can override `setup_command`,
+`test_command`, and `install_repo` at repo or task granularity.
+
+Django is now handled in the SWE-bench loader rather than by a profile. Selectors
+like `test_override_file_upload_permissions (test_utils.tests.OverrideSettingsTests)`
+are converted to:
+
+```bash
+python3 tests/runtests.py test_utils.tests.OverrideSettingsTests.test_override_file_upload_permissions
+```
+
+Validation smoke:
+
+| Task | Before | After |
+|---|---|---|
+| `django__django-10914` | `test_command_error` | reaches baseline verifier; scripted run is `no_patch` |
+| `astropy__astropy-14182` | `repo_install_error` from missing `setuptools.dep_util` | setup now reaches native bundled cfitsio/zlib build; blocked by local macOS compiler error |
+
+Astropy still needs either a Linux/containerized runner, a repo-specific system
+library build profile, or a task-level strategy that builds only the required
+extensions.
+
 ## Next Actions
 
 1. Run the already calibrated `dev12` shard with DeepSeek once
    `DEEPSEEK_API_KEY` is available in the shell.
-2. Add repo-specific setup profiles for `astropy`, `astroid`, `pydicom`,
-   `pyvista`, and `django`.
-3. Re-run environment smoke by repo shard until setup failures are separated
+2. Re-run `test7` with `--env-profiles-file` and split the Astropy native build
+   issue from real agent failures.
+3. Add repo-specific setup profiles for `astroid`, `pydicom`, and `pyvista`.
+4. Re-run environment smoke by repo shard until setup failures are separated
    from agent failures.
-4. Merge shard reports into a true scale-30 score report.
-5. Apply rescue and failure critic only to tasks that reach baseline verifier
+5. Merge shard reports into a true scale-30 score report.
+6. Apply rescue and failure critic only to tasks that reach baseline verifier
    execution.
 
 ## Candidate DeepSeek Command For Ready Shard
