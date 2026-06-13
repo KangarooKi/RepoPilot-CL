@@ -81,6 +81,22 @@ diff --git a/calc.py b/calc.py
         self.assertNotIn("Context search queries", prompt)
         self.assertNotIn("def divide", prompt)
 
+    def test_build_patch_prompt_includes_failure_critic_hint(self) -> None:
+        task = load_task("tasks/toy/divide_by_zero/task.json")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            workdir = runner.prepare(task)
+            prompt = build_patch_prompt(
+                task,
+                workdir,
+                runner,
+                memories=[],
+                critic_hint="Focus on calc.py before patching.",
+            )
+
+        self.assertIn("Failure critic hints", prompt)
+        self.assertIn("Focus on calc.py", prompt)
+
 
 class FakePatchClient:
     model = "fake-deepseek"

@@ -21,6 +21,7 @@ class DeepSeekPatchProvider:
         num_candidates: int = 1,
         context_builder: ContextPackBuilder | None = None,
         use_context: bool = True,
+        critic_hint: str | None = None,
     ) -> None:
         self.client = client
         self.temperature = temperature
@@ -29,6 +30,7 @@ class DeepSeekPatchProvider:
             context_builder if context_builder is not None else ContextPackBuilder()
         )
         self.use_context = use_context
+        self.critic_hint = critic_hint
 
     def propose(
         self,
@@ -44,6 +46,7 @@ class DeepSeekPatchProvider:
             memories,
             context_builder=self.context_builder,
             use_context=self.use_context,
+            critic_hint=self.critic_hint,
         )
         candidates: list[PatchCandidate] = []
         seen_diffs: set[str] = set()
@@ -86,6 +89,7 @@ def build_patch_prompt(
     memories: list[MemoryRecord],
     context_builder: ContextPackBuilder | None = None,
     use_context: bool = True,
+    critic_hint: str | None = None,
 ) -> str:
     context_block = "Selected repository context:\nContext packing disabled."
     if use_context:
@@ -117,23 +121,26 @@ def build_patch_prompt(
             ]
         )
 
-    return "\n\n".join(
-        [
-            f"Task ID: {task.task_id}",
-            f"Repository: {task.repo}",
-            f"Issue:\n{task.issue}",
-            f"Test command:\n{task.test_command}",
-            f"Relevant memories:\n{memory_block}",
-            context_block,
-            (
-                "Produce a minimal unified diff that fixes the issue. The patch "
-                "must apply with `git apply` from the repository root. Use exact "
-                "repository-relative file paths. If selected context is provided, "
-                "prefer paths exactly as shown there; do not invent legacy or "
-                "alternative filenames."
-            ),
-        ]
+    blocks = [
+        f"Task ID: {task.task_id}",
+        f"Repository: {task.repo}",
+        f"Issue:\n{task.issue}",
+        f"Test command:\n{task.test_command}",
+        f"Relevant memories:\n{memory_block}",
+        context_block,
+    ]
+    if critic_hint:
+        blocks.append(f"Failure critic hints:\n{critic_hint}")
+    blocks.append(
+        (
+            "Produce a minimal unified diff that fixes the issue. The patch "
+            "must apply with `git apply` from the repository root. Use exact "
+            "repository-relative file paths. If selected context is provided, "
+            "prefer paths exactly as shown there; do not invent legacy or "
+            "alternative filenames."
+        )
     )
+    return "\n\n".join(blocks)
 
 
 def extract_unified_diff(text: str) -> str:

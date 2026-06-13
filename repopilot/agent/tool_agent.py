@@ -47,12 +47,14 @@ class DeepSeekToolAgent:
         verifier: CommandVerifier,
         client: ChatClient,
         memory_retriever: KeywordMemoryRetriever | None = None,
+        critic_hint: str | None = None,
         config: ToolLoopConfig | None = None,
     ) -> None:
         self.runner = runner
         self.verifier = verifier
         self.client = client
         self.memory_retriever = memory_retriever
+        self.critic_hint = critic_hint
         self.config = config or ToolLoopConfig()
 
     def run(self, task: Task) -> AgentRunResult:
@@ -72,7 +74,13 @@ class DeepSeekToolAgent:
             ChatMessage(role="system", content=SYSTEM_PROMPT),
             ChatMessage(
                 role="user",
-                content=build_initial_prompt(task, workdir, memories, baseline),
+                content=build_initial_prompt(
+                    task,
+                    workdir,
+                    memories,
+                    baseline,
+                    critic_hint=self.critic_hint,
+                ),
             ),
         ]
 
@@ -290,6 +298,7 @@ def build_initial_prompt(
     workdir: Path,
     memories: list[MemoryRecord],
     baseline: VerifierResult,
+    critic_hint: str | None = None,
 ) -> str:
     files = sorted(path.name for path in workdir.iterdir() if path.is_file())
     memories_text = "No prior memories."
@@ -306,18 +315,19 @@ def build_initial_prompt(
             ]
         )
 
-    return "\n\n".join(
-        [
-            f"Task ID: {task.task_id}",
-            f"Repository: {task.repo}",
-            f"Issue:\n{task.issue}",
-            f"Test command:\n{task.test_command}",
-            f"Files at repository root:\n{json.dumps(files, indent=2)}",
-            f"Baseline verifier result:\n{json.dumps(baseline.to_dict(), indent=2)}",
-            f"Retrieved memories:\n{memories_text}",
-            "Start by inspecting the relevant file(s).",
-        ]
-    )
+    blocks = [
+        f"Task ID: {task.task_id}",
+        f"Repository: {task.repo}",
+        f"Issue:\n{task.issue}",
+        f"Test command:\n{task.test_command}",
+        f"Files at repository root:\n{json.dumps(files, indent=2)}",
+        f"Baseline verifier result:\n{json.dumps(baseline.to_dict(), indent=2)}",
+        f"Retrieved memories:\n{memories_text}",
+    ]
+    if critic_hint:
+        blocks.append(f"Failure critic hints:\n{critic_hint}")
+    blocks.append("Start by inspecting the relevant file(s).")
+    return "\n\n".join(blocks)
 
 
 def _read_file_slice(

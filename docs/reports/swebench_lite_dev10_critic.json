@@ -1,0 +1,46 @@
+{
+  "total": 2,
+  "resolved": 1,
+  "resolved_rate": 0.5,
+  "avg_patch_lines": 19.5,
+  "avg_model_steps": 23.5,
+  "avg_tool_steps": 23.5,
+  "avg_test_runs": 1.5,
+  "model_error_tasks": 0,
+  "timeout_tasks": 0,
+  "tasks": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1517",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 23,
+      "tool_steps": 23,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "\"Dropped elements in sequence matching\" when doubled semicolon",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "resolved": true,
+      "patch_lines": 39,
+      "model_steps": 24,
+      "tool_steps": 24,
+      "test_runs": 2,
+      "changed_files": [
+        "src/marshmallow/marshalling.py",
+        "src/marshmallow/schema.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "[version 2.20.0] TypeError: 'NoneType' object is not subscriptable",
+      "patch_preview": "diff --git a/src/marshmallow/marshalling.py b/src/marshmallow/marshalling.py\nindex feb7d1aa..5006b4e5 100644\n--- a/src/marshmallow/marshalling.py\n+++ b/src/marshmallow/marshalling.py\n@@ -10,10 +10,8 @@ and from primitive types.\n \n from __future__ import unicode_literals\n \n-import collections\n-\n from marshmallow.utils import is_collection, missing, set_value\n-from marshmallow.compat import text_type, iteritems\n+from marshmallow.compat import Mapping, text_type, iteritems\n from marshmallow.exceptions import (\n     ValidationError,\n )\n@@ -250,7 +248,7 @@ class Unmarshaller(ErrorStore):\n \n         ret = dict_class()\n \n-        if not isinstance(data, collections.Mapping):\n+        if not isinstance(data, Mapping):\n             errors = self.get_errors(index=index)\n             msg = 'Invalid input type.'\n..."
+    }
+  ]
+}

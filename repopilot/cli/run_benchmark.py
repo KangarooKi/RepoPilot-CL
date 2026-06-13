@@ -16,6 +16,7 @@ from repopilot.benchmark.runner import (
 )
 from repopilot.benchmark.task_loader import Task
 from repopilot.context.pack import ContextPackBuilder
+from repopilot.critic.failure import load_prompt_hint_map
 from repopilot.memory.runtime import MemoryRuntime
 from repopilot.models.deepseek_client import DeepSeekClient
 from repopilot.reranker.model import LearnedPatchReranker, load_model
@@ -127,6 +128,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="JSONL file for trajectory output.",
     )
     parser.add_argument(
+        "--critic-hints-file",
+        default=None,
+        help="Optional failure critic hint JSON produced by build_failure_hints.",
+    )
+    parser.add_argument(
         "--memory-store",
         default=DEFAULT_MEMORY_STORE,
         help="JSONL file used for continual-learning memory.",
@@ -170,6 +176,11 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("No tasks loaded.")
 
     trajectory_logger = TrajectoryLogger(args.trajectory_log)
+    critic_hints = (
+        load_prompt_hint_map(args.critic_hints_file)
+        if args.critic_hints_file
+        else {}
+    )
     memory_runtime = (
         MemoryRuntime.disabled()
         if args.no_memory
@@ -189,7 +200,13 @@ def main(argv: list[str] | None = None) -> int:
             install_repo=args.install_repo,
         )
         verifier = CommandVerifier(runner)
-        agent = build_agent(args, runner, verifier, memory_runtime.retriever())
+        agent = build_agent(
+            args,
+            runner,
+            verifier,
+            memory_runtime.retriever(),
+            critic_hint=critic_hints.get(task.task_id),
+        )
         result = agent.run(task)
         trajectory_logger.append(result.trajectory)
         memory_runtime.learn(result.trajectory)
@@ -210,6 +227,7 @@ def build_agent(
     runner: SandboxRunner,
     verifier: CommandVerifier,
     memory_retriever,
+    critic_hint: str | None = None,
 ):
     patch_reranker = build_reranker(args.reranker, args.reranker_model)
     if args.provider in {"deepseek", "deepseek-tools"}:
@@ -228,6 +246,7 @@ def build_agent(
                 verifier,
                 client,
                 memory_retriever=memory_retriever,
+                critic_hint=critic_hint,
                 config=ToolLoopConfig(
                     max_steps=args.max_steps,
                     max_test_runs=args.max_test_runs,
@@ -244,6 +263,7 @@ def build_agent(
                 num_candidates=args.num_candidates,
                 context_builder=None if args.no_context else build_context_builder(args),
                 use_context=not args.no_context,
+                critic_hint=critic_hint,
             ),
             memory_retriever=memory_retriever,
             patch_reranker=patch_reranker,

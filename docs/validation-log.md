@@ -1,5 +1,65 @@
 # Validation Log
 
+## 2026-06-13: Failure critic hints for remaining dev-10 hard cases
+
+- Source trajectory: `data/trajectories/swebench_lite_dev10_after_rescue.jsonl`
+- Hint artifacts: `docs/reports/swebench_lite_dev10_failure_hints.json`,
+  `docs/reports/swebench_lite_dev10_failure_hints.md`
+- Critic run: `docs/reports/swebench_lite_dev10_critic.md`
+- Merged report: `docs/reports/swebench_lite_dev10_after_critic.md`
+- Model: `deepseek-v4-flash`
+
+Engineering changes made during this stage:
+
+- Added a rule-based failure critic that distills unresolved trajectories into
+  prompt-ready hints: failure type, baseline signal, last failure, focus files,
+  suggested searches, next steps, and avoidance rules.
+- Added `repopilot.cli.build_failure_hints` for JSON/Markdown critic artifacts.
+- Added `--critic-hints-file` to `run_task` and `run_benchmark`.
+- Injected critic hints into both the iterative tool-agent prompt and the
+  non-tool patch-provider prompt.
+
+Critic follow-up run:
+
+```bash
+python3 -m repopilot.cli.run_benchmark data/swebench/lite_dev_10.jsonl \
+  --input-format swebench \
+  --task-id sqlfluff__sqlfluff-1517 \
+  --task-id marshmallow-code__marshmallow-1343 \
+  --critic-hints-file docs/reports/swebench_lite_dev10_failure_hints.json \
+  --provider deepseek-tools \
+  --model deepseek-v4-flash \
+  --reasoning-effort max \
+  --temperature 1.0 \
+  --api-timeout-sec 180 \
+  --max-steps 24 \
+  --max-test-runs 8 \
+  --model-retries 1
+```
+
+Result:
+
+| Task | Before Critic | After Critic | Main Change |
+|---|---:|---:|---|
+| `sqlfluff__sqlfluff-1517` | no | no | Still no patch. |
+| `marshmallow-code__marshmallow-1343` | no | yes | Patched `schema.py` to skip field validators when nested load returns `None`, plus retained the `Mapping` compatibility fix. |
+
+Aggregate after merging critic trajectories with the previous dev-10 run:
+`9/10` resolved.
+
+Generated reports:
+
+- Markdown: `docs/reports/swebench_lite_dev10_after_critic.md`
+- JSON: `docs/reports/swebench_lite_dev10_after_critic.json`
+
+Local regression suite:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+Result: `65` tests passed.
+
 ## 2026-06-12: Hard-case rescue loop for SWE-bench Lite dev-10
 
 - Source run: `docs/reports/swebench_lite_dev10_tools_envpin.json`

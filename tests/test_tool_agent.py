@@ -239,6 +239,44 @@ class ToolAgentTest(unittest.TestCase):
         self.assertIn("Tool action error", read_steps[0].observation)
         self.assertIn("FileNotFoundError", read_steps[0].metadata["tool_error"])
 
+    def test_tool_agent_includes_failure_critic_hint_in_initial_prompt(self) -> None:
+        client = FakeChatClient(
+            [
+                {
+                    "action": "replace_text",
+                    "args": {
+                        "path": "calc.py",
+                        "old": "    return a / b\n",
+                        "new": (
+                            "    if b == 0:\n"
+                            "        return None\n"
+                            "    return a / b\n"
+                        ),
+                    },
+                    "thought": "use critic hint",
+                },
+                {"action": "submit", "args": {}, "thought": "verify and submit"},
+            ]
+        )
+        task = load_task(Path("tasks/toy/divide_by_zero/task.json"))
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            runner = SandboxRunner(root=temp_dir)
+            verifier = CommandVerifier(runner)
+            agent = DeepSeekToolAgent(
+                runner,
+                verifier,
+                client,
+                critic_hint="Previous run missed calc.py; inspect it first.",
+                config=ToolLoopConfig(max_steps=4, max_test_runs=3),
+            )
+            result = agent.run(task)
+
+        initial_prompt = client.messages[0][1].content
+        self.assertTrue(result.resolved)
+        self.assertIn("Failure critic hints", initial_prompt)
+        self.assertIn("missed calc.py", initial_prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

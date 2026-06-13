@@ -31,6 +31,7 @@ This first implementation provides a local, testable skeleton:
 - API call timeouts and trajectory logging for model-call failures
 - model-call retries and tool-error observations for hard-case recovery
 - rescue planner for rerunning unresolved benchmark cases
+- failure critic hints distilled from unsuccessful trajectories
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -38,12 +39,13 @@ The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, 
 ## Validated Result
 
 Latest local benchmark: DeepSeek-V4-Flash tool-agent on a 10-task SWE-bench
-Lite dev slice, followed by a hard-case rescue pass over unresolved tasks.
+Lite dev slice, followed by hard-case rescue and failure-critic hint injection.
 
 | Split | Tasks | Model | Stage | Resolved | Report |
 |---|---:|---|---|---:|---|
 | SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | initial tool-agent | 6/10 | [`swebench_lite_dev10_tools_envpin.md`](docs/reports/swebench_lite_dev10_tools_envpin.md) |
 | SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | after rescue | 8/10 | [`swebench_lite_dev10_after_rescue.md`](docs/reports/swebench_lite_dev10_after_rescue.md) |
+| SWE-bench Lite dev-10 | 10 | `deepseek-v4-flash` | after failure critic | 9/10 | [`swebench_lite_dev10_after_critic.md`](docs/reports/swebench_lite_dev10_after_critic.md) |
 
 The run uses cached upstream repositories, per-task virtualenvs, editable
 installs, pytest verification, trajectory memory, and the JSON tool-action
@@ -242,6 +244,17 @@ python3 -m repopilot.cli.plan_rescue \
 
 Then rerun only those unresolved task ids with a larger step/test budget,
 model-call retries, and the same environment pins.
+
+Build failure critic hints from unresolved trajectories:
+
+```bash
+python3 -m repopilot.cli.build_failure_hints \
+  data/trajectories/swebench_lite_dev10_after_rescue.jsonl \
+  --output-json docs/reports/swebench_lite_dev10_failure_hints.json \
+  --output-md docs/reports/swebench_lite_dev10_failure_hints.md
+```
+
+Pass those hints into a follow-up run with `--critic-hints-file`.
 
 ## Model Plan
 
