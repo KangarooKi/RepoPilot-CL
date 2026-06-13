@@ -6,7 +6,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from repopilot.agent.deepseek_provider import DeepSeekPatchProvider
-from repopilot.agent.loop import CodingAgent, ScriptedPatchProvider
+from repopilot.agent.loop import AgentRunResult, CodingAgent, ScriptedPatchProvider
 from repopilot.agent.tool_agent import DeepSeekToolAgent, ToolLoopConfig
 from repopilot.benchmark.runner import (
     discover_task_files,
@@ -23,6 +23,7 @@ from repopilot.reranker.model import LearnedPatchReranker, load_model
 from repopilot.reranker.score import RuleBasedPatchReranker
 from repopilot.sandbox.runner import SandboxRunner
 from repopilot.trajectory.logger import TrajectoryLogger
+from repopilot.trajectory.schema import Trajectory
 from repopilot.verifier.pytest_verifier import CommandVerifier
 
 
@@ -207,7 +208,14 @@ def main(argv: list[str] | None = None) -> int:
             memory_runtime.retriever(),
             critic_hint=critic_hints.get(task.task_id),
         )
-        result = agent.run(task)
+        try:
+            result = agent.run(task)
+        except Exception as exc:
+            result = _failed_benchmark_result(
+                task,
+                runner.root / task.task_id,
+                exc,
+            )
         trajectory_logger.append(result.trajectory)
         memory_runtime.learn(result.trajectory)
         return result
@@ -294,6 +302,35 @@ def build_context_builder(args) -> ContextPackBuilder:
         max_snippets=args.context_max_snippets,
         context_lines=args.context_lines,
         max_chars=args.context_max_chars,
+    )
+
+
+def _failed_benchmark_result(
+    task: Task,
+    workdir: Path,
+    exc: Exception,
+) -> AgentRunResult:
+    trajectory = Trajectory(task_id=task.task_id, repo=task.repo, issue=task.issue)
+    trajectory.add_step(
+        "prepare_error",
+        f"{type(exc).__name__}: {exc}",
+        {"error_type": type(exc).__name__},
+    )
+    trajectory.final_patch = ""
+    trajectory.resolved = False
+    trajectory.verifier = {
+        "resolved": False,
+        "returncode": 1,
+        "stdout": "",
+        "stderr": str(exc),
+        "error_summary": f"{type(exc).__name__}: {exc}",
+    }
+    return AgentRunResult(
+        task_id=task.task_id,
+        resolved=False,
+        patch="",
+        workdir=workdir,
+        trajectory=trajectory,
     )
 
 

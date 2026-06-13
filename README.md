@@ -32,6 +32,8 @@ This first implementation provides a local, testable skeleton:
 - model-call retries and tool-error observations for hard-case recovery
 - rescue planner for rerunning unresolved benchmark cases
 - failure critic hints distilled from unsuccessful trajectories
+- prepare/setup failure capture for larger benchmark shards
+- failure-type distribution in benchmark reports
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -52,6 +54,12 @@ installs, pytest verification, trajectory memory, and the JSON tool-action
 loop. The subset covers `sqlfluff`, `marshmallow`, and `pvlib`; unresolved
 cases are kept in the report with failure types so they can seed the next
 debugging and continual-learning stage.
+
+The next scale-up target is the full available SWE-bench Lite dev split returned
+by the Hugging Face rows API in this environment: 23 tasks across `sqlfluff`,
+`marshmallow`, `pvlib`, `astroid`, `pyvista`, and `pydicom`. The scale plan and
+environment findings are tracked in
+[`swebench_lite_dev23_scale_plan.md`](docs/reports/swebench_lite_dev23_scale_plan.md).
 
 ## Quick Start
 

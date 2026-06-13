@@ -9,6 +9,7 @@ from repopilot.benchmark.runner import (
     run_tasks,
 )
 from repopilot.benchmark.task_loader import Task
+from repopilot.cli.run_benchmark import _failed_benchmark_result
 from repopilot.trajectory.schema import Trajectory
 
 
@@ -60,6 +61,25 @@ class BenchmarkRunnerTest(unittest.TestCase):
         filtered = filter_tasks(tasks, task_ids={"toy_off_by_one"})
 
         self.assertEqual([task.task_id for task in filtered], ["toy_off_by_one"])
+
+    def test_failed_benchmark_result_records_prepare_error(self) -> None:
+        task = Task(
+            task_id="case_setup",
+            repo="demo/repo",
+            issue="Install fails",
+            test_command="python -m pytest",
+        )
+
+        result = _failed_benchmark_result(
+            task,
+            Path("runs") / task.task_id,
+            RuntimeError("Setup command failed for case_setup: pip timed out"),
+        )
+
+        self.assertFalse(result.resolved)
+        self.assertEqual(result.patch, "")
+        self.assertEqual(result.trajectory.steps[0].action, "prepare_error")
+        self.assertIn("Setup command failed", result.trajectory.verifier["stderr"])
 
 
 if __name__ == "__main__":

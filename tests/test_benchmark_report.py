@@ -28,6 +28,8 @@ class BenchmarkReportTest(unittest.TestCase):
         self.assertEqual(report.tasks[0].tool_steps, 3)
         self.assertEqual(report.tasks[0].test_runs, 3)
         self.assertEqual(report.tasks[1].failure_type, "model_timeout")
+        self.assertEqual(report.failure_types["model_timeout"], 1)
+        self.assertEqual(report.failure_types["resolved"], 1)
 
     def test_render_markdown_report_contains_summary_and_case_studies(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -42,6 +44,57 @@ class BenchmarkReportTest(unittest.TestCase):
         self.assertIn("| `case_success` | yes | 5 |", markdown)
         self.assertIn("### `case_timeout`", markdown)
         self.assertIn("model_timeout", markdown)
+        self.assertIn("## Failure Types", markdown)
+
+    def test_load_report_classifies_prepare_errors(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            summary_path = root / "summary.json"
+            trajectory_path = root / "trajectory.jsonl"
+            summary_path.write_text(
+                json.dumps(
+                    {
+                        "total": 1,
+                        "resolved": 0,
+                        "resolved_rate": 0.0,
+                        "tasks": [
+                            {
+                                "task_id": "case_setup",
+                                "repo": "demo/repo",
+                                "resolved": False,
+                                "patch_lines": 0,
+                                "workdir": "runs/case_setup",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            trajectory_path.write_text(
+                json.dumps(
+                    {
+                        "task_id": "case_setup",
+                        "repo": "demo/repo",
+                        "issue": "Install fails",
+                        "steps": [
+                            {
+                                "action": "prepare_error",
+                                "observation": "RuntimeError: Setup command failed for case_setup: pip timed out",
+                                "metadata": {"error_type": "RuntimeError"},
+                            }
+                        ],
+                        "final_patch": "",
+                        "resolved": False,
+                    }
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = load_benchmark_report(summary_path, trajectory_path)
+
+        self.assertEqual(report.tasks[0].failure_type, "setup_error")
+        self.assertEqual(report.failure_types, {"setup_error": 1})
 
     def test_report_cli_writes_markdown_and_json(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

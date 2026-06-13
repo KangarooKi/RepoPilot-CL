@@ -1,5 +1,49 @@
 # Validation Log
 
+## 2026-06-13: SWE-bench Lite dev-23 scaling groundwork
+
+- Dataset: `data/swebench/lite_dev_23.jsonl`
+- Scale plan: `docs/reports/swebench_lite_dev23_scale_plan.md`
+- Requested Hugging Face rows: 30
+- Returned rows: 23
+
+Task mix:
+
+| Repository | Tasks |
+|---|---:|
+| `sqlfluff/sqlfluff` | 5 |
+| `pvlib/pvlib-python` | 5 |
+| `pylint-dev/astroid` | 5 |
+| `pydicom/pydicom` | 5 |
+| `marshmallow-code/marshmallow` | 2 |
+| `pyvista/pyvista` | 1 |
+
+Engineering changes made during this stage:
+
+- Added benchmark-level prepare/setup failure capture so one environment
+  failure no longer aborts the whole batch.
+- Recorded prepare failures as unresolved trajectories with `prepare_error`
+  steps and verifier-like metadata.
+- Added setup-oriented failure types to benchmark reports and failure critic
+  classification: `setup_error`, `repo_install_error`, `test_patch_error`, and
+  `prepare_error`.
+- Added a failure-type distribution table to benchmark Markdown/JSON reports.
+
+Environment finding:
+
+- The first expanded smoke reached `pylint-dev/astroid`, but pip dependency
+  download from `files.pythonhosted.org` timed out. This is an environment
+  setup issue, not a model repair failure. The next formal score run should use
+  repo shards and pinned setup commands.
+
+Local regression suite:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+Result: `67` tests passed.
+
 ## 2026-06-13: Failure critic hints for remaining dev-10 hard cases
 
 - Source trajectory: `data/trajectories/swebench_lite_dev10_after_rescue.jsonl`

@@ -178,6 +178,16 @@ def _failure_type(
     if resolved:
         return "resolved"
     for step in steps:
+        if step.get("action") == "prepare_error":
+            observation = str(step.get("observation", ""))
+            if "Setup command failed" in observation:
+                return "setup_error"
+            if "Repo install failed" in observation:
+                return "repo_install_error"
+            if "Failed to apply task test_patch" in observation:
+                return "test_patch_error"
+            return "prepare_error"
+    for step in steps:
         if step.get("action") == "model_call_error":
             observation = str(step.get("observation", ""))
             if "TimeoutError" in observation:

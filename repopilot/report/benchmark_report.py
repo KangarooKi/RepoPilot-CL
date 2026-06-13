@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -37,6 +38,7 @@ class BenchmarkReport:
     avg_test_runs: float
     model_error_tasks: int
     timeout_tasks: int
+    failure_types: dict[str, int]
     tasks: list[TaskReport]
 
     def to_dict(self) -> dict[str, object]:
@@ -50,6 +52,7 @@ class BenchmarkReport:
             "avg_test_runs": self.avg_test_runs,
             "model_error_tasks": self.model_error_tasks,
             "timeout_tasks": self.timeout_tasks,
+            "failure_types": self.failure_types,
             "tasks": [task.to_dict() for task in self.tasks],
         }
 
@@ -80,6 +83,7 @@ def build_benchmark_report(tasks: list[TaskReport]) -> BenchmarkReport:
         avg_test_runs=_average(task.test_runs for task in tasks),
         model_error_tasks=sum(1 for task in tasks if task.model_errors > 0),
         timeout_tasks=sum(1 for task in tasks if task.failure_type == "model_timeout"),
+        failure_types=dict(sorted(Counter(task.failure_type for task in tasks).items())),
         tasks=tasks,
     )
 
@@ -102,11 +106,21 @@ def render_markdown_report(report: BenchmarkReport, title: str = "RepoPilot-CL B
         f"| Model Error Tasks | {report.model_error_tasks} |",
         f"| Timeout Tasks | {report.timeout_tasks} |",
         "",
+        "## Failure Types",
+        "",
+        "| Failure Type | Tasks |",
+        "|---|---:|",
+    ]
+    for failure_type, count in report.failure_types.items():
+        lines.append(f"| `{failure_type}` | {count} |")
+
+    lines.extend([
+        "",
         "## Tasks",
         "",
         "| Task | Resolved | Patch Lines | Model Steps | Tool Steps | Test Runs | Failure Type | Changed Files |",
         "|---|---:|---:|---:|---:|---:|---|---|",
-    ]
+    ])
     for task in report.tasks:
         lines.append(
             (
@@ -195,6 +209,16 @@ def _load_trajectories(path: str | Path) -> dict[str, dict[str, Any]]:
 def _failure_type(resolved: bool, patch: str, steps: list[dict[str, Any]]) -> str:
     if resolved:
         return "resolved"
+    for step in steps:
+        if step.get("action") == "prepare_error":
+            observation = str(step.get("observation", ""))
+            if "Setup command failed" in observation:
+                return "setup_error"
+            if "Repo install failed" in observation:
+                return "repo_install_error"
+            if "Failed to apply task test_patch" in observation:
+                return "test_patch_error"
+            return "prepare_error"
     for step in steps:
         if step.get("action") == "model_call_error":
             observation = str(step.get("observation", ""))
