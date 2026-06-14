@@ -29,8 +29,8 @@ environment, so scale-30 uses `dev23 + test7` instead of a non-existent
 | Shard | Tasks | Status | Evidence |
 |---|---:|---|---|
 | `dev12` calibrated shard | 12 | ready for DeepSeek run | `docs/reports/swebench_lite_dev12_env_smoke.md` |
-| `test7` scale-out shard | 7 | partially unblocked | `docs/reports/swebench_lite_scale30_django_envfix.md`, `docs/reports/swebench_lite_scale30_astropy_envprofile.md` |
-| remaining `dev23` new repos | 11 | needs repo-specific setup pins | `astroid` smoke exposed pip/build setup failure |
+| non-Astropy scale-30 shard | 24 | 23 reach baseline verifier; 1 PyVista install timeout remains | `docs/reports/swebench_lite_scale30_non_astropy_env_smoke.md`, `docs/reports/swebench_lite_scale30_non_astropy_env_retry.md` |
+| Astropy scale-30 shard | 6 | blocked by local macOS native bundled cfitsio/zlib build | `docs/reports/swebench_lite_scale30_astropy_envprofile.md` |
 
 ## New-7 Smoke Result
 
@@ -69,17 +69,40 @@ Astropy still needs either a Linux/containerized runner, a repo-specific system
 library build profile, or a task-level strategy that builds only the required
 extensions.
 
+## Non-Astropy Scale-30 Smoke
+
+The non-Astropy shard is tracked in
+`docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt` and contains 24
+tasks from `sqlfluff`, `marshmallow`, `pvlib`, `astroid`, `pyvista`, `pydicom`,
+and `django`.
+
+The first full smoke used the `scripted` provider with no model calls. It reached
+baseline verifier execution on 22/24 tasks. The remaining two were transient
+`git clone` preparation failures for `pyvista__pyvista-4315` and
+`pydicom__pydicom-1694`.
+
+Retry result:
+
+| Task | Retry Outcome | Meaning |
+|---|---|---|
+| `pydicom__pydicom-1694` | `no_patch`, `test_runs=1` | Environment is ready; scripted no-patch failure is expected. |
+| `pyvista__pyvista-4315` | `repo_install_error`, `test_runs=0` | Clone succeeds, but pip dependency download from `files.pythonhosted.org` times out during editable install. |
+
+Current non-Astropy readiness: 23/24 tasks reach the baseline verifier. The one
+remaining non-Astropy blocker is PyVista dependency installation reliability, not
+agent behavior.
+
 ## Next Actions
 
-1. Run the already calibrated `dev12` shard with DeepSeek once
-   `DEEPSEEK_API_KEY` is available in the shell.
-2. Re-run `test7` with `--env-profiles-file` and split the Astropy native build
-   issue from real agent failures.
-3. Add repo-specific setup profiles for `astroid`, `pydicom`, and `pyvista`.
-4. Re-run environment smoke by repo shard until setup failures are separated
-   from agent failures.
-5. Merge shard reports into a true scale-30 score report.
-6. Apply rescue and failure critic only to tasks that reach baseline verifier
+1. Add a PyVista task profile that disables the default editable install and
+   performs `pip install --timeout 120 --retries 10 -e .` inside
+   `setup_command`, then rerun `pyvista__pyvista-4315`.
+2. Run DeepSeek on the 23 non-Astropy tasks that already reach baseline
+   verifier execution.
+3. Keep the 6 Astropy tasks as a separate Linux/container or native-build
+   follow-up shard.
+4. Merge shard reports into a true scale-30 score report.
+5. Apply rescue and failure critic only to tasks that reach baseline verifier
    execution.
 
 ## Candidate DeepSeek Command For Ready Shard

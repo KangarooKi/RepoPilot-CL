@@ -1,5 +1,35 @@
 # Validation Log
 
+## 2026-06-14: SWE-bench scale-30 non-Astropy environment smoke
+
+- Added non-Astropy scale-30 task list:
+  `docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt`
+- Ran a 24-task scripted environment smoke with no model/API calls.
+- Generated reports:
+  `docs/reports/swebench_lite_scale30_non_astropy_env_smoke.md` and
+  `docs/reports/swebench_lite_scale30_non_astropy_env_smoke.json`
+- Retried the two initial preparation failures and generated:
+  `docs/reports/swebench_lite_scale30_non_astropy_env_retry.md` and
+  `docs/reports/swebench_lite_scale30_non_astropy_env_retry.json`
+
+Initial 24-task smoke:
+
+| Failure Type | Tasks |
+|---|---:|
+| `no_patch` | 22 |
+| `prepare_error` | 2 |
+
+Retry of the two `prepare_error` tasks:
+
+| Task | Result | Note |
+|---|---|---|
+| `pydicom__pydicom-1694` | `no_patch`, `test_runs=1` | Reaches baseline verifier. |
+| `pyvista__pyvista-4315` | `repo_install_error`, `test_runs=0` | Clone succeeds, then pip dependency download from `files.pythonhosted.org` times out during editable install. |
+
+Current non-Astropy readiness: 23/24 tasks reach baseline verifier execution.
+The remaining non-Astropy blocker is PyVista dependency installation reliability,
+separate from model repair quality.
+
 ## 2026-06-14: SWE-bench scale-30 environment profiles
 
 - Added repo/task-level environment profiles:
