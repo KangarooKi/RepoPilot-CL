@@ -29,7 +29,7 @@ environment, so scale-30 uses `dev23 + test7` instead of a non-existent
 | Shard | Tasks | Status | Evidence |
 |---|---:|---|---|
 | `dev12` calibrated shard | 12 | ready for DeepSeek run | `docs/reports/swebench_lite_dev12_env_smoke.md` |
-| non-Astropy scale-30 shard | 24 | 23 reach baseline verifier; 1 PyVista install timeout remains | `docs/reports/swebench_lite_scale30_non_astropy_env_smoke.md`, `docs/reports/swebench_lite_scale30_non_astropy_env_retry.md` |
+| non-Astropy scale-30 shard | 24 | ready for DeepSeek run | `docs/reports/swebench_lite_scale30_non_astropy_env_smoke.md`, `docs/reports/swebench_lite_scale30_non_astropy_env_retry.md`, `docs/reports/swebench_lite_scale30_pyvista_envprofile.md` |
 | Astropy scale-30 shard | 6 | blocked by local macOS native bundled cfitsio/zlib build | `docs/reports/swebench_lite_scale30_astropy_envprofile.md` |
 
 ## New-7 Smoke Result
@@ -88,21 +88,22 @@ Retry result:
 | `pydicom__pydicom-1694` | `no_patch`, `test_runs=1` | Environment is ready; scripted no-patch failure is expected. |
 | `pyvista__pyvista-4315` | `repo_install_error`, `test_runs=0` | Clone succeeds, but pip dependency download from `files.pythonhosted.org` times out during editable install. |
 
-Current non-Astropy readiness: 23/24 tasks reach the baseline verifier. The one
-remaining non-Astropy blocker is PyVista dependency installation reliability, not
-agent behavior.
+A follow-up PyVista environment profile disables the default editable install
+and runs `pip install --timeout 180 --retries 10 --prefer-binary -e .` inside
+`setup_command`. With that profile, `pyvista__pyvista-4315` reaches baseline
+verifier execution (`no_patch`, `test_runs=1`).
+
+Current non-Astropy readiness: 24/24 tasks reach the baseline verifier. These
+tasks are ready for a DeepSeek score run.
 
 ## Next Actions
 
-1. Add a PyVista task profile that disables the default editable install and
-   performs `pip install --timeout 120 --retries 10 -e .` inside
-   `setup_command`, then rerun `pyvista__pyvista-4315`.
-2. Run DeepSeek on the 23 non-Astropy tasks that already reach baseline
-   verifier execution.
-3. Keep the 6 Astropy tasks as a separate Linux/container or native-build
+1. Run DeepSeek on the 24 non-Astropy tasks that reach baseline verifier
+   execution.
+2. Keep the 6 Astropy tasks as a separate Linux/container or native-build
    follow-up shard.
-4. Merge shard reports into a true scale-30 score report.
-5. Apply rescue and failure critic only to tasks that reach baseline verifier
+3. Merge shard reports into a true scale-30 score report.
+4. Apply rescue and failure critic only to tasks that reach baseline verifier
    execution.
 
 ## Candidate DeepSeek Command For Ready Shard
@@ -110,11 +111,12 @@ agent behavior.
 ```bash
 python3 -m repopilot.cli.run_benchmark data/swebench/lite_scale30.jsonl \
   --input-format swebench \
-  --limit 12 \
+  --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt \
   --repo-cache-dir data/repos \
   --use-venv \
   --install-repo \
   --setup-command "python -m pip install 'pytest<8' 'click<8.2' 'numpy<2' 'scipy<1.10' 'pandas<2' simplejson pytz pytest-mock pytest-timeout pytest-rerunfailures pytest-remotedata" \
+  --env-profiles-file configs/swebench_lite_scale30_env_profiles.json \
   --provider deepseek-tools \
   --model deepseek-v4-flash \
   --reasoning-effort max \
@@ -123,8 +125,8 @@ python3 -m repopilot.cli.run_benchmark data/swebench/lite_scale30.jsonl \
   --max-steps 20 \
   --max-test-runs 6 \
   --model-retries 1 \
-  --runs-dir runs_swebench_lite_scale30_dev12_tools \
-  --trajectory-log data/trajectories/swebench_lite_scale30_dev12_tools.jsonl \
-  --memory-store data/memory/swebench_lite_scale30_dev12_tools_memory.jsonl \
-  --output data/benchmarks/swebench_lite_scale30_dev12_tools.json
+  --runs-dir runs_swebench_lite_scale30_non_astropy_tools \
+  --trajectory-log data/trajectories/swebench_lite_scale30_non_astropy_tools.jsonl \
+  --memory-store data/memory/swebench_lite_scale30_non_astropy_tools_memory.jsonl \
+  --output data/benchmarks/swebench_lite_scale30_non_astropy_tools.json
 ```

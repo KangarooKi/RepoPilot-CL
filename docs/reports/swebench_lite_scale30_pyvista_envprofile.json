@@ -1,0 +1,31 @@
+{
+  "total": 1,
+  "resolved": 0,
+  "resolved_rate": 0.0,
+  "avg_patch_lines": 0.0,
+  "avg_model_steps": 0.0,
+  "avg_tool_steps": 0.0,
+  "avg_test_runs": 1.0,
+  "model_error_tasks": 0,
+  "timeout_tasks": 0,
+  "failure_types": {
+    "no_patch": 1
+  },
+  "tasks": [
+    {
+      "task_id": "pyvista__pyvista-4315",
+      "repo": "pyvista/pyvista",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 0,
+      "tool_steps": 0,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Rectilinear grid does not allow Sequences as inputs",
+      "patch_preview": ""
+    }
+  ]
+}

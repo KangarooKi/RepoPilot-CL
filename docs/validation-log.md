@@ -1,5 +1,27 @@
 # Validation Log
 
+## 2026-06-14: PyVista profile completes non-Astropy scale-30 readiness
+
+- Added a `pyvista/pyvista` environment profile in
+  `configs/swebench_lite_scale30_env_profiles.json`.
+- The profile disables the runner's default editable install and performs the
+  editable install inside `setup_command` with
+  `pip install --timeout 180 --retries 10 --prefer-binary -e .`.
+- Ran a one-task scripted smoke with no model/API calls:
+  `pyvista__pyvista-4315`.
+- Generated report:
+  `docs/reports/swebench_lite_scale30_pyvista_envprofile.md`
+
+Result:
+
+| Task | Failure Type | Test Runs | Meaning |
+|---|---|---:|---|
+| `pyvista__pyvista-4315` | `no_patch` | 1 | Reaches baseline verifier; scripted no-patch failure is expected. |
+
+Current non-Astropy scale-30 readiness: 24/24 tasks reach baseline verifier
+execution. The remaining scale-30 environment blocker is the separate 6-task
+Astropy native build shard.
+
 ## 2026-06-14: SWE-bench scale-30 non-Astropy environment smoke
 
 - Added non-Astropy scale-30 task list:
@@ -26,9 +48,9 @@ Retry of the two `prepare_error` tasks:
 | `pydicom__pydicom-1694` | `no_patch`, `test_runs=1` | Reaches baseline verifier. |
 | `pyvista__pyvista-4315` | `repo_install_error`, `test_runs=0` | Clone succeeds, then pip dependency download from `files.pythonhosted.org` times out during editable install. |
 
-Current non-Astropy readiness: 23/24 tasks reach baseline verifier execution.
-The remaining non-Astropy blocker is PyVista dependency installation reliability,
-separate from model repair quality.
+Current non-Astropy readiness after this retry: 23/24 tasks reach baseline
+verifier execution. The remaining non-Astropy blocker at this point was PyVista
+dependency installation reliability, separate from model repair quality.
 
 ## 2026-06-14: SWE-bench scale-30 environment profiles
 
