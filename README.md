@@ -203,6 +203,38 @@ next-step hints. The reranker objective learns from issue/test signal plus a
 candidate patch to predict whether the patch resolved the task. Empty final
 patches are skipped for reranker examples by default.
 
+Format critic examples as chat-style SFT data for the Test-Time-Critic:
+
+```bash
+python3 -m repopilot.cli.build_critic_sft_dataset \
+  --training-examples-jsonl docs/reports/swebench_lite_scale30_non_astropy_training_examples.jsonl \
+  --output-jsonl data/training/repopilot_critic_seed/critic_sft.jsonl \
+  --split-output-dir data/training/repopilot_critic_seed/splits \
+  --output-summary-json data/training/repopilot_critic_seed/summary.json \
+  --output-summary-md data/training/repopilot_critic_seed/summary.md \
+  --title "RepoPilot Critic Seed SFT Dataset"
+```
+
+The same CLI can build a generic critic warm-start dataset from SWE-bench train
+records. Gold patches are used only to construct the target focus files; they
+are not included in the user message.
+
+```bash
+python3 -m repopilot.cli.download_swebench \
+  --dataset princeton-nlp/SWE-bench \
+  --split train \
+  --length 1000 \
+  --output data/swebench/swebench_train_1000.jsonl
+
+python3 -m repopilot.cli.build_critic_sft_dataset \
+  --swebench-jsonl data/swebench/swebench_train_1000.jsonl \
+  --output-jsonl data/training/critic_warmstart/critic_sft.jsonl \
+  --split-output-dir data/training/critic_warmstart/splits \
+  --output-summary-json data/training/critic_warmstart/summary.json \
+  --output-summary-md data/training/critic_warmstart/summary.md \
+  --title "RepoPilot Critic Warm-Start SFT Dataset"
+```
+
 Train and use the lightweight learned reranker:
 
 ```bash

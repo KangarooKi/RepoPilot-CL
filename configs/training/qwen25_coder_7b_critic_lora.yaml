@@ -1,0 +1,41 @@
+base_model: /root/Qwen2.5/text-generation-webui/models/Qwen2.5-7B-Instruct
+output_dir: /root/autodl-tmp/repopilot-cl/models/repopilot_critic_lora
+
+dataset:
+  warmstart_train: /root/autodl-tmp/repopilot-cl/data/training/critic_warmstart/critic_train.jsonl
+  warmstart_dev: /root/autodl-tmp/repopilot-cl/data/training/critic_warmstart/critic_dev.jsonl
+  adaptation_train: /root/autodl-tmp/repopilot-cl/data/training/repopilot_critic_seed/critic_train.jsonl
+  adaptation_dev: /root/autodl-tmp/repopilot-cl/data/training/repopilot_critic_seed/critic_dev.jsonl
+  format: messages_jsonl
+
+training:
+  method: bf16_lora
+  max_seq_length: 8192
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 0.0001
+  num_train_epochs: 1
+  warmup_ratio: 0.03
+  weight_decay: 0.0
+  gradient_checkpointing: true
+  save_steps: 500
+  eval_steps: 250
+  logging_steps: 10
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+notes:
+  - "Stage 1 warm-start uses generic SWE critic data derived from SWE-bench-style records."
+  - "Stage 2 adaptation uses RepoPilot trajectory-derived critic examples."
+  - "The main DeepSeek actor is not fine-tuned by this config."

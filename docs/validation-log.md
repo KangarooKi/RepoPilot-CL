@@ -1,5 +1,29 @@
 # Validation Log
 
+## 2026-06-15: Test-Time-Critic SFT data preparation
+
+- Added `python3 -m repopilot.cli.build_critic_sft_dataset` for formatting
+  critic supervision as chat-style SFT messages.
+- The CLI supports two sources: SWE-bench-style gold records for generic critic
+  warm start and RepoPilot trajectory-derived critic examples for adaptation.
+- Gold patches are only used to construct target focus files and are not placed
+  in the user message.
+- Added a Qwen2.5-Coder-7B bf16 LoRA training config at
+  `configs/training/qwen25_coder_7b_critic_lora.yaml`.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_critic_distill tests.test_training_examples tests.test_failure_critic
+python3 -m repopilot.cli.build_critic_sft_dataset --training-examples-jsonl docs/reports/swebench_lite_scale30_non_astropy_training_examples.jsonl --output-jsonl data/training/repopilot_critic_seed/critic_sft.jsonl --split-output-dir data/training/repopilot_critic_seed/splits --output-summary-json data/training/repopilot_critic_seed/summary.json --output-summary-md data/training/repopilot_critic_seed/summary.md --title "RepoPilot Critic Seed SFT Dataset"
+python3 -m repopilot.cli.build_critic_sft_dataset --swebench-jsonl data/swebench/lite_scale30.jsonl --max-swebench-records 5 --output-jsonl /private/tmp/repopilot_critic_warmstart_smoke.jsonl --split-output-dir /private/tmp/repopilot_critic_warmstart_smoke_splits --output-summary-json /private/tmp/repopilot_critic_warmstart_smoke_summary.json --output-summary-md /private/tmp/repopilot_critic_warmstart_smoke_summary.md --title "RepoPilot Critic Warm-Start Smoke Dataset"
+```
+
+Result: the RepoPilot seed SFT dataset has 24 critic examples with task-level
+splits of 16 train, 3 dev, and 5 test examples. The SWE-bench gold warm-start
+smoke conversion produced 5 message-format examples and confirmed that gold
+patch diffs stay out of the user input.
+
 ## 2026-06-15: Trajectory training dataset builder
 
 - Added `python3 -m repopilot.cli.build_training_dataset` for turning agent

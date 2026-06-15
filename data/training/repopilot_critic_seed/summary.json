@@ -1,0 +1,27 @@
+{
+  "examples": 24,
+  "source_kinds": {
+    "repopilot_trajectory": 24
+  },
+  "failure_types": {
+    "model_timeout": 1,
+    "resolved": 22,
+    "unresolved_patch": 1
+  },
+  "repositories": {
+    "django/django": 1,
+    "marshmallow-code/marshmallow": 2,
+    "pvlib/pvlib-python": 5,
+    "pydicom/pydicom": 5,
+    "pylint-dev/astroid": 5,
+    "pyvista/pyvista": 1,
+    "sqlfluff/sqlfluff": 5
+  },
+  "splits": {
+    "train": 16,
+    "dev": 3,
+    "test": 5
+  },
+  "output": "data/training/repopilot_critic_seed/critic_sft.jsonl",
+  "split_output_dir": "data/training/repopilot_critic_seed/splits"
+}

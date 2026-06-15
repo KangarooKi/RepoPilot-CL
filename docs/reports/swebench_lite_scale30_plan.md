@@ -229,6 +229,22 @@ contribute one critic and one reranker example each. The remaining timeout
 trajectory has no final patch, so it contributes a critic example but no
 default reranker example.
 
+The critic subset is also formatted as chat-style SFT data for the planned
+Qwen2.5-Coder-7B Test-Time-Critic LoRA:
+
+- SFT data:
+  `data/training/repopilot_critic_seed/critic_sft.jsonl`
+- Task-level splits:
+  `data/training/repopilot_critic_seed/splits/critic_train.jsonl`,
+  `data/training/repopilot_critic_seed/splits/critic_dev.jsonl`,
+  `data/training/repopilot_critic_seed/splits/critic_test.jsonl`
+- Summary:
+  `data/training/repopilot_critic_seed/summary.md`
+
+This seed set is for RepoPilot-specific adaptation. The generic warm-start stage
+should be generated from SWE-bench train on the training server, then adapted
+with this RepoPilot trajectory seed.
+
 ## Next Actions
 
 1. Run a focused single-task rescue for `sqlfluff__sqlfluff-1517`, using the
