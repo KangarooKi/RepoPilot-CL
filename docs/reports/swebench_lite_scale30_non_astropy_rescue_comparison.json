@@ -1,0 +1,268 @@
+{
+  "base_name": "initial",
+  "candidate_name": "after_rescue",
+  "base_total": 24,
+  "candidate_total": 24,
+  "common_tasks": 24,
+  "base_resolved": 16,
+  "candidate_resolved": 22,
+  "delta_resolved": 6,
+  "gained_tasks": 6,
+  "lost_tasks": 0,
+  "still_resolved": 16,
+  "still_unresolved": 2,
+  "base_only_tasks": 0,
+  "candidate_only_tasks": 0,
+  "failure_transitions": {
+    "model_call_error -> resolved": 1,
+    "model_timeout -> model_timeout": 1,
+    "model_timeout -> resolved": 2,
+    "no_patch -> resolved": 1,
+    "repo_install_error -> resolved": 1,
+    "resolved -> resolved": 16,
+    "unresolved_patch -> resolved": 1,
+    "unresolved_patch -> unresolved_patch": 1
+  },
+  "tasks": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1625",
+      "repo": "sqlfluff/sqlfluff",
+      "status": "gained",
+      "base_resolved": false,
+      "candidate_resolved": true,
+      "base_failure_type": "model_call_error",
+      "candidate_failure_type": "resolved",
+      "issue_title": "TSQL - L031 incorrectly triggers \"Avoid using aliases in join condition\" when no join present"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-2419",
+      "repo": "sqlfluff/sqlfluff",
+      "status": "gained",
+      "base_resolved": false,
+      "candidate_resolved": true,
+      "base_failure_type": "model_timeout",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Rule L060 could give a specific error message"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1733",
+      "repo": "sqlfluff/sqlfluff",
+      "status": "gained",
+      "base_resolved": false,
+      "candidate_resolved": true,
+      "base_failure_type": "repo_install_error",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Extra space when first field moved to new line in a WITH statement"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1517",
+      "repo": "sqlfluff/sqlfluff",
+      "status": "still_unresolved",
+      "base_resolved": false,
+      "candidate_resolved": false,
+      "base_failure_type": "model_timeout",
+      "candidate_failure_type": "model_timeout",
+      "issue_title": "\"Dropped elements in sequence matching\" when doubled semicolon"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1763",
+      "repo": "sqlfluff/sqlfluff",
+      "status": "gained",
+      "base_resolved": false,
+      "candidate_resolved": true,
+      "base_failure_type": "no_patch",
+      "candidate_failure_type": "resolved",
+      "issue_title": "dbt postgres fix command errors with UnicodeEncodeError and also wipes the .sql file"
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1359",
+      "repo": "marshmallow-code/marshmallow",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "3.0: DateTime fields cannot be used as inner field for List or Tuple fields"
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "status": "gained",
+      "base_resolved": false,
+      "candidate_resolved": true,
+      "base_failure_type": "model_timeout",
+      "candidate_failure_type": "resolved",
+      "issue_title": "[version 2.20.0] TypeError: 'NoneType' object is not subscriptable"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1707",
+      "repo": "pvlib/pvlib-python",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "regression: iam.physical returns nan for aoi > 90\u00b0 when n = 1"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1072",
+      "repo": "pvlib/pvlib-python",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "temperature.fuentes errors when given tz-aware inputs on pandas>=1.0.0"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1606",
+      "repo": "pvlib/pvlib-python",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "golden-section search fails when upper and lower bounds are equal"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1854",
+      "repo": "pvlib/pvlib-python",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "PVSystem with single Array generates an error"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1154",
+      "repo": "pvlib/pvlib-python",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "pvlib.irradiance.reindl() model generates NaNs when GHI = 0"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1978",
+      "repo": "pylint-dev/astroid",
+      "status": "gained",
+      "base_resolved": false,
+      "candidate_resolved": true,
+      "base_failure_type": "unresolved_patch",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Deprecation warnings from numpy"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1333",
+      "repo": "pylint-dev/astroid",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "astroid 2.9.1 breaks pylint with missing __init__.py: F0010: error while code parsing: Unable to load file __init__.py"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1196",
+      "repo": "pylint-dev/astroid",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "getitem does not infer the actual unpacked value"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1866",
+      "repo": "pylint-dev/astroid",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "\"TypeError: unsupported format string passed to NoneType.__format__\" while running type inference in version 2.12.x"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1268",
+      "repo": "pylint-dev/astroid",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "'AsStringVisitor' object has no attribute 'visit_unknown'"
+    },
+    {
+      "task_id": "pyvista__pyvista-4315",
+      "repo": "pyvista/pyvista",
+      "status": "still_unresolved",
+      "base_resolved": false,
+      "candidate_resolved": false,
+      "base_failure_type": "unresolved_patch",
+      "candidate_failure_type": "unresolved_patch",
+      "issue_title": "Rectilinear grid does not allow Sequences as inputs"
+    },
+    {
+      "task_id": "pydicom__pydicom-1694",
+      "repo": "pydicom/pydicom",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Dataset.to_json_dict can still generate exceptions when suppress_invalid_tags=True"
+    },
+    {
+      "task_id": "pydicom__pydicom-1413",
+      "repo": "pydicom/pydicom",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Error : a bytes-like object is required, not 'MultiValue'"
+    },
+    {
+      "task_id": "pydicom__pydicom-901",
+      "repo": "pydicom/pydicom",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "pydicom should not define handler, formatter and log level."
+    },
+    {
+      "task_id": "pydicom__pydicom-1139",
+      "repo": "pydicom/pydicom",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Make PersonName3 iterable"
+    },
+    {
+      "task_id": "pydicom__pydicom-1256",
+      "repo": "pydicom/pydicom",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "from_json does not correctly convert BulkDataURI's in SQ data elements"
+    },
+    {
+      "task_id": "django__django-10914",
+      "repo": "django/django",
+      "status": "still_resolved",
+      "base_resolved": true,
+      "candidate_resolved": true,
+      "base_failure_type": "resolved",
+      "candidate_failure_type": "resolved",
+      "issue_title": "Set default FILE_UPLOAD_PERMISSION to 0o644."
+    }
+  ]
+}

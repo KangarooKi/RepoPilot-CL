@@ -22,6 +22,25 @@ python3 -m repopilot.cli.merge_benchmark_reports docs/reports/swebench_lite_scal
 Result: the merge CLI reproduced the existing after-rescue report exactly:
 24 tasks, 22 resolved, 0.917 resolved rate.
 
+## 2026-06-15: Benchmark report comparison CLI
+
+- Added `python3 -m repopilot.cli.compare_benchmark_reports` for comparing two
+  benchmark reports at task level.
+- The comparison report tracks gained, lost, still-resolved, still-unresolved,
+  base-only, and candidate-only tasks.
+- It also records failure-type transitions, which makes rescue/critic/reranker
+  improvements easier to audit than a single resolved-rate delta.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_benchmark_compare tests.test_benchmark_report
+python3 -m repopilot.cli.compare_benchmark_reports --base docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json --candidate docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json --base-name initial --candidate-name after_rescue --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt --require-same-tasks --output-md docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.md --output-json docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json --title "SWE-bench Lite Scale-30 Non-Astropy Rescue Comparison"
+```
+
+Result: the initial-to-after-rescue comparison shows +6 resolved tasks, 6 gained
+tasks, 0 lost tasks, 16 still-resolved tasks, and 2 still-unresolved tasks.
+
 ## 2026-06-15: SWE-bench scale-30 non-Astropy failure-critic rescue
 
 - Source score report:

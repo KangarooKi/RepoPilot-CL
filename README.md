@@ -267,6 +267,24 @@ trajectory over an unresolved one; if both have the same resolved status, the
 later report wins. This makes hard-case rescue runs reproducible without
 hand-written merge scripts.
 
+Compare two benchmark reports to quantify gains and regressions:
+
+```bash
+python3 -m repopilot.cli.compare_benchmark_reports \
+  --base docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json \
+  --candidate docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json \
+  --base-name initial \
+  --candidate-name after_rescue \
+  --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt \
+  --require-same-tasks \
+  --output-md docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.md \
+  --output-json docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json \
+  --title "SWE-bench Lite Scale-30 Non-Astropy Rescue Comparison"
+```
+
+The comparison report lists gained, lost, still-resolved, and still-unresolved
+tasks, plus failure-type transitions such as `model_timeout -> resolved`.
+
 Create a hard-case rescue plan from unresolved benchmark cases:
 
 ```bash

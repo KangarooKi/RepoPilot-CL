@@ -168,6 +168,9 @@ Rescue result:
 Report:
 `docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.md`
 
+Comparison:
+`docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.md`
+
 After-rescue repository breakdown:
 
 | Repository | Resolved / Tasks |
