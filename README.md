@@ -248,6 +248,25 @@ python3 -m repopilot.cli.report_benchmark \
   --title "SWE-bench Lite Dev-3 Tool-Agent Report"
 ```
 
+Merge shard reports and rescue reports into a canonical final report:
+
+```bash
+python3 -m repopilot.cli.merge_benchmark_reports \
+  docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json \
+  docs/reports/swebench_lite_scale30_non_astropy_rescue.json \
+  docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json \
+  --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt \
+  --require-task-count 24 \
+  --output-md docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.md \
+  --output-json docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json \
+  --title "SWE-bench Lite Scale-30 Non-Astropy DeepSeek Tools After Rescue"
+```
+
+When the same task appears in multiple reports, the merge keeps a resolved
+trajectory over an unresolved one; if both have the same resolved status, the
+later report wins. This makes hard-case rescue runs reproducible without
+hand-written merge scripts.
+
 Create a hard-case rescue plan from unresolved benchmark cases:
 
 ```bash

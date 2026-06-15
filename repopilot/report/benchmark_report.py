@@ -70,6 +70,12 @@ def load_benchmark_report(
     return build_benchmark_report(tasks)
 
 
+def load_report_json(path: str | Path) -> BenchmarkReport:
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    tasks = [_task_report_from_dict(task) for task in payload.get("tasks", [])]
+    return build_benchmark_report(tasks)
+
+
 def build_benchmark_report(tasks: list[TaskReport]) -> BenchmarkReport:
     total = len(tasks)
     resolved = sum(1 for task in tasks if task.resolved)
@@ -86,6 +92,29 @@ def build_benchmark_report(tasks: list[TaskReport]) -> BenchmarkReport:
         failure_types=dict(sorted(Counter(task.failure_type for task in tasks).items())),
         tasks=tasks,
     )
+
+
+def merge_benchmark_reports(
+    reports: list[BenchmarkReport],
+    *,
+    task_order: list[str] | None = None,
+) -> BenchmarkReport:
+    chosen: dict[str, TaskReport] = {}
+    first_seen_order: list[str] = []
+    for report in reports:
+        for task in report.tasks:
+            if task.task_id not in chosen:
+                first_seen_order.append(task.task_id)
+                chosen[task.task_id] = task
+                continue
+            chosen[task.task_id] = _pick_better_task(chosen[task.task_id], task)
+
+    if task_order is not None:
+        ordered_ids = [task_id for task_id in task_order if task_id in chosen]
+        ordered_ids.extend(task_id for task_id in first_seen_order if task_id not in task_order)
+    else:
+        ordered_ids = first_seen_order
+    return build_benchmark_report([chosen[task_id] for task_id in ordered_ids])
 
 
 def render_markdown_report(report: BenchmarkReport, title: str = "RepoPilot-CL Benchmark Report") -> str:
@@ -195,6 +224,32 @@ def _build_task_report(
         issue_title=_issue_title(str(trajectory.get("issue", ""))),
         patch_preview=_patch_preview(final_patch),
     )
+
+
+def _task_report_from_dict(payload: dict[str, Any]) -> TaskReport:
+    return TaskReport(
+        task_id=str(payload.get("task_id", "")),
+        repo=str(payload.get("repo", "")),
+        resolved=bool(payload.get("resolved", False)),
+        patch_lines=int(payload.get("patch_lines") or 0),
+        model_steps=int(payload.get("model_steps") or 0),
+        tool_steps=int(payload.get("tool_steps") or 0),
+        test_runs=int(payload.get("test_runs") or 0),
+        changed_files=[str(path) for path in payload.get("changed_files", [])],
+        failure_type=str(payload.get("failure_type", "")),
+        model_errors=int(payload.get("model_errors") or 0),
+        invalid_actions=int(payload.get("invalid_actions") or 0),
+        issue_title=str(payload.get("issue_title", "")),
+        patch_preview=str(payload.get("patch_preview", "")),
+    )
+
+
+def _pick_better_task(current: TaskReport, incoming: TaskReport) -> TaskReport:
+    if incoming.resolved and not current.resolved:
+        return incoming
+    if current.resolved and not incoming.resolved:
+        return current
+    return incoming
 
 
 def _load_trajectories(path: str | Path) -> dict[str, dict[str, Any]]:

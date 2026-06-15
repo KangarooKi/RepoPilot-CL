@@ -1,5 +1,27 @@
 # Validation Log
 
+## 2026-06-15: Benchmark report merge CLI
+
+- Added `python3 -m repopilot.cli.merge_benchmark_reports` for merging
+  benchmark shard reports and rescue reports into one canonical report.
+- Merge behavior is task-id based: resolved rescue trajectories replace
+  unresolved earlier trajectories; if two entries have the same resolved status,
+  the later report wins.
+- Supports `--task-ids-file` for stable benchmark ordering and
+  `--require-task-count` for scale-out sanity checks.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_benchmark_report
+python3 -m unittest tests.test_benchmark_report tests.test_rescue_plan tests.test_failure_critic
+python3 -m unittest discover -s tests
+python3 -m repopilot.cli.merge_benchmark_reports docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json docs/reports/swebench_lite_scale30_non_astropy_rescue.json docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt --require-task-count 24 --output-md /private/tmp/repopilot_scale30_after_rescue_merged.md --output-json /private/tmp/repopilot_scale30_after_rescue_merged.json --title "SWE-bench Lite Scale-30 Non-Astropy DeepSeek Tools After Rescue"
+```
+
+Result: the merge CLI reproduced the existing after-rescue report exactly:
+24 tasks, 22 resolved, 0.917 resolved rate.
+
 ## 2026-06-15: SWE-bench scale-30 non-Astropy failure-critic rescue
 
 - Source score report:
