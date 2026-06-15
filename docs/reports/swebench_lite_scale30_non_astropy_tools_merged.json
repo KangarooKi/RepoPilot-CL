@@ -1,0 +1,419 @@
+{
+  "total": 24,
+  "resolved": 16,
+  "resolved_rate": 0.6666666666666666,
+  "avg_patch_lines": 16.916666666666668,
+  "avg_model_steps": 11.583333333333334,
+  "avg_tool_steps": 11.583333333333334,
+  "avg_test_runs": 2.6666666666666665,
+  "model_error_tasks": 5,
+  "timeout_tasks": 3,
+  "failure_types": {
+    "model_call_error": 1,
+    "model_timeout": 3,
+    "no_patch": 1,
+    "repo_install_error": 1,
+    "resolved": 16,
+    "unresolved_patch": 2
+  },
+  "tasks": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1625",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 5,
+      "tool_steps": 5,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "model_call_error",
+      "model_errors": 2,
+      "invalid_actions": 0,
+      "issue_title": "TSQL - L031 incorrectly triggers \"Avoid using aliases in join condition\" when no join present",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-2419",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 2,
+      "tool_steps": 2,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "model_timeout",
+      "model_errors": 2,
+      "invalid_actions": 0,
+      "issue_title": "Rule L060 could give a specific error message",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1733",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 0,
+      "tool_steps": 0,
+      "test_runs": 0,
+      "changed_files": [],
+      "failure_type": "repo_install_error",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Extra space when first field moved to new line in a WITH statement",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1517",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 3,
+      "tool_steps": 3,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "model_timeout",
+      "model_errors": 3,
+      "invalid_actions": 0,
+      "issue_title": "\"Dropped elements in sequence matching\" when doubled semicolon",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1763",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 19,
+      "tool_steps": 19,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "no_patch",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "dbt postgres fix command errors with UnicodeEncodeError and also wipes the .sql file",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1359",
+      "repo": "marshmallow-code/marshmallow",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 17,
+      "tool_steps": 17,
+      "test_runs": 4,
+      "changed_files": [
+        "src/marshmallow/fields.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 3,
+      "invalid_actions": 0,
+      "issue_title": "3.0: DateTime fields cannot be used as inner field for List or Tuple fields",
+      "patch_preview": "diff --git a/src/marshmallow/fields.py b/src/marshmallow/fields.py\nindex 0b18e7dd..1609fa4f 100644\n--- a/src/marshmallow/fields.py\n+++ b/src/marshmallow/fields.py\n@@ -1114,7 +1114,7 @@ class DateTime(Field):\n         super()._bind_to_schema(field_name, schema)\n         self.format = (\n             self.format\n-            or getattr(schema.opts, self.SCHEMA_OPTS_VAR_NAME)\n+            or getattr(getattr(self.root, 'opts', None), self.SCHEMA_OPTS_VAR_NAME, None)\n             or self.DEFAULT_FORMAT\n         )\n \n"
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "resolved": false,
+      "patch_lines": 0,
+      "model_steps": 20,
+      "tool_steps": 20,
+      "test_runs": 1,
+      "changed_files": [],
+      "failure_type": "model_timeout",
+      "model_errors": 2,
+      "invalid_actions": 0,
+      "issue_title": "[version 2.20.0] TypeError: 'NoneType' object is not subscriptable",
+      "patch_preview": ""
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1707",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 17,
+      "model_steps": 11,
+      "tool_steps": 11,
+      "test_runs": 6,
+      "changed_files": [
+        "pvlib/iam.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "regression: iam.physical returns nan for aoi > 90\u00b0 when n = 1",
+      "patch_preview": "diff --git a/pvlib/iam.py b/pvlib/iam.py\nindex 3eaa6b4c..70960d34 100644\n--- a/pvlib/iam.py\n+++ b/pvlib/iam.py\n@@ -215,6 +215,12 @@ def physical(aoi, n=1.526, K=4.0, L=0.002, *, n_ar=None):\n     # incidence angle modifier\n     iam = (tau_s + tau_p) / 2 / tau_0\n \n+    # treat abs(aoi) >= 90 as zero iam\n+    iam = np.where(np.abs(aoi) >= 90, 0.0, iam)\n+\n+    if isinstance(aoi, pd.Series):\n+        iam = pd.Series(iam, index=aoi.index)\n+\n     return iam\n \n \n"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1072",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 8,
+      "tool_steps": 8,
+      "test_runs": 4,
+      "changed_files": [
+        "pvlib/temperature.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "temperature.fuentes errors when given tz-aware inputs on pandas>=1.0.0",
+      "patch_preview": "diff --git a/pvlib/temperature.py b/pvlib/temperature.py\nindex 1d98736b..eb46d518 100644\n--- a/pvlib/temperature.py\n+++ b/pvlib/temperature.py\n@@ -599,7 +599,7 @@ def fuentes(poa_global, temp_air, wind_speed, noct_installed, module_height=5,\n     # n.b. the way Fuentes calculates the first timedelta makes it seem like\n     # the value doesn't matter -- rather than recreate it here, just assume\n     # it's the same as the second timedelta:\n-    timedelta_hours = np.diff(poa_global.index).astype(float) / 1e9 / 60 / 60\n+    timedelta_hours = np.diff(poa_global.index.asi8) / 1e9 / 60 / 60\n     timedelta_hours = np.append([timedelta_hours[0]], timedelta_hours)\n \n     tamb_array = temp_air + 273.15\n"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1606",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 17,
+      "model_steps": 8,
+      "tool_steps": 8,
+      "test_runs": 4,
+      "changed_files": [
+        "pvlib/tools.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "golden-section search fails when upper and lower bounds are equal",
+      "patch_preview": "diff --git a/pvlib/tools.py b/pvlib/tools.py\nindex 991568f9..ed90be7c 100644\n--- a/pvlib/tools.py\n+++ b/pvlib/tools.py\n@@ -348,6 +348,12 @@ def _golden_sect_DataFrame(params, lower, upper, func, atol=1e-8):\n     df['VH'] = upper\n     df['VL'] = lower\n \n+    # if all upper and lower bounds are equal, no search needed\n+    if np.all(df['VH'] == df['VL']):\n+        df['V1'] = df['VL']\n+        func_result = func(df, 'V1')\n+        return func_result, df['V1']\n+\n     converged = False\n     iterations = 0\n \n"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1854",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 4,
+      "tool_steps": 4,
+      "test_runs": 3,
+      "changed_files": [
+        "pvlib/pvsystem.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "PVSystem with single Array generates an error",
+      "patch_preview": "diff --git a/pvlib/pvsystem.py b/pvlib/pvsystem.py\nindex c277a778..1a6d32cd 100644\n--- a/pvlib/pvsystem.py\n+++ b/pvlib/pvsystem.py\n@@ -220,6 +220,8 @@ class PVSystem:\n                 strings_per_inverter,\n                 array_losses_parameters,\n             ),)\n+        elif isinstance(arrays, Array):\n+            self.arrays = (arrays,)\n         elif len(arrays) == 0:\n             raise ValueError(\"PVSystem must have at least one Array. \"\n                              \"If you want to create a PVSystem instance \"\n"
+    },
+    {
+      "task_id": "pvlib__pvlib-python-1154",
+      "repo": "pvlib/pvlib-python",
+      "resolved": true,
+      "patch_lines": 14,
+      "model_steps": 8,
+      "tool_steps": 8,
+      "test_runs": 3,
+      "changed_files": [
+        "pvlib/irradiance.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "pvlib.irradiance.reindl() model generates NaNs when GHI = 0",
+      "patch_preview": "diff --git a/pvlib/irradiance.py b/pvlib/irradiance.py\nindex 65800300..cc9d0a4d 100644\n--- a/pvlib/irradiance.py\n+++ b/pvlib/irradiance.py\n@@ -886,7 +886,8 @@ def reindl(surface_tilt, surface_azimuth, dhi, dni, ghi, dni_extra,\n     # these are the () and [] sub-terms of the second term of eqn 8\n     term1 = 1 - AI\n     term2 = 0.5 * (1 + tools.cosd(surface_tilt))\n-    term3 = 1 + np.sqrt(HB / ghi) * (tools.sind(0.5 * surface_tilt) ** 3)\n+    ratio = np.divide(HB, ghi, out=np.zeros_like(HB), where=ghi>0)\n+    term3 = 1 + np.sqrt(ratio) * (tools.sind(0.5 * surface_tilt) ** 3)\n \n     sky_diffuse = dhi * (AI * Rb + term1 * term2 * term3)\n     sky_diffuse = np.maximum(sky_diffuse, 0)\n"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1978",
+      "repo": "pylint-dev/astroid",
+      "resolved": false,
+      "patch_lines": 19,
+      "model_steps": 20,
+      "tool_steps": 20,
+      "test_runs": 1,
+      "changed_files": [
+        "astroid/raw_building.py"
+      ],
+      "failure_type": "unresolved_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Deprecation warnings from numpy",
+      "patch_preview": "diff --git a/astroid/raw_building.py b/astroid/raw_building.py\nindex cc3aa015..06519921 100644\n--- a/astroid/raw_building.py\n+++ b/astroid/raw_building.py\n@@ -10,11 +10,14 @@ from __future__ import annotations\n \n import builtins\n import inspect\n+import io\n+import logging\n import os\n import sys\n import types\n import warnings\n from collections.abc import Iterable\n+from contextlib import redirect_stderr, redirect_stdout\n from typing import Any, Union\n \n from astroid import bases, nodes\n"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1333",
+      "repo": "pylint-dev/astroid",
+      "resolved": true,
+      "patch_lines": 15,
+      "model_steps": 20,
+      "tool_steps": 20,
+      "test_runs": 3,
+      "changed_files": [
+        "astroid/modutils.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "astroid 2.9.1 breaks pylint with missing __init__.py: F0010: error while code parsing: Unable to load file __init__.py",
+      "patch_preview": "diff --git a/astroid/modutils.py b/astroid/modutils.py\nindex 6d698469..7018bb7b 100644\n--- a/astroid/modutils.py\n+++ b/astroid/modutils.py\n@@ -308,7 +308,9 @@ def _get_relative_base_path(filename, path_to_check):\n def modpath_from_file_with_callback(filename, path=None, is_package_cb=None):\n     filename = os.path.expanduser(_path_from_filename(filename))\n     for pathname in itertools.chain(\n-        path or [], map(_cache_normalize_path, sys.path), sys.path\n+        map(_cache_normalize_path, path or []),\n+        map(_cache_normalize_path, sys.path),\n+        sys.path,\n     ):\n         if not pathname:\n             continue\n"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1196",
+      "repo": "pylint-dev/astroid",
+      "resolved": true,
+      "patch_lines": 23,
+      "model_steps": 15,
+      "tool_steps": 15,
+      "test_runs": 3,
+      "changed_files": [
+        "astroid/nodes/node_classes.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 4,
+      "issue_title": "getitem does not infer the actual unpacked value",
+      "patch_preview": "diff --git a/astroid/nodes/node_classes.py b/astroid/nodes/node_classes.py\nindex 11136f8c..6864c8e5 100644\n--- a/astroid/nodes/node_classes.py\n+++ b/astroid/nodes/node_classes.py\n@@ -2361,9 +2361,16 @@ class Dict(NodeNG, Instance):\n             # TODO(cpopa): no support for overriding yet, {1:2, **{1: 3}}.\n             if isinstance(key, DictUnpack):\n                 try:\n-                    return value.getitem(index, context)\n-                except (AstroidTypeError, AstroidIndexError):\n+                    for inferred_value in value.infer(context):\n+                        if inferred_value is util.Uninferable:\n+                            continue\n+                        try:\n+                            return inferred_value.getitem(index, context)\n+                        except (AstroidTypeError, AstroidIndexError):\n+                            continue\n+                except InferenceError:\n                     continue\n+                continue\n             for inferredkey in key.infer(context):\n                 if inferredkey is util.Uninferable:\n                     continue\n"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1866",
+      "repo": "pylint-dev/astroid",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 6,
+      "tool_steps": 6,
+      "test_runs": 3,
+      "changed_files": [
+        "astroid/brain/brain_builtin_inference.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "\"TypeError: unsupported format string passed to NoneType.__format__\" while running type inference in version 2.12.x",
+      "patch_preview": "diff --git a/astroid/brain/brain_builtin_inference.py b/astroid/brain/brain_builtin_inference.py\nindex af1ddf4d..8402d87f 100644\n--- a/astroid/brain/brain_builtin_inference.py\n+++ b/astroid/brain/brain_builtin_inference.py\n@@ -954,7 +954,7 @@ def _infer_str_format_call(\n \n     try:\n         formatted_string = format_template.format(*pos_values, **keyword_values)\n-    except (IndexError, KeyError):\n+    except (IndexError, KeyError, ValueError, TypeError):\n         # If there is an IndexError there are too few arguments to interpolate\n         return iter([util.Uninferable])\n \n"
+    },
+    {
+      "task_id": "pylint-dev__astroid-1268",
+      "repo": "pylint-dev/astroid",
+      "resolved": true,
+      "patch_lines": 14,
+      "model_steps": 17,
+      "tool_steps": 17,
+      "test_runs": 4,
+      "changed_files": [
+        "astroid/nodes/as_string.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "'AsStringVisitor' object has no attribute 'visit_unknown'",
+      "patch_preview": "diff --git a/astroid/nodes/as_string.py b/astroid/nodes/as_string.py\nindex 427ccc15..647f773f 100644\n--- a/astroid/nodes/as_string.py\n+++ b/astroid/nodes/as_string.py\n@@ -98,6 +98,9 @@ class AsStringVisitor:\n \n     # visit_<node> methods ###########################################\n \n+    def visit_unknown(self, node):\n+        return f\"{node.qname()}.{node.name}()\"\n+\n     def visit_await(self, node):\n         return f\"await {node.value.accept(self)}\"\n \n"
+    },
+    {
+      "task_id": "pyvista__pyvista-4315",
+      "repo": "pyvista/pyvista",
+      "resolved": false,
+      "patch_lines": 69,
+      "model_steps": 16,
+      "tool_steps": 16,
+      "test_runs": 3,
+      "changed_files": [
+        "pyvista/core/grid.py"
+      ],
+      "failure_type": "unresolved_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Rectilinear grid does not allow Sequences as inputs",
+      "patch_preview": "diff --git a/pyvista/core/grid.py b/pyvista/core/grid.py\nindex 6ce23688e..c109cfccc 100644\n--- a/pyvista/core/grid.py\n+++ b/pyvista/core/grid.py\n@@ -135,16 +135,16 @@ class RectilinearGrid(_vtk.vtkRectilinearGrid, Grid, RectilinearGridFilters):\n                     self.shallow_copy(args[0])\n             elif isinstance(args[0], (str, pathlib.Path)):\n                 self._from_file(args[0], **kwargs)\n-            elif isinstance(args[0], np.ndarray):\n+            elif isinstance(args[0], (np.ndarray, list, tuple)):\n                 self._from_arrays(args[0], None, None, check_duplicates)\n             else:\n                 raise TypeError(f'Type ({type(args[0])}) not understood by `RectilinearGrid`')\n \n         elif len(args) == 3 or len(args) == 2:\n-            arg0_is_arr = isinstance(args[0], np.ndarray)\n-            arg1_is_arr = isinstance(args[1], np.ndarray)\n+            arg0_is_arr = isinstance(args[0], (np.ndarray, list, tuple))\n+            arg1_is_arr = isinstance(args[1], (np.ndarray, list, tuple))\n             if len(args) == 3:\n-                arg2_is_arr = isinstance(args[2], np.ndarray)\n+                arg2_is_arr = isinstance(args[2], (np.ndarray, list, tuple))\n             else:\n                 arg2_is_arr = False\n..."
+    },
+    {
+      "task_id": "pydicom__pydicom-1694",
+      "repo": "pydicom/pydicom",
+      "resolved": true,
+      "patch_lines": 14,
+      "model_steps": 5,
+      "tool_steps": 5,
+      "test_runs": 3,
+      "changed_files": [
+        "pydicom/dataset.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Dataset.to_json_dict can still generate exceptions when suppress_invalid_tags=True",
+      "patch_preview": "diff --git a/pydicom/dataset.py b/pydicom/dataset.py\nindex e323150110..a6f8879666 100644\n--- a/pydicom/dataset.py\n+++ b/pydicom/dataset.py\n@@ -2492,8 +2492,8 @@ class Dataset:\n         json_dataset = {}\n         for key in self.keys():\n             json_key = '{:08X}'.format(key)\n-            data_element = self[key]\n             try:\n+                data_element = self[key]\n                 json_dataset[json_key] = data_element.to_json_dict(\n                     bulk_data_element_handler=bulk_data_element_handler,\n                     bulk_data_threshold=bulk_data_threshold\n"
+    },
+    {
+      "task_id": "pydicom__pydicom-1413",
+      "repo": "pydicom/pydicom",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 9,
+      "tool_steps": 9,
+      "test_runs": 3,
+      "changed_files": [
+        "pydicom/dataelem.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Error : a bytes-like object is required, not 'MultiValue'",
+      "patch_preview": "diff --git a/pydicom/dataelem.py b/pydicom/dataelem.py\nindex b2709f132f..46a73d33fd 100644\n--- a/pydicom/dataelem.py\n+++ b/pydicom/dataelem.py\n@@ -439,7 +439,7 @@ class DataElement:\n         if isinstance(val, (str, bytes)) and self.VR not in \\\n                 ['UT', 'ST', 'LT', 'FL', 'FD', 'AT', 'OB', 'OW', 'OF', 'SL',\n                  'SQ', 'SS', 'UL', 'OB/OW', 'OW/OB', 'OB or OW',\n-                 'OW or OB', 'UN'] and 'US' not in self.VR:\n+                 'OW or OB', 'OD', 'OL', 'OV', 'UN'] and 'US' not in self.VR:\n             try:\n                 if _backslash_str in val:\n                     val = cast(str, val).split(_backslash_str)\n"
+    },
+    {
+      "task_id": "pydicom__pydicom-901",
+      "repo": "pydicom/pydicom",
+      "resolved": true,
+      "patch_lines": 54,
+      "model_steps": 16,
+      "tool_steps": 16,
+      "test_runs": 3,
+      "changed_files": [
+        "pydicom/config.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "pydicom should not define handler, formatter and log level.",
+      "patch_preview": "diff --git a/pydicom/config.py b/pydicom/config.py\nindex ae9c8bdf1e..f5f1830688 100644\n--- a/pydicom/config.py\n+++ b/pydicom/config.py\n@@ -62,10 +62,7 @@ and datetime.time respectively. Default: False\n \n # Logging system and debug function to change logging level\n logger = logging.getLogger('pydicom')\n-handler = logging.StreamHandler()\n-formatter = logging.Formatter(\"%(message)s\")\n-handler.setFormatter(formatter)\n-logger.addHandler(handler)\n+logger.addHandler(logging.NullHandler())\n \n \n import pydicom.pixel_data_handlers.numpy_handler as np_handler  # noqa\n@@ -110,7 +107,10 @@ syntax, then this fact is announced in a NotImplementedError exception.\n \"\"\"\n \n \n-def debug(debug_on=True):\n+debugging = False\n+\n+\n..."
+    },
+    {
+      "task_id": "pydicom__pydicom-1139",
+      "repo": "pydicom/pydicom",
+      "resolved": true,
+      "patch_lines": 32,
+      "model_steps": 19,
+      "tool_steps": 19,
+      "test_runs": 4,
+      "changed_files": [
+        "pydicom/tests/test_valuerep.py",
+        "pydicom/valuerep.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Make PersonName3 iterable",
+      "patch_preview": "diff --git a/pydicom/tests/test_valuerep.py b/pydicom/tests/test_valuerep.py\nindex 2a4644cc0d..c78a219602 100644\n--- a/pydicom/tests/test_valuerep.py\n+++ b/pydicom/tests/test_valuerep.py\n@@ -461,7 +461,7 @@ class TestPersonName:\n \n         # Test that next() doesn't work without instantiating an iterator\n         pn4 = PersonName(\"SomeName\")\n-        with pytest.raises(AttributeError):\n+        with pytest.raises(TypeError):\n             next(pn4)\n \n     def test_iterator(self):\ndiff --git a/pydicom/valuerep.py b/pydicom/valuerep.py\nindex e992f78722..fe4037cc80 100644\n--- a/pydicom/valuerep.py\n+++ b/pydicom/valuerep.py\n@@ -756,6 +756,14 @@ class PersonName:\n     def __hash__(self):\n         return hash(self.components)\n \n+    def __iter__(self):\n+        \"\"\"Iterate over the characters in the person name.\"\"\"\n+        return iter(str(self))\n..."
+    },
+    {
+      "task_id": "pydicom__pydicom-1256",
+      "repo": "pydicom/pydicom",
+      "resolved": true,
+      "patch_lines": 14,
+      "model_steps": 11,
+      "tool_steps": 11,
+      "test_runs": 3,
+      "changed_files": [
+        "pydicom/jsonrep.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "from_json does not correctly convert BulkDataURI's in SQ data elements",
+      "patch_preview": "diff --git a/pydicom/jsonrep.py b/pydicom/jsonrep.py\nindex c6ef519c31..52bf00ce09 100644\n--- a/pydicom/jsonrep.py\n+++ b/pydicom/jsonrep.py\n@@ -226,7 +226,8 @@ class JsonDataElementConverter:\n                     value_key = unique_value_keys[0]\n                     elem = DataElement.from_json(\n                         self.dataset_class, key, vr,\n-                        val[value_key], value_key\n+                        val[value_key], value_key,\n+                        self.bulk_data_element_handler\n                     )\n                 ds.add(elem)\n         return ds\n"
+    },
+    {
+      "task_id": "django__django-10914",
+      "repo": "django/django",
+      "resolved": true,
+      "patch_lines": 39,
+      "model_steps": 19,
+      "tool_steps": 19,
+      "test_runs": 2,
+      "changed_files": [
+        "django/conf/global_settings.py",
+        "docs/ref/settings.txt"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "Set default FILE_UPLOAD_PERMISSION to 0o644.",
+      "patch_preview": "diff --git a/django/conf/global_settings.py b/django/conf/global_settings.py\nindex acee9887d2..bdeec80610 100644\n--- a/django/conf/global_settings.py\n+++ b/django/conf/global_settings.py\n@@ -304,7 +304,7 @@ FILE_UPLOAD_TEMP_DIR = None\n \n # The numeric mode to set newly-uploaded files to. The value should be a mode\n # you'd pass directly to os.chmod; see https://docs.python.org/library/os.html#files-and-directories.\n-FILE_UPLOAD_PERMISSIONS = None\n+FILE_UPLOAD_PERMISSIONS = 0o644\n \n # The numeric mode to assign to newly-created directories, when uploading files.\n # The value should be a mode as you'd pass to os.chmod;\ndiff --git a/docs/ref/settings.txt b/docs/ref/settings.txt\nindex 46e99af993..2657be829c 100644\n--- a/docs/ref/settings.txt\n+++ b/docs/ref/settings.txt\n@@ -1484,16 +1484,16 @@ This value mirrors the functionality and caveats of the\n ``FILE_UPLOAD_PERMISSIONS``\n ---------------------------\n \n-Default: ``None``\n+Default: ``0o644``\n \n..."
+    }
+  ]
+}

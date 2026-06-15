@@ -96,15 +96,60 @@ verifier execution (`no_patch`, `test_runs=1`).
 Current non-Astropy readiness: 24/24 tasks reach the baseline verifier. These
 tasks are ready for a DeepSeek score run.
 
+## Non-Astropy DeepSeek Tools Score
+
+The first formal non-Astropy run used `deepseek-v4-flash` with tool actions,
+`reasoning_effort=max`, `temperature=1.0`, `max_steps=20`, `max_test_runs=6`,
+and `model_retries=1`.
+
+The run was split into smaller shards to avoid losing completed trajectories
+when PyVista dependency setup was slow. The final merged report is deduplicated
+by task id and ordered by
+`docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt`.
+
+Report:
+`docs/reports/swebench_lite_scale30_non_astropy_tools_merged.md`
+
+Overall result:
+
+| Metric | Value |
+|---|---:|
+| Tasks | 24 |
+| Resolved | 16 |
+| Resolved rate | 0.667 |
+
+Repository breakdown:
+
+| Repository | Resolved / Tasks |
+|---|---:|
+| `pvlib/pvlib-python` | 5 / 5 |
+| `pydicom/pydicom` | 5 / 5 |
+| `pylint-dev/astroid` | 4 / 5 |
+| `django/django` | 1 / 1 |
+| `marshmallow-code/marshmallow` | 1 / 2 |
+| `pyvista/pyvista` | 0 / 1 |
+| `sqlfluff/sqlfluff` | 0 / 5 |
+
+Unresolved failure types:
+
+| Failure Type | Tasks |
+|---|---:|
+| `model_timeout` | 3 |
+| `unresolved_patch` | 2 |
+| `model_call_error` | 1 |
+| `repo_install_error` | 1 |
+| `no_patch` | 1 |
+
 ## Next Actions
 
-1. Run DeepSeek on the 24 non-Astropy tasks that reach baseline verifier
-   execution.
-2. Keep the 6 Astropy tasks as a separate Linux/container or native-build
+1. Build failure hints for the 8 unresolved non-Astropy tasks from the merged
+   trajectory report.
+2. Run a rescue shard on the unresolved tasks, with special focus on SQLFluff
+   model timeouts/no-patch behavior and PyVista setup/patch quality.
+3. Keep the 6 Astropy tasks as a separate Linux/container or native-build
    follow-up shard.
-3. Merge shard reports into a true scale-30 score report.
-4. Apply rescue and failure critic only to tasks that reach baseline verifier
-   execution.
+4. Merge rescue results with the 16 resolved tasks into an updated scale-30
+   score report.
 
 ## Candidate DeepSeek Command For Ready Shard
 

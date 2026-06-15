@@ -1,5 +1,61 @@
 # Validation Log
 
+## 2026-06-15: SWE-bench scale-30 non-Astropy DeepSeek tools score
+
+- Formal score shard: the 24 non-Astropy tasks listed in
+  `docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt`
+- Model: `deepseek-v4-flash`
+- Agent mode: `deepseek-tools`
+- Reasoning: `reasoning_effort=max`, `temperature=1.0`
+- Limits: `max_steps=20`, `max_test_runs=6`, `model_retries=1`
+- Environment profiles:
+  `configs/swebench_lite_scale30_env_profiles.json`
+
+The run was split into smaller execution shards after PyVista setup proved slow.
+The final merged report deduplicates by task id, preserves the canonical
+non-Astropy task order, and prefers resolved trajectories when duplicate task
+ids exist.
+
+Generated score reports:
+
+- Markdown:
+  `docs/reports/swebench_lite_scale30_non_astropy_tools_merged.md`
+- JSON:
+  `docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json`
+
+Result:
+
+| Metric | Value |
+|---|---:|
+| Tasks | 24 |
+| Resolved | 16 |
+| Resolved rate | 0.667 |
+
+Repository breakdown:
+
+| Repository | Resolved / Tasks |
+|---|---:|
+| `pvlib/pvlib-python` | 5 / 5 |
+| `pydicom/pydicom` | 5 / 5 |
+| `pylint-dev/astroid` | 4 / 5 |
+| `django/django` | 1 / 1 |
+| `marshmallow-code/marshmallow` | 1 / 2 |
+| `pyvista/pyvista` | 0 / 1 |
+| `sqlfluff/sqlfluff` | 0 / 5 |
+
+Unresolved failure types:
+
+| Failure Type | Tasks |
+|---|---:|
+| `model_timeout` | 3 |
+| `unresolved_patch` | 2 |
+| `model_call_error` | 1 |
+| `repo_install_error` | 1 |
+| `no_patch` | 1 |
+
+Next validation step: build failure hints from the merged trajectory and run a
+rescue shard over the 8 unresolved non-Astropy tasks.
+
 ## 2026-06-14: PyVista profile completes non-Astropy scale-30 readiness
 
 - Added a `pyvista/pyvista` environment profile in
