@@ -1,0 +1,86 @@
+{
+  "total": 4,
+  "resolved": 3,
+  "resolved_rate": 0.75,
+  "avg_patch_lines": 47.0,
+  "avg_model_steps": 17.5,
+  "avg_tool_steps": 17.5,
+  "avg_test_runs": 4.25,
+  "model_error_tasks": 1,
+  "timeout_tasks": 0,
+  "failure_types": {
+    "resolved": 3,
+    "unresolved_patch": 1
+  },
+  "tasks": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1763",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 51,
+      "model_steps": 21,
+      "tool_steps": 21,
+      "test_runs": 4,
+      "changed_files": [
+        "src/sqlfluff/core/linter/linted_file.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 3,
+      "issue_title": "dbt postgres fix command errors with UnicodeEncodeError and also wipes the .sql file",
+      "patch_preview": "diff --git a/src/sqlfluff/core/linter/linted_file.py b/src/sqlfluff/core/linter/linted_file.py\nindex 3a8593edd..33c665097 100644\n--- a/src/sqlfluff/core/linter/linted_file.py\n+++ b/src/sqlfluff/core/linter/linted_file.py\n@@ -7,6 +7,7 @@ post linting.\n \n import os\n import logging\n+import tempfile\n from typing import (\n     Any,\n     Iterable,\n@@ -493,7 +494,35 @@ class LintedFile(NamedTuple):\n             if suffix:\n                 root, ext = os.path.splitext(fname)\n                 fname = root + suffix + ext\n-            # Actually write the file.\n-            with open(fname, \"w\", encoding=self.encoding) as f:\n-                f.write(write_buff)\n+            # Write the file safely.\n+            LintedFile._safe_create_replace_file(\n+                fname, write_buff, self.encoding\n+            )\n         return success\n..."
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "resolved": true,
+      "patch_lines": 38,
+      "model_steps": 24,
+      "tool_steps": 24,
+      "test_runs": 6,
+      "changed_files": [
+        "src/marshmallow/marshalling.py",
+        "src/marshmallow/schema.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 1,
+      "invalid_actions": 0,
+      "issue_title": "[version 2.20.0] TypeError: 'NoneType' object is not subscriptable",
+      "patch_preview": "diff --git a/src/marshmallow/marshalling.py b/src/marshmallow/marshalling.py\nindex feb7d1aa..e60288cc 100644\n--- a/src/marshmallow/marshalling.py\n+++ b/src/marshmallow/marshalling.py\n@@ -10,10 +10,8 @@ and from primitive types.\n \n from __future__ import unicode_literals\n \n-import collections\n-\n+from marshmallow.compat import Mapping, text_type, iteritems\n from marshmallow.utils import is_collection, missing, set_value\n-from marshmallow.compat import text_type, iteritems\n from marshmallow.exceptions import (\n     ValidationError,\n )\n@@ -250,7 +248,7 @@ class Unmarshaller(ErrorStore):\n \n         ret = dict_class()\n \n-        if not isinstance(data, collections.Mapping):\n+        if not isinstance(data, Mapping):\n             errors = self.get_errors(index=index)\n             msg = 'Invalid input type.'\n..."
+    },
+    {
+      "task_id": "pylint-dev__astroid-1978",
+      "repo": "pylint-dev/astroid",
+      "resolved": true,
+      "patch_lines": 62,
+      "model_steps": 12,
+      "tool_steps": 12,
+      "test_runs": 4,
+      "changed_files": [
+        "astroid/raw_building.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "Deprecation warnings from numpy",
+      "patch_preview": "diff --git a/astroid/raw_building.py b/astroid/raw_building.py\nindex cc3aa015..fb9ef2fc 100644\n--- a/astroid/raw_building.py\n+++ b/astroid/raw_building.py\n@@ -14,8 +14,37 @@ import os\n import sys\n import types\n import warnings\n+import contextlib\n+import io\n+import logging\n from collections.abc import Iterable\n from typing import Any, Union\n+logger = logging.getLogger(__name__)\n+\n+\n+@contextlib.contextmanager\n+def _ignore_warnings_and_capture_output():\n+    \"\"\"Suppress warnings and redirect stdout/stderr to logging.\"\"\"\n+    with warnings.catch_warnings():\n+        warnings.simplefilter(\"ignore\")\n+        old_stdout = sys.stdout\n+        old_stderr = sys.stderr\n+        out_buf = io.StringIO()\n..."
+    },
+    {
+      "task_id": "pyvista__pyvista-4315",
+      "repo": "pyvista/pyvista",
+      "resolved": false,
+      "patch_lines": 37,
+      "model_steps": 13,
+      "tool_steps": 13,
+      "test_runs": 3,
+      "changed_files": [
+        "pyvista/core/grid.py"
+      ],
+      "failure_type": "unresolved_patch",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Rectilinear grid does not allow Sequences as inputs",
+      "patch_preview": "diff --git a/pyvista/core/grid.py b/pyvista/core/grid.py\nindex 6ce23688e..8dc16e438 100644\n--- a/pyvista/core/grid.py\n+++ b/pyvista/core/grid.py\n@@ -135,23 +135,25 @@ class RectilinearGrid(_vtk.vtkRectilinearGrid, Grid, RectilinearGridFilters):\n                     self.shallow_copy(args[0])\n             elif isinstance(args[0], (str, pathlib.Path)):\n                 self._from_file(args[0], **kwargs)\n-            elif isinstance(args[0], np.ndarray):\n-                self._from_arrays(args[0], None, None, check_duplicates)\n+            elif isinstance(args[0], (np.ndarray, Sequence)):\n+                self._from_arrays(np.asarray(args[0]), None, None, check_duplicates)\n             else:\n                 raise TypeError(f'Type ({type(args[0])}) not understood by `RectilinearGrid`')\n \n         elif len(args) == 3 or len(args) == 2:\n-            arg0_is_arr = isinstance(args[0], np.ndarray)\n-            arg1_is_arr = isinstance(args[1], np.ndarray)\n+            arg0_is_arr = isinstance(args[0], (np.ndarray, Sequence))\n+            arg1_is_arr = isinstance(args[1], (np.ndarray, Sequence))\n             if len(args) == 3:\n-                arg2_is_arr = isinstance(args[2], np.ndarray)\n+                arg2_is_arr = isinstance(args[2], (np.ndarray, Sequence))\n             else:\n..."
+    }
+  ]
+}

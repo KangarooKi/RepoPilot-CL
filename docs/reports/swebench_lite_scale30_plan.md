@@ -140,16 +140,65 @@ Unresolved failure types:
 | `repo_install_error` | 1 |
 | `no_patch` | 1 |
 
+## Non-Astropy Failure-Critic Rescue
+
+The next stage turned the 8 unresolved non-Astropy cases into explicit rescue
+inputs:
+
+- Rescue task list:
+  `docs/reports/swebench_lite_scale30_non_astropy_rescue_task_ids.txt`
+- Rescue plan:
+  `docs/reports/swebench_lite_scale30_non_astropy_rescue_plan.md`
+- Failure hints:
+  `docs/reports/swebench_lite_scale30_non_astropy_failure_hints.md`
+
+The rescue runs reused `deepseek-v4-flash` with `deepseek-tools`,
+`reasoning_effort=max`, `temperature=1.0`, a higher API timeout, a larger step
+budget, and critic hints extracted from the previous trajectories.
+
+Rescue result:
+
+| Stage | Resolved / Tasks | Notes |
+|---|---:|---|
+| Initial non-Astropy score | 16 / 24 | Formal merged DeepSeek tools run. |
+| First rescue shard | 3 / 3 | Recovered three SQLFluff cases before the interrupted SQLFluff timeout case. |
+| Remaining rescue shard | 3 / 4 | Recovered SQLFluff, Marshmallow, and Astroid; PyVista remained unresolved. |
+| Final merged score after rescue | 22 / 24 | Deduplicated by task id, preferring resolved rescue trajectories. |
+
+Report:
+`docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.md`
+
+After-rescue repository breakdown:
+
+| Repository | Resolved / Tasks |
+|---|---:|
+| `sqlfluff/sqlfluff` | 4 / 5 |
+| `marshmallow-code/marshmallow` | 2 / 2 |
+| `pvlib/pvlib-python` | 5 / 5 |
+| `pylint-dev/astroid` | 5 / 5 |
+| `pyvista/pyvista` | 0 / 1 |
+| `pydicom/pydicom` | 5 / 5 |
+| `django/django` | 1 / 1 |
+
+Remaining unresolved cases:
+
+| Task | Failure Type | Note |
+|---|---|---|
+| `sqlfluff__sqlfluff-1517` | `model_timeout` | Rescue attempt was interrupted while waiting for a model response; no successful rescue trajectory was recorded. |
+| `pyvista__pyvista-4315` | `unresolved_patch` | Environment reaches verifier, but the generated patch still fails the target behavior. |
+
 ## Next Actions
 
-1. Build failure hints for the 8 unresolved non-Astropy tasks from the merged
-   trajectory report.
-2. Run a rescue shard on the unresolved tasks, with special focus on SQLFluff
-   model timeouts/no-patch behavior and PyVista setup/patch quality.
+1. Run a focused single-task rescue for `sqlfluff__sqlfluff-1517`, using the
+   existing failure hint but a tighter prompt and/or lower response latency
+   settings so the model response does not stall again.
+2. Diagnose `pyvista__pyvista-4315` at the patch-quality level: compare the
+   failing verifier output with `pyvista/core/grid.py` and the relevant grid
+   tests before rerunning the model.
 3. Keep the 6 Astropy tasks as a separate Linux/container or native-build
    follow-up shard.
-4. Merge rescue results with the 16 resolved tasks into an updated scale-30
-   score report.
+4. Once those two hard non-Astropy cases are handled, publish a final scale-30
+   table that separates environment blockers from model repair failures.
 
 ## Candidate DeepSeek Command For Ready Shard
 

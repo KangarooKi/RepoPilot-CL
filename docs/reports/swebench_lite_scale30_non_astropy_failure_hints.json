@@ -1,0 +1,221 @@
+{
+  "sources": [
+    "data/trajectories/swebench_lite_scale30_non_astropy_tools_merged.jsonl"
+  ],
+  "hints": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1625",
+      "repo": "sqlfluff/sqlfluff",
+      "failure_type": "model_call_error",
+      "issue_title": "TSQL - L031 incorrectly triggers \"Avoid using aliases in join condition\" when no join present",
+      "baseline_error": "# The replace command just accounts for cross platform testing. > assert result.output.replace(\"\\\\\", \"/\").startswith(expected_output) E AssertionError: assert False E + where False = <built-in method startswith of str object at 0x1158da000>('== [test/fixtures/linter/indentation_error_simple.sql] FAIL\\nL: 2 | P: 4 | L003 | Indentation not hanging or a mu...ywords must be consistently upper case....",
+      "last_failure": "# The replace command just accounts for cross platform testing. > assert result.output.replace(\"\\\\\", \"/\").startswith(expected_output) E AssertionError: assert False E + where False = <built-in method startswith of str object at 0x1158da000>('== [test/fixtures/linter/indentation_error_simple.sql] FAIL\\nL: 2 | P: 4 | L003 | Indentation not hanging or a mu...ywords must be consistently upper case....",
+      "focus_files": [
+        "src/sqlfluff/rules/L031.py",
+        "test/cli/commands_test.py",
+        "test/fixtures/linter/indentation_error_simple.sql"
+      ],
+      "suggested_queries": [
+        "AssertionError",
+        "assert False E + where False = <built-in method startswith of str object at 0...",
+        "Avoid using aliases in join condition",
+        "TSQL",
+        "L031",
+        "incorrectly"
+      ],
+      "avoid": [],
+      "next_steps": [
+        "Inspect `src/sqlfluff/rules/L031.py` and the latest verifier output before editing.",
+        "Patch the behavior that still fails the target test, not just compatibility warnings or nearby cleanup."
+      ]
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-2419",
+      "repo": "sqlfluff/sqlfluff",
+      "failure_type": "model_timeout",
+      "issue_title": "Rule L060 could give a specific error message",
+      "baseline_error": "=================================== FAILURES =================================== _________________________ test__rules__std_L060_raised _________________________ def test__rules__std_L060_raised() -> None: \"\"\"L060 is raised for use of ``IFNULL`` or ``NVL``.\"\"\" sql = \"SELECT\\n\\tIFNULL(NULL, 100),\\n\\tNVL(NULL,100);\" result = sqlfluff.lint(sql, rules=[\"L060\"]) assert len(result) == 2 > assert resu...",
+      "last_failure": "=================================== FAILURES =================================== _________________________ test__rules__std_L060_raised _________________________ def test__rules__std_L060_raised() -> None: \"\"\"L060 is raised for use of ``IFNULL`` or ``NVL``.\"\"\" sql = \"SELECT\\n\\tIFNULL(NULL, 100),\\n\\tNVL(NULL,100);\" result = sqlfluff.lint(sql, rules=[\"L060\"]) assert len(result) == 2 > assert resu...",
+      "focus_files": [
+        "src/sqlfluff/rules/L060.py"
+      ],
+      "suggested_queries": [
+        "Rule",
+        "L060",
+        "could",
+        "give"
+      ],
+      "avoid": [
+        "Avoid broad exploration after a timeout; resume from the last inspected file and try a narrow edit."
+      ],
+      "next_steps": [
+        "Start from `src/sqlfluff/rules/L060.py` and inspect only the function around the failing path.",
+        "Apply one narrow edit, run the target pytest, then submit or revise based on verifier output."
+      ]
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1733",
+      "repo": "sqlfluff/sqlfluff",
+      "failure_type": "repo_install_error",
+      "issue_title": "Extra space when first field moved to new line in a WITH statement",
+      "baseline_error": "",
+      "last_failure": "RuntimeError: Repo install failed for sqlfluff__sqlfluff-1733: WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<pip._vendor.urllib3.connection.HTTPSConnection object at 0x10552d930>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known')': /simple/click/ WARNING: Retry...",
+      "focus_files": [],
+      "suggested_queries": [
+        "RuntimeError",
+        "NewConnectionError",
+        "Extra",
+        "space",
+        "when",
+        "first"
+      ],
+      "avoid": [],
+      "next_steps": [
+        "Inspect `the file surfaced by the failing stack trace` and the latest verifier output before editing.",
+        "Patch the behavior that still fails the target test, not just compatibility warnings or nearby cleanup."
+      ]
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1517",
+      "repo": "sqlfluff/sqlfluff",
+      "failure_type": "model_timeout",
+      "issue_title": "\"Dropped elements in sequence matching\" when doubled semicolon",
+      "baseline_error": "matched_segments: Tuple[\"BaseSegment\", ...], unmatched_segments: Tuple[\"BaseSegment\", ...], ) -> bool: \"\"\"Check that the segments in are the same as the segments out.\"\"\" initial_str = join_segments_raw(segments_in) current_str = join_segments_raw(matched_segments + unmatched_segments) if initial_str != current_str: # pragma: no cover > raise RuntimeError( \"Dropped elements in sequence matching!...",
+      "last_failure": "matched_segments: Tuple[\"BaseSegment\", ...], unmatched_segments: Tuple[\"BaseSegment\", ...], ) -> bool: \"\"\"Check that the segments in are the same as the segments out.\"\"\" initial_str = join_segments_raw(segments_in) current_str = join_segments_raw(matched_segments + unmatched_segments) if initial_str != current_str: # pragma: no cover > raise RuntimeError( \"Dropped elements in sequence matching!...",
+      "focus_files": [
+        "test/dialects/ansi_test.py",
+        "src/sqlfluff/core/parser/segments/base.py"
+      ],
+      "suggested_queries": [
+        "RuntimeError",
+        "Dropped elements in sequence matching",
+        "Dropped",
+        "elements",
+        "sequence",
+        "matching"
+      ],
+      "avoid": [
+        "Avoid broad exploration after a timeout; resume from the last inspected file and try a narrow edit."
+      ],
+      "next_steps": [
+        "Start from `test/dialects/ansi_test.py` and inspect only the function around the failing path.",
+        "Apply one narrow edit, run the target pytest, then submit or revise based on verifier output."
+      ]
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1763",
+      "repo": "sqlfluff/sqlfluff",
+      "failure_type": "invalid_action_no_patch",
+      "issue_title": "dbt postgres fix command errors with UnicodeEncodeError and also wipes the .sql file",
+      "baseline_error": "if case[\"existing\"]: p.write_text(case[\"existing\"]) try: linter.LintedFile._safe_create_replace_file( str(p), case[\"update\"], case[\"encoding\"] ) except: # noqa: E722 pass actual = p.read_text(encoding=case[\"encoding\"]) > assert case[\"expected\"] == actual E AssertionError: assert '\u2192' == 'abc' E - abc E + \u2192 test/core/linter_test.py:696: AssertionError =========================== short test summar...",
+      "last_failure": "if case[\"existing\"]: p.write_text(case[\"existing\"]) try: linter.LintedFile._safe_create_replace_file( str(p), case[\"update\"], case[\"encoding\"] ) except: # noqa: E722 pass actual = p.read_text(encoding=case[\"encoding\"]) > assert case[\"expected\"] == actual E AssertionError: assert '\u2192' == 'abc' E - abc E + \u2192 test/core/linter_test.py:696: AssertionError =========================== short test summar...",
+      "focus_files": [
+        "src/sqlfluff/core/linter/linted_file.py",
+        "src/sqlfluff/core/linter/linter.py",
+        "test/core/linter_test.py"
+      ],
+      "suggested_queries": [
+        "AssertionError",
+        "assert '\u2192' == 'abc' E - abc E + \u2192 test/core/linter_test.py:696: AssertionErro...",
+        "postgres",
+        "command",
+        "errors",
+        "with"
+      ],
+      "avoid": [
+        "Do not spend the full budget only reading files; make a minimal patch once the failure path is localized.",
+        "Return exactly one JSON tool action per turn, with no prose outside the JSON object."
+      ],
+      "next_steps": [
+        "Search for `AssertionError` and read the smallest matching implementation region.",
+        "Turn the localized hypothesis into a minimal patch before the step budget is nearly exhausted."
+      ]
+    },
+    {
+      "task_id": "marshmallow-code__marshmallow-1343",
+      "repo": "marshmallow-code/marshmallow",
+      "failure_type": "model_timeout",
+      "issue_title": "[version 2.20.0] TypeError: 'NoneType' object is not subscriptable",
+      "baseline_error": "collecting ... collected 1 item tests/test_marshalling.py::TestUnmarshaller::test_deserialize_wrong_nested_type_with_validates_method FAILED [100%] =================================== FAILURES =================================== __ TestUnmarshaller.test_deserialize_wrong_nested_type_with_validates_method ___ tests/test_marshalling.py:303: in test_deserialize_wrong_nested_type_with_validates_met...",
+      "last_failure": "collecting ... collected 1 item tests/test_marshalling.py::TestUnmarshaller::test_deserialize_wrong_nested_type_with_validates_method FAILED [100%] =================================== FAILURES =================================== __ TestUnmarshaller.test_deserialize_wrong_nested_type_with_validates_method ___ tests/test_marshalling.py:303: in test_deserialize_wrong_nested_type_with_validates_met...",
+      "focus_files": [
+        "src/marshmallow/schema.py",
+        "src/marshmallow/marshalling.py",
+        "src/marshmallow/fields.py",
+        "tests/test_marshalling.py",
+        "src/marshmallow/compat.py"
+      ],
+      "suggested_queries": [
+        "TypeError",
+        "NoneType",
+        "object",
+        "test_deserialize_wrong_nested_type_with_validates_method",
+        "collections.",
+        "def get_errors"
+      ],
+      "avoid": [
+        "Avoid broad exploration after a timeout; resume from the last inspected file and try a narrow edit."
+      ],
+      "next_steps": [
+        "Start from `src/marshmallow/schema.py` and inspect only the function around the failing path.",
+        "Apply one narrow edit, run the target pytest, then submit or revise based on verifier output."
+      ]
+    },
+    {
+      "task_id": "pylint-dev__astroid-1978",
+      "repo": "pylint-dev/astroid",
+      "failure_type": "unresolved_patch",
+      "issue_title": "Deprecation warnings from numpy",
+      "baseline_error": "def mocked_sys_modules_getitem(name: str) -> types.ModuleType | CustomGetattr: if name != \"posix\": return original_sys[name] return CustomGetattr() with mock.patch(\"astroid.raw_building.sys.modules\") as sys_mock: sys_mock.__getitem__.side_effect = mocked_sys_modules_getitem builder = AstroidBuilder() builder.inspect_build(os) out, err = capsys.readouterr() > assert expected_out in caplog.text E...",
+      "last_failure": "def mocked_sys_modules_getitem(name: str) -> types.ModuleType | CustomGetattr: if name != \"posix\": return original_sys[name] return CustomGetattr() with mock.patch(\"astroid.raw_building.sys.modules\") as sys_mock: sys_mock.__getitem__.side_effect = mocked_sys_modules_getitem builder = AstroidBuilder() builder.inspect_build(os) out, err = capsys.readouterr() > assert expected_out in caplog.text E...",
+      "focus_files": [
+        "astroid/raw_building.py",
+        "tests/unittest_raw_building.py",
+        "astroid/modutils.py"
+      ],
+      "suggested_queries": [
+        "Deprecation",
+        "warnings",
+        "from",
+        "numpy",
+        "getattr(sys.modules",
+        "from contextlib"
+      ],
+      "avoid": [
+        "Do not repeat the previous patch blindly; compare the final verifier output with the baseline failure first."
+      ],
+      "next_steps": [
+        "Inspect `astroid/raw_building.py` and the latest verifier output before editing.",
+        "Patch the behavior that still fails the target test, not just compatibility warnings or nearby cleanup."
+      ]
+    },
+    {
+      "task_id": "pyvista__pyvista-4315",
+      "repo": "pyvista/pyvista",
+      "failure_type": "unresolved_patch",
+      "issue_title": "Rectilinear grid does not allow Sequences as inputs",
+      "baseline_error": "ERROR: while parsing the following warning configuration: error::pyvista.PyVistaDeprecationWarning This error occurred: Traceback (most recent call last): File \"/Users/leiboqi/Documents/Codex/2026-06-05/agent-new-and-work/RepoPilot-CL/runs_swebench_lite_scale30_non_astropy_tools_pyvista/.venvs/pyvista__pyvista-4315/lib/python3.10/site-packages/_pytest/config/__init__.py\", line 1761, in parse_wa...",
+      "last_failure": "{ \"resolved\": false, \"verifier\": { \"resolved\": false, \"returncode\": 4, \"stdout\": \"\", \"stderr\": \"/Users/leiboqi/Documents/Codex/2026-06-05/agent-new-and-work/RepoPilot-CL/runs_swebench_lite_scale30_non_astropy_tools_pyvista/.venvs/pyvista__pyvista-4315/lib/python3.10/site-packages/_pytest/config/__init__.py:331: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwr...",
+      "focus_files": [
+        "pyvista/core/grid.py",
+        "tests/test_grid.py",
+        "Users/leiboqi/Documents/Codex/2026-06-05/agent-new-and-work/RepoPilot-CL/runs_swebench_lite_scale30_non_astropy_tools_pyvista/.venvs/pyvista__pyvista-4315/lib/python3.10/site-packages/_pytest/config/__init__.py"
+      ],
+      "suggested_queries": [
+        "Rectilinear",
+        "grid",
+        "does",
+        "allow",
+        "class RectilinearGrid",
+        "test_create_rectilinear_grid_from_specs"
+      ],
+      "avoid": [
+        "Do not repeat the previous patch blindly; compare the final verifier output with the baseline failure first."
+      ],
+      "next_steps": [
+        "Inspect `pyvista/core/grid.py` and the latest verifier output before editing.",
+        "Patch the behavior that still fails the target test, not just compatibility warnings or nearby cleanup."
+      ]
+    }
+  ]
+}

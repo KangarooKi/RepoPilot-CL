@@ -1,0 +1,67 @@
+{
+  "total": 3,
+  "resolved": 3,
+  "resolved_rate": 1.0,
+  "avg_patch_lines": 18.666666666666668,
+  "avg_model_steps": 11.0,
+  "avg_tool_steps": 11.0,
+  "avg_test_runs": 3.3333333333333335,
+  "model_error_tasks": 0,
+  "timeout_tasks": 0,
+  "failure_types": {
+    "resolved": 3
+  },
+  "tasks": [
+    {
+      "task_id": "sqlfluff__sqlfluff-1625",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 8,
+      "tool_steps": 8,
+      "test_runs": 3,
+      "changed_files": [
+        "src/sqlfluff/rules/L031.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "TSQL - L031 incorrectly triggers \"Avoid using aliases in join condition\" when no join present",
+      "patch_preview": "diff --git a/src/sqlfluff/rules/L031.py b/src/sqlfluff/rules/L031.py\nindex 838c6ce5d..6069afe70 100644\n--- a/src/sqlfluff/rules/L031.py\n+++ b/src/sqlfluff/rules/L031.py\n@@ -211,7 +211,7 @@ class Rule_L031(BaseRule):\n             violation_buff.append(\n                 LintResult(\n                     anchor=alias_info.alias_identifier_ref,\n-                    description=\"Avoid using aliases in join condition\",\n+                    description=\"Avoid aliases in from clauses and join conditions.\",\n                     fixes=fixes,\n                 )\n             )\n"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-2419",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 13,
+      "model_steps": 9,
+      "tool_steps": 9,
+      "test_runs": 3,
+      "changed_files": [
+        "src/sqlfluff/rules/L060.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 0,
+      "issue_title": "Rule L060 could give a specific error message",
+      "patch_preview": "diff --git a/src/sqlfluff/rules/L060.py b/src/sqlfluff/rules/L060.py\nindex 836941edc..296398895 100644\n--- a/src/sqlfluff/rules/L060.py\n+++ b/src/sqlfluff/rules/L060.py\n@@ -59,4 +59,7 @@ class Rule_L060(BaseRule):\n             ],\n         )\n \n-        return LintResult(context.segment, [fix])\n+        return LintResult(\n+            context.segment, [fix],\n+            description=f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\",\n+        )\n"
+    },
+    {
+      "task_id": "sqlfluff__sqlfluff-1733",
+      "repo": "sqlfluff/sqlfluff",
+      "resolved": true,
+      "patch_lines": 30,
+      "model_steps": 16,
+      "tool_steps": 16,
+      "test_runs": 4,
+      "changed_files": [
+        "src/sqlfluff/rules/L036.py"
+      ],
+      "failure_type": "resolved",
+      "model_errors": 0,
+      "invalid_actions": 1,
+      "issue_title": "Extra space when first field moved to new line in a WITH statement",
+      "patch_preview": "diff --git a/src/sqlfluff/rules/L036.py b/src/sqlfluff/rules/L036.py\nindex ed5533b81..c848acaaf 100644\n--- a/src/sqlfluff/rules/L036.py\n+++ b/src/sqlfluff/rules/L036.py\n@@ -118,7 +118,24 @@ class Rule_L036(BaseRule):\n                     loop_while=lambda s: s.is_type(\"whitespace\", \"comma\") or s.is_meta,\n                 )\n                 fixes += [LintFix(\"delete\", ws) for ws in ws_to_delete]\n-                fixes.append(LintFix(\"create\", select_target, NewlineSegment()))\n+                # When inserting a newline, also insert the appropriate\n+                # indentation whitespace, using the first whitespace after\n+                # the first newline as a template.\n+                if i == 0 and select_targets_info.first_whitespace_idx != -1:\n+                    indent_ws = segment.segments[\n+                        select_targets_info.first_whitespace_idx\n+                    ]\n+                    fixes.append(\n+                        LintFix(\n+                            \"create\",\n+                            select_target,\n+                            [NewlineSegment(), WhitespaceSegment(raw=indent_ws.raw)],\n+                        )\n+                    )\n+                else:\n..."
+    }
+  ]
+}

@@ -1,5 +1,49 @@
 # Validation Log
 
+## 2026-06-15: SWE-bench scale-30 non-Astropy failure-critic rescue
+
+- Source score report:
+  `docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json`
+- Rescue task ids:
+  `docs/reports/swebench_lite_scale30_non_astropy_rescue_task_ids.txt`
+- Failure hints:
+  `docs/reports/swebench_lite_scale30_non_astropy_failure_hints.md`
+- Rescue reports:
+  `docs/reports/swebench_lite_scale30_non_astropy_rescue.md` and
+  `docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.md`
+- Final merged report:
+  `docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.md`
+
+The rescue stage used the failure critic to convert the 8 unresolved cases from
+the first formal non-Astropy score into task-specific hints. The rerun kept the
+same main coding model, `deepseek-v4-flash`, and used `deepseek-tools`,
+`reasoning_effort=max`, `temperature=1.0`, `max_steps=24`,
+`max_test_runs=8`, `model_retries=2`, and `api_timeout_sec=240`.
+
+Result:
+
+| Stage | Resolved / Tasks |
+|---|---:|
+| Initial formal non-Astropy score | 16 / 24 |
+| First rescue shard | 3 / 3 |
+| Remaining rescue shard | 3 / 4 |
+| Final merged score after rescue | 22 / 24 |
+
+Final merged failure types:
+
+| Failure Type | Tasks |
+|---|---:|
+| `resolved` | 22 |
+| `model_timeout` | 1 |
+| `unresolved_patch` | 1 |
+
+Remaining unresolved cases:
+
+| Task | Failure Type | Note |
+|---|---|---|
+| `sqlfluff__sqlfluff-1517` | `model_timeout` | The rescue attempt stalled while waiting for the model response, so the merged result keeps the original timeout trajectory. |
+| `pyvista__pyvista-4315` | `unresolved_patch` | The PyVista environment reaches verifier execution, but the generated patch still fails the target behavior. |
+
 ## 2026-06-15: SWE-bench scale-30 non-Astropy DeepSeek tools score
 
 - Formal score shard: the 24 non-Astropy tasks listed in
