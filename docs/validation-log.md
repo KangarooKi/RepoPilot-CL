@@ -1,5 +1,26 @@
 # Validation Log
 
+## 2026-06-15: Trajectory training dataset builder
+
+- Added `python3 -m repopilot.cli.build_training_dataset` for turning agent
+  trajectory JSONL logs into critic and reranker training examples.
+- Critic examples use issue text, baseline/final verifier signals, and action
+  traces to target failure type, focus files, suggested searches, and next-step
+  hints.
+- Reranker examples use issue/test signal plus the final candidate patch to
+  target a binary resolved label and regression flag.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_training_examples tests.test_failure_critic tests.test_reranker_dataset
+python3 -m repopilot.cli.build_training_dataset data/trajectories/swebench_lite_scale30_non_astropy_tools_after_rescue.jsonl --output-jsonl docs/reports/swebench_lite_scale30_non_astropy_training_examples.jsonl --output-summary-json docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.json --output-summary-md docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.md --title "SWE-bench Lite Scale-30 Non-Astropy Training Dataset Summary"
+```
+
+Result: the scale-30 non-Astropy after-rescue trajectory log produced 47
+training examples: 24 critic examples and 23 reranker examples. The one missing
+reranker example is the unresolved timeout trajectory with no final patch.
+
 ## 2026-06-15: Benchmark report merge CLI
 
 - Added `python3 -m repopilot.cli.merge_benchmark_reports` for merging

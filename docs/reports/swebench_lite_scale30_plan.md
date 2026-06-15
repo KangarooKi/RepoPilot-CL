@@ -180,6 +180,9 @@ Run manifest:
 Artifact validation:
 `docs/reports/swebench_lite_scale30_non_astropy_artifact_validation.md`
 
+Training dataset summary:
+`docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.md`
+
 After-rescue repository breakdown:
 
 | Repository | Resolved / Tasks |
@@ -198,6 +201,33 @@ Remaining unresolved cases:
 |---|---|---|
 | `sqlfluff__sqlfluff-1517` | `model_timeout` | Rescue attempt was interrupted while waiting for a model response; no successful rescue trajectory was recorded. |
 | `pyvista__pyvista-4315` | `unresolved_patch` | Environment reaches verifier, but the generated patch still fails the target behavior. |
+
+## Trajectory Training Dataset
+
+The after-rescue trajectory log can now be converted into supervised examples
+for the planned critic and reranker work.
+
+Generated artifacts:
+
+- Training examples:
+  `docs/reports/swebench_lite_scale30_non_astropy_training_examples.jsonl`
+- Summary JSON:
+  `docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.json`
+- Summary Markdown:
+  `docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.md`
+
+Current dataset:
+
+| Objective | Examples |
+|---|---:|
+| Critic | 24 |
+| Reranker | 23 |
+| Total | 47 |
+
+Resolved examples count task-objective pairs: the 22 resolved trajectories
+contribute one critic and one reranker example each. The remaining timeout
+trajectory has no final patch, so it contributes a critic example but no
+default reranker example.
 
 ## Next Actions
 

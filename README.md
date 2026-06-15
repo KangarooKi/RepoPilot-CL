@@ -36,6 +36,7 @@ This first implementation provides a local, testable skeleton:
 - failure-type distribution in benchmark reports
 - repo/task-level environment profiles for scale-out benchmark shards
 - Django SWE-bench selector normalization for `tests/runtests.py`
+- trajectory-to-training-data builder for critic and reranker experiments
 - CLI entry point for running a task
 
 The full roadmap targets SWE-bench Lite / Verified, SWE-Bench-CL, ContextBench, and a small SWE-CI proof of concept.
@@ -184,6 +185,23 @@ python3 -m repopilot.cli.build_reranker_dataset \
 Each verified candidate patch becomes one JSONL example with the issue, baseline
 failure, retrieved memory ids, candidate patch, trajectory summary, and verifier
 label.
+
+Build critic/reranker training examples from full agent trajectories:
+
+```bash
+python3 -m repopilot.cli.build_training_dataset \
+  data/trajectories/swebench_lite_scale30_non_astropy_tools_after_rescue.jsonl \
+  --output-jsonl docs/reports/swebench_lite_scale30_non_astropy_training_examples.jsonl \
+  --output-summary-json docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.json \
+  --output-summary-md docs/reports/swebench_lite_scale30_non_astropy_training_dataset_summary.md \
+  --title "SWE-bench Lite Scale-30 Non-Astropy Training Dataset Summary"
+```
+
+The critic objective learns from the issue, baseline signal, final verifier
+signal, and action trace to predict failure type, focus files, searches, and
+next-step hints. The reranker objective learns from issue/test signal plus a
+candidate patch to predict whether the patch resolved the task. Empty final
+patches are skipped for reranker examples by default.
 
 Train and use the lightweight learned reranker:
 

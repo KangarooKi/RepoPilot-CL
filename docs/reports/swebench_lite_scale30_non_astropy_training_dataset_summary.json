@@ -1,0 +1,25 @@
+{
+  "examples": 47,
+  "critic_examples": 24,
+  "reranker_examples": 23,
+  "resolved_examples": 44,
+  "unresolved_examples": 3,
+  "failure_types": {
+    "model_timeout": 1,
+    "resolved": 44,
+    "unresolved_patch": 2
+  },
+  "repositories": {
+    "django/django": 2,
+    "marshmallow-code/marshmallow": 4,
+    "pvlib/pvlib-python": 10,
+    "pydicom/pydicom": 10,
+    "pylint-dev/astroid": 10,
+    "pyvista/pyvista": 2,
+    "sqlfluff/sqlfluff": 9
+  },
+  "sources": [
+    "data/trajectories/swebench_lite_scale30_non_astropy_tools_after_rescue.jsonl"
+  ],
+  "output": "docs/reports/swebench_lite_scale30_non_astropy_training_examples.jsonl"
+}
