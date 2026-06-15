@@ -41,6 +41,27 @@ python3 -m repopilot.cli.compare_benchmark_reports --base docs/reports/swebench_
 Result: the initial-to-after-rescue comparison shows +6 resolved tasks, 6 gained
 tasks, 0 lost tasks, 16 still-resolved tasks, and 2 still-unresolved tasks.
 
+## 2026-06-15: Benchmark suite summary CLI
+
+- Added `python3 -m repopilot.cli.summarize_benchmark_suite` for producing
+  ablation-style summary tables from multiple benchmark report JSON files.
+- The suite report records total/resolved/rate, delta against a named baseline,
+  gained/lost/still-unresolved counts, failure-type mix, and per-repository
+  resolved rates for each variant.
+- This is the evaluation table format intended for future baseline, memory,
+  critic, reranker, and teacher-rescue comparisons.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_benchmark_suite tests.test_benchmark_compare tests.test_benchmark_report
+python3 -m repopilot.cli.summarize_benchmark_suite --report initial=docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json --report after_rescue=docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json --baseline initial --require-same-tasks --output-md docs/reports/swebench_lite_scale30_non_astropy_suite_summary.md --output-json docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json --title "SWE-bench Lite Scale-30 Non-Astropy Suite Summary"
+```
+
+Result: the suite report records `initial` at 16/24 and `after_rescue` at 22/24,
+with +6 delta resolved, 6 gained tasks, 0 lost tasks, and 2 still-unresolved
+tasks.
+
 ## 2026-06-15: SWE-bench scale-30 non-Astropy failure-critic rescue
 
 - Source score report:

@@ -171,6 +171,9 @@ Report:
 Comparison:
 `docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.md`
 
+Suite summary:
+`docs/reports/swebench_lite_scale30_non_astropy_suite_summary.md`
+
 After-rescue repository breakdown:
 
 | Repository | Resolved / Tasks |

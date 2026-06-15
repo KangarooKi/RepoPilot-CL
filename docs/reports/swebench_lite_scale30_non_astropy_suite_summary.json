@@ -1,0 +1,143 @@
+{
+  "title": "SWE-bench Lite Scale-30 Non-Astropy Suite Summary",
+  "baseline": "initial",
+  "entries": [
+    {
+      "name": "initial",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json",
+      "total": 24,
+      "resolved": 16,
+      "resolved_rate": 0.6666666666666666,
+      "delta_resolved": 0,
+      "gained_tasks": 0,
+      "lost_tasks": 0,
+      "still_unresolved": 8,
+      "failure_types": {
+        "model_call_error": 1,
+        "model_timeout": 3,
+        "no_patch": 1,
+        "repo_install_error": 1,
+        "resolved": 16,
+        "unresolved_patch": 2
+      },
+      "repo_breakdown": [
+        {
+          "variant": "initial",
+          "repo": "pvlib/pvlib-python",
+          "total": 5,
+          "resolved": 5,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "initial",
+          "repo": "pydicom/pydicom",
+          "total": 5,
+          "resolved": 5,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "initial",
+          "repo": "pylint-dev/astroid",
+          "total": 5,
+          "resolved": 4,
+          "resolved_rate": 0.8
+        },
+        {
+          "variant": "initial",
+          "repo": "sqlfluff/sqlfluff",
+          "total": 5,
+          "resolved": 0,
+          "resolved_rate": 0.0
+        },
+        {
+          "variant": "initial",
+          "repo": "marshmallow-code/marshmallow",
+          "total": 2,
+          "resolved": 1,
+          "resolved_rate": 0.5
+        },
+        {
+          "variant": "initial",
+          "repo": "django/django",
+          "total": 1,
+          "resolved": 1,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "initial",
+          "repo": "pyvista/pyvista",
+          "total": 1,
+          "resolved": 0,
+          "resolved_rate": 0.0
+        }
+      ]
+    },
+    {
+      "name": "after_rescue",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+      "total": 24,
+      "resolved": 22,
+      "resolved_rate": 0.9166666666666666,
+      "delta_resolved": 6,
+      "gained_tasks": 6,
+      "lost_tasks": 0,
+      "still_unresolved": 2,
+      "failure_types": {
+        "model_timeout": 1,
+        "resolved": 22,
+        "unresolved_patch": 1
+      },
+      "repo_breakdown": [
+        {
+          "variant": "after_rescue",
+          "repo": "pvlib/pvlib-python",
+          "total": 5,
+          "resolved": 5,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "after_rescue",
+          "repo": "pydicom/pydicom",
+          "total": 5,
+          "resolved": 5,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "after_rescue",
+          "repo": "pylint-dev/astroid",
+          "total": 5,
+          "resolved": 5,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "after_rescue",
+          "repo": "sqlfluff/sqlfluff",
+          "total": 5,
+          "resolved": 4,
+          "resolved_rate": 0.8
+        },
+        {
+          "variant": "after_rescue",
+          "repo": "marshmallow-code/marshmallow",
+          "total": 2,
+          "resolved": 2,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "after_rescue",
+          "repo": "django/django",
+          "total": 1,
+          "resolved": 1,
+          "resolved_rate": 1.0
+        },
+        {
+          "variant": "after_rescue",
+          "repo": "pyvista/pyvista",
+          "total": 1,
+          "resolved": 0,
+          "resolved_rate": 0.0
+        }
+      ]
+    }
+  ]
+}

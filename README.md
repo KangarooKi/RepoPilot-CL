@@ -285,6 +285,23 @@ python3 -m repopilot.cli.compare_benchmark_reports \
 The comparison report lists gained, lost, still-resolved, and still-unresolved
 tasks, plus failure-type transitions such as `model_timeout -> resolved`.
 
+Summarize multiple benchmark reports into an ablation-style suite table:
+
+```bash
+python3 -m repopilot.cli.summarize_benchmark_suite \
+  --report initial=docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json \
+  --report after_rescue=docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json \
+  --baseline initial \
+  --require-same-tasks \
+  --output-md docs/reports/swebench_lite_scale30_non_astropy_suite_summary.md \
+  --output-json docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json \
+  --title "SWE-bench Lite Scale-30 Non-Astropy Suite Summary"
+```
+
+The suite summary is intended for larger ablations, for example baseline vs.
+memory vs. critic rescue vs. reranker runs, and includes per-repository
+breakdowns for each variant.
+
 Create a hard-case rescue plan from unresolved benchmark cases:
 
 ```bash
