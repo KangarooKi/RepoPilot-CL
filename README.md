@@ -302,6 +302,27 @@ The suite summary is intended for larger ablations, for example baseline vs.
 memory vs. critic rescue vs. reranker runs, and includes per-repository
 breakdowns for each variant.
 
+Write a reproducibility manifest for a benchmark result:
+
+```bash
+python3 -m repopilot.cli.write_run_manifest \
+  --name "SWE-bench Lite Scale-30 Non-Astropy After Rescue" \
+  --command "python3 -m repopilot.cli.merge_benchmark_reports ..." \
+  --dataset data/swebench/lite_scale30.jsonl \
+  --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt \
+  --provider deepseek-tools \
+  --model deepseek-v4-flash \
+  --report-json docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json \
+  --artifact env_profiles=configs/swebench_lite_scale30_env_profiles.json \
+  --artifact suite_summary=docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json \
+  --output-md docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.md \
+  --output-json docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json
+```
+
+The manifest records metrics, git commit, model/provider, command, notes, and
+SHA256 hashes for the dataset and report artifacts. API keys should remain in
+environment variables and are not written into manifests.
+
 Create a hard-case rescue plan from unresolved benchmark cases:
 
 ```bash

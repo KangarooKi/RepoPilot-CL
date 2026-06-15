@@ -1,0 +1,107 @@
+{
+  "name": "SWE-bench Lite Scale-30 Non-Astropy After Rescue",
+  "created_at_utc": "2026-06-15T03:40:42+00:00",
+  "git_commit": "4a4e475a259a17fa0d8b4fd54a839209d2e80e9f",
+  "command": "python3 -m repopilot.cli.merge_benchmark_reports docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json docs/reports/swebench_lite_scale30_non_astropy_rescue.json docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt --require-task-count 24 --output-md docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.md --output-json docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json --title 'SWE-bench Lite Scale-30 Non-Astropy DeepSeek Tools After Rescue'",
+  "dataset": "data/swebench/lite_scale30.jsonl",
+  "task_ids_file": "docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt",
+  "provider": "deepseek-tools",
+  "model": "deepseek-v4-flash",
+  "report_json": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+  "metrics": {
+    "total": 24,
+    "resolved": 22,
+    "resolved_rate": 0.916667,
+    "avg_patch_lines": 23.417,
+    "avg_model_steps": 12.458,
+    "avg_tool_steps": 12.458,
+    "avg_test_runs": 3.458,
+    "model_error_tasks": 3,
+    "timeout_tasks": 1,
+    "failure_types": {
+      "model_timeout": 1,
+      "resolved": 22,
+      "unresolved_patch": 1
+    }
+  },
+  "artifacts": [
+    {
+      "label": "dataset",
+      "path": "data/swebench/lite_scale30.jsonl",
+      "exists": true,
+      "size_bytes": 322760,
+      "sha256": "e3d37aac794c5d07dd0f94776a10ecc2e30b32b0a98c6b1c733173fdb8e88d54"
+    },
+    {
+      "label": "task_ids",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt",
+      "exists": true,
+      "size_bytes": 592,
+      "sha256": "30370469745ac932c24a6d196b704354c0658d9c38cd75abc4b037ce050ca3c9"
+    },
+    {
+      "label": "report_json",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+      "exists": true,
+      "size_bytes": 28970,
+      "sha256": "4d7626eb2d4cb5c5b7bd2f5f6438536676f0e4bfb16c8af28d41defa92f0e51f"
+    },
+    {
+      "label": "env_profiles",
+      "path": "configs/swebench_lite_scale30_env_profiles.json",
+      "exists": true,
+      "size_bytes": 698,
+      "sha256": "f22ef961630df83c851d39d2e72017e12c60cc0f9701c226ee598f9cbe70d45f"
+    },
+    {
+      "label": "initial_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json",
+      "exists": true,
+      "size_bytes": 24527,
+      "sha256": "28c302c976a95dec99cc4b69265f24e034126fee2a5d624416355c0e401ffb27"
+    },
+    {
+      "label": "rescue_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue.json",
+      "exists": true,
+      "size_bytes": 4072,
+      "sha256": "019c2f6907fa085e94db42b0e0e15844233cbb1fd64164fb3da70cbab72b2489"
+    },
+    {
+      "label": "rescue_remaining4",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json",
+      "exists": true,
+      "size_bytes": 6050,
+      "sha256": "545b46d39ccb243c8d9bf996e6d99d808afc82a552b931002dce38422e3b702d"
+    },
+    {
+      "label": "failure_hints",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_failure_hints.json",
+      "exists": true,
+      "size_bytes": 14107,
+      "sha256": "31ac47b42c60a1c91372cb00f0bfbd131a4db4df675f255dc8f810203d2b62a4"
+    },
+    {
+      "label": "comparison",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "exists": true,
+      "size_bytes": 9424,
+      "sha256": "b5e2d80f1c8162b471b32f70f4677eb1671d4f3053361d6dc990085c9fe42327"
+    },
+    {
+      "label": "suite_summary",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "exists": true,
+      "size_bytes": 3547,
+      "sha256": "65093dacdf242d3eb9df9f4c33f3d7c65aee96a3337c6a47d3bbf1ea2056d3a6"
+    }
+  ],
+  "notes": [
+    "Final score is produced by merging the initial DeepSeek tools run with failure-critic rescue shards.",
+    "API keys are supplied via environment variables and are not stored in this manifest."
+  ],
+  "runtime": {
+    "python": "3.10.11",
+    "platform": "macOS-26.4.1-arm64-arm-64bit"
+  }
+}

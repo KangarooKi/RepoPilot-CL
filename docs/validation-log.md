@@ -62,6 +62,27 @@ Result: the suite report records `initial` at 16/24 and `after_rescue` at 22/24,
 with +6 delta resolved, 6 gained tasks, 0 lost tasks, and 2 still-unresolved
 tasks.
 
+## 2026-06-15: Benchmark run manifest CLI
+
+- Added `python3 -m repopilot.cli.write_run_manifest` for writing
+  reproducibility cards for benchmark results.
+- The manifest records run name, git commit, command, dataset, task ids,
+  provider/model, report metrics, notes, runtime metadata, and SHA256 hashes for
+  dataset/report/config artifacts.
+- This gives future critic/reranker experiments a stable provenance layer:
+  every ablation row can point to an exact report and its input artifacts.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_run_manifest tests.test_benchmark_suite tests.test_benchmark_compare tests.test_benchmark_report
+python3 -m repopilot.cli.write_run_manifest --name "SWE-bench Lite Scale-30 Non-Astropy After Rescue" --command "python3 -m repopilot.cli.merge_benchmark_reports docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json docs/reports/swebench_lite_scale30_non_astropy_rescue.json docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt --require-task-count 24 --output-md docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.md --output-json docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json --title 'SWE-bench Lite Scale-30 Non-Astropy DeepSeek Tools After Rescue'" --dataset data/swebench/lite_scale30.jsonl --task-ids-file docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt --provider deepseek-tools --model deepseek-v4-flash --report-json docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json --git-commit 4a4e475a259a17fa0d8b4fd54a839209d2e80e9f --artifact env_profiles=configs/swebench_lite_scale30_env_profiles.json --artifact initial_report=docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json --artifact rescue_report=docs/reports/swebench_lite_scale30_non_astropy_rescue.json --artifact rescue_remaining4=docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json --artifact failure_hints=docs/reports/swebench_lite_scale30_non_astropy_failure_hints.json --artifact comparison=docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json --artifact suite_summary=docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json --note "Final score is produced by merging the initial DeepSeek tools run with failure-critic rescue shards." --note "API keys are supplied via environment variables and are not stored in this manifest." --output-md docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.md --output-json docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json
+```
+
+Result: the manifest records the after-rescue score as 22/24 with artifact
+hashes for the dataset, task ids, environment profiles, initial report, rescue
+reports, failure hints, comparison report, and suite summary.
+
 ## 2026-06-15: SWE-bench scale-30 non-Astropy failure-critic rescue
 
 - Source score report:

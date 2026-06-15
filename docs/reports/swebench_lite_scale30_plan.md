@@ -174,6 +174,9 @@ Comparison:
 Suite summary:
 `docs/reports/swebench_lite_scale30_non_astropy_suite_summary.md`
 
+Run manifest:
+`docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.md`
+
 After-rescue repository breakdown:
 
 | Repository | Resolved / Tasks |
