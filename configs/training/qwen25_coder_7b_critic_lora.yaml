@@ -2,10 +2,10 @@ base_model: /root/Qwen2.5/text-generation-webui/models/Qwen2.5-7B-Instruct
 output_dir: /root/autodl-tmp/repopilot-cl/models/repopilot_critic_lora
 
 dataset:
-  warmstart_train: /root/autodl-tmp/repopilot-cl/data/training/critic_warmstart/critic_train.jsonl
-  warmstart_dev: /root/autodl-tmp/repopilot-cl/data/training/critic_warmstart/critic_dev.jsonl
-  adaptation_train: /root/autodl-tmp/repopilot-cl/data/training/repopilot_critic_seed/critic_train.jsonl
-  adaptation_dev: /root/autodl-tmp/repopilot-cl/data/training/repopilot_critic_seed/critic_dev.jsonl
+  warmstart_train: /root/autodl-tmp/repopilot-cl/data/training/critic_warmstart/splits/critic_train.jsonl
+  warmstart_dev: /root/autodl-tmp/repopilot-cl/data/training/critic_warmstart/splits/critic_dev.jsonl
+  adaptation_train: /root/autodl-tmp/repopilot-cl/data/training/repopilot_critic_seed/splits/critic_train.jsonl
+  adaptation_dev: /root/autodl-tmp/repopilot-cl/data/training/repopilot_critic_seed/splits/critic_dev.jsonl
   format: messages_jsonl
 
 training:
