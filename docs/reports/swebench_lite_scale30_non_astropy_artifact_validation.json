@@ -1,0 +1,358 @@
+{
+  "passed": true,
+  "total_checks": 50,
+  "passed_checks": 50,
+  "failed_checks": 0,
+  "checks": [
+    {
+      "target_type": "benchmark_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+      "check": "total_matches_tasks",
+      "passed": true,
+      "message": "declared=24 computed=24"
+    },
+    {
+      "target_type": "benchmark_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+      "check": "resolved_matches_tasks",
+      "passed": true,
+      "message": "declared=22 computed=22"
+    },
+    {
+      "target_type": "benchmark_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+      "check": "resolved_rate_matches_tasks",
+      "passed": true,
+      "message": "declared=0.9166666666666666 computed=0.9166666666666666"
+    },
+    {
+      "target_type": "benchmark_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json",
+      "check": "failure_types_match_tasks",
+      "passed": true,
+      "message": "declared={'model_timeout': 1, 'resolved': 22, 'unresolved_patch': 1} computed={'model_timeout': 1, 'resolved': 22, 'unresolved_patch': 1}"
+    },
+    {
+      "target_type": "comparison_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "check": "base_total_matches_tasks",
+      "passed": true,
+      "message": "declared=24 computed=24"
+    },
+    {
+      "target_type": "comparison_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "check": "candidate_total_matches_tasks",
+      "passed": true,
+      "message": "declared=24 computed=24"
+    },
+    {
+      "target_type": "comparison_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "check": "common_tasks_match_tasks",
+      "passed": true,
+      "message": "declared=24 computed=24"
+    },
+    {
+      "target_type": "comparison_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "check": "resolved_counts_match_tasks",
+      "passed": true,
+      "message": "declared=(16, 22, 6) computed=(16, 22, 6)"
+    },
+    {
+      "target_type": "comparison_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "check": "status_counts_match_tasks",
+      "passed": true,
+      "message": "declared={'gained_tasks': 6, 'lost_tasks': 0, 'still_resolved': 16, 'still_unresolved': 2, 'base_only_tasks': 0, 'candidate_only_tasks': 0} computed={'gained_tasks': 6, 'lost_tasks': 0, 'still_resolved': 16, 'still_unresolved': 2, 'base_only_tasks': 0, 'candidate_only_tasks': 0}"
+    },
+    {
+      "target_type": "comparison_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json",
+      "check": "failure_transitions_match_tasks",
+      "passed": true,
+      "message": "declared={'model_call_error -> resolved': 1, 'model_timeout -> model_timeout': 1, 'model_timeout -> resolved': 2, 'no_patch -> resolved': 1, 'repo_install_error -> resolved': 1, 'resolved -> resolved': 16, 'unresolved_patch -> resolved': 1, 'unresolved_patch -> unresolved_patch': 1} computed={'model_call_error -> resolved': 1, 'model_timeout -> model_timeout': 1, 'model_timeout -> resolved': 2, 'no_patch -> resolved': 1, 'repo_install_error -> resolved': 1, 'resolved -> resolved': 16, 'unresolved_patch -> resolved': 1, 'unresolved_patch -> unresolved_patch': 1}"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "baseline_exists",
+      "passed": true,
+      "message": "baseline=initial entries=['initial', 'after_rescue']"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "initial:repo_total_matches_entry",
+      "passed": true,
+      "message": "declared=24 computed=24"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "initial:repo_resolved_matches_entry",
+      "passed": true,
+      "message": "declared=16 computed=16"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "initial:resolved_rate_matches_entry",
+      "passed": true,
+      "message": "declared=0.6666666666666666 computed=0.6666666666666666"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "initial:failure_types_sum_to_total",
+      "passed": true,
+      "message": "declared_total=24 failure_total=24"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "after_rescue:repo_total_matches_entry",
+      "passed": true,
+      "message": "declared=24 computed=24"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "after_rescue:repo_resolved_matches_entry",
+      "passed": true,
+      "message": "declared=22 computed=22"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "after_rescue:resolved_rate_matches_entry",
+      "passed": true,
+      "message": "declared=0.9166666666666666 computed=0.9166666666666666"
+    },
+    {
+      "target_type": "suite_report",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json",
+      "check": "after_rescue:failure_types_sum_to_total",
+      "passed": true,
+      "message": "declared_total=24 failure_total=24"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "metrics_match_report_json",
+      "passed": true,
+      "message": "declared={'total': 24, 'resolved': 22, 'resolved_rate': 0.916667, 'failure_types': {'model_timeout': 1, 'resolved': 22, 'unresolved_patch': 1}} computed={'total': 24, 'resolved': 22, 'resolved_rate': 0.916667, 'failure_types': {'model_timeout': 1, 'resolved': 22, 'unresolved_patch': 1}}"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "dataset:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=data/swebench/lite_scale30.jsonl"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "dataset:size_matches",
+      "passed": true,
+      "message": "declared=322760 computed=322760"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "dataset:sha256_matches",
+      "passed": true,
+      "message": "declared=e3d37aac794c5d07dd0f94776a10ecc2e30b32b0a98c6b1c733173fdb8e88d54 computed=e3d37aac794c5d07dd0f94776a10ecc2e30b32b0a98c6b1c733173fdb8e88d54"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "task_ids:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_task_ids.txt"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "task_ids:size_matches",
+      "passed": true,
+      "message": "declared=592 computed=592"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "task_ids:sha256_matches",
+      "passed": true,
+      "message": "declared=30370469745ac932c24a6d196b704354c0658d9c38cd75abc4b037ce050ca3c9 computed=30370469745ac932c24a6d196b704354c0658d9c38cd75abc4b037ce050ca3c9"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "report_json:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "report_json:size_matches",
+      "passed": true,
+      "message": "declared=28970 computed=28970"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "report_json:sha256_matches",
+      "passed": true,
+      "message": "declared=4d7626eb2d4cb5c5b7bd2f5f6438536676f0e4bfb16c8af28d41defa92f0e51f computed=4d7626eb2d4cb5c5b7bd2f5f6438536676f0e4bfb16c8af28d41defa92f0e51f"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "env_profiles:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=configs/swebench_lite_scale30_env_profiles.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "env_profiles:size_matches",
+      "passed": true,
+      "message": "declared=698 computed=698"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "env_profiles:sha256_matches",
+      "passed": true,
+      "message": "declared=f22ef961630df83c851d39d2e72017e12c60cc0f9701c226ee598f9cbe70d45f computed=f22ef961630df83c851d39d2e72017e12c60cc0f9701c226ee598f9cbe70d45f"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "initial_report:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_tools_merged.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "initial_report:size_matches",
+      "passed": true,
+      "message": "declared=24527 computed=24527"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "initial_report:sha256_matches",
+      "passed": true,
+      "message": "declared=28c302c976a95dec99cc4b69265f24e034126fee2a5d624416355c0e401ffb27 computed=28c302c976a95dec99cc4b69265f24e034126fee2a5d624416355c0e401ffb27"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "rescue_report:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_rescue.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "rescue_report:size_matches",
+      "passed": true,
+      "message": "declared=4072 computed=4072"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "rescue_report:sha256_matches",
+      "passed": true,
+      "message": "declared=019c2f6907fa085e94db42b0e0e15844233cbb1fd64164fb3da70cbab72b2489 computed=019c2f6907fa085e94db42b0e0e15844233cbb1fd64164fb3da70cbab72b2489"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "rescue_remaining4:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_rescue_remaining4.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "rescue_remaining4:size_matches",
+      "passed": true,
+      "message": "declared=6050 computed=6050"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "rescue_remaining4:sha256_matches",
+      "passed": true,
+      "message": "declared=545b46d39ccb243c8d9bf996e6d99d808afc82a552b931002dce38422e3b702d computed=545b46d39ccb243c8d9bf996e6d99d808afc82a552b931002dce38422e3b702d"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "failure_hints:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_failure_hints.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "failure_hints:size_matches",
+      "passed": true,
+      "message": "declared=14107 computed=14107"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "failure_hints:sha256_matches",
+      "passed": true,
+      "message": "declared=31ac47b42c60a1c91372cb00f0bfbd131a4db4df675f255dc8f810203d2b62a4 computed=31ac47b42c60a1c91372cb00f0bfbd131a4db4df675f255dc8f810203d2b62a4"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "comparison:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "comparison:size_matches",
+      "passed": true,
+      "message": "declared=9424 computed=9424"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "comparison:sha256_matches",
+      "passed": true,
+      "message": "declared=b5e2d80f1c8162b471b32f70f4677eb1671d4f3053361d6dc990085c9fe42327 computed=b5e2d80f1c8162b471b32f70f4677eb1671d4f3053361d6dc990085c9fe42327"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "suite_summary:artifact_exists",
+      "passed": true,
+      "message": "declared=True computed=True path=docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "suite_summary:size_matches",
+      "passed": true,
+      "message": "declared=3547 computed=3547"
+    },
+    {
+      "target_type": "run_manifest",
+      "path": "docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json",
+      "check": "suite_summary:sha256_matches",
+      "passed": true,
+      "message": "declared=65093dacdf242d3eb9df9f4c33f3d7c65aee96a3337c6a47d3bbf1ea2056d3a6 computed=65093dacdf242d3eb9df9f4c33f3d7c65aee96a3337c6a47d3bbf1ea2056d3a6"
+    }
+  ]
+}

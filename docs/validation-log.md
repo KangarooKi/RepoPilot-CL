@@ -83,6 +83,26 @@ Result: the manifest records the after-rescue score as 22/24 with artifact
 hashes for the dataset, task ids, environment profiles, initial report, rescue
 reports, failure hints, comparison report, and suite summary.
 
+## 2026-06-15: Benchmark artifact validation CLI
+
+- Added `python3 -m repopilot.cli.validate_benchmark_artifacts` for consistency
+  checks across benchmark reports, comparison reports, suite summaries, and run
+  manifests.
+- The validator recomputes report metrics, comparison transition counts, suite
+  repository totals, manifest metrics, and artifact size/SHA256 hashes.
+- It returns a nonzero exit code when any check fails, so it can serve as a
+  local publication gate before adding new benchmark rows.
+
+Validation:
+
+```bash
+python3 -m unittest tests.test_artifact_validation tests.test_run_manifest tests.test_benchmark_suite tests.test_benchmark_compare tests.test_benchmark_report
+python3 -m repopilot.cli.validate_benchmark_artifacts --report docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json --comparison docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json --suite docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json --manifest docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json --output-md docs/reports/swebench_lite_scale30_non_astropy_artifact_validation.md --output-json docs/reports/swebench_lite_scale30_non_astropy_artifact_validation.json --title "SWE-bench Lite Scale-30 Non-Astropy Artifact Validation"
+```
+
+Result: the scale-30 non-Astropy artifact validation passed 50/50 checks with
+0 failed checks.
+
 ## 2026-06-15: SWE-bench scale-30 non-Astropy failure-critic rescue
 
 - Source score report:

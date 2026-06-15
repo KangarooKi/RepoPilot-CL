@@ -177,6 +177,9 @@ Suite summary:
 Run manifest:
 `docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.md`
 
+Artifact validation:
+`docs/reports/swebench_lite_scale30_non_astropy_artifact_validation.md`
+
 After-rescue repository breakdown:
 
 | Repository | Resolved / Tasks |

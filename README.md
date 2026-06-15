@@ -323,6 +323,23 @@ The manifest records metrics, git commit, model/provider, command, notes, and
 SHA256 hashes for the dataset and report artifacts. API keys should remain in
 environment variables and are not written into manifests.
 
+Validate benchmark artifacts before publishing a result:
+
+```bash
+python3 -m repopilot.cli.validate_benchmark_artifacts \
+  --report docs/reports/swebench_lite_scale30_non_astropy_tools_after_rescue.json \
+  --comparison docs/reports/swebench_lite_scale30_non_astropy_rescue_comparison.json \
+  --suite docs/reports/swebench_lite_scale30_non_astropy_suite_summary.json \
+  --manifest docs/reports/swebench_lite_scale30_non_astropy_after_rescue_manifest.json \
+  --output-md docs/reports/swebench_lite_scale30_non_astropy_artifact_validation.md \
+  --output-json docs/reports/swebench_lite_scale30_non_astropy_artifact_validation.json \
+  --title "SWE-bench Lite Scale-30 Non-Astropy Artifact Validation"
+```
+
+The validator recomputes report metrics, comparison transitions, suite
+breakdowns, manifest metrics, and artifact hashes; it exits nonzero if any check
+fails.
+
 Create a hard-case rescue plan from unresolved benchmark cases:
 
 ```bash
