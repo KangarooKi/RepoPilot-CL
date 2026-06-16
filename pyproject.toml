@@ -23,9 +23,17 @@ repopilot-run-task = "repopilot.cli.run_task:main"
 repopilot-run-experiment = "repopilot.cli.run_experiment:main"
 repopilot-build-reranker-dataset = "repopilot.cli.build_reranker_dataset:main"
 repopilot-build-failure-hints = "repopilot.cli.build_failure_hints:main"
+repopilot-build-learned-critic-hints = "repopilot.cli.build_learned_critic_hints:main"
+repopilot-evaluate-critic = "repopilot.cli.evaluate_critic:main"
+repopilot-predict-critic-lora = "repopilot.cli.predict_critic_lora:main"
+repopilot-train-critic-lora = "repopilot.cli.train_critic_lora:main"
 repopilot-train-reranker = "repopilot.cli.train_reranker:main"
 repopilot-report-benchmark = "repopilot.cli.report_benchmark:main"
 repopilot-plan-rescue = "repopilot.cli.plan_rescue:main"
 
 [tool.setuptools.packages.find]
 include = ["repopilot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["data", "runs", "runs_*", ".git", ".venv", "venv"]

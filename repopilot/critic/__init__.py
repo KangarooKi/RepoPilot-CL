@@ -5,11 +5,21 @@ from repopilot.critic.failure import (
     render_failure_hints_markdown,
     render_prompt_hint,
 )
+from repopilot.critic.learned import (
+    CriticEvalSummary,
+    CriticParseResult,
+    evaluate_predictions,
+    parse_critic_output,
+)
 
 __all__ = [
+    "CriticEvalSummary",
+    "CriticParseResult",
     "FailureHint",
     "build_failure_hint",
+    "evaluate_predictions",
     "load_prompt_hint_map",
+    "parse_critic_output",
     "render_failure_hints_markdown",
     "render_prompt_hint",
 ]
