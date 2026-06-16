@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sys
 from typing import Any
 
 import yaml
@@ -24,6 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-input-tokens", type=int, default=8192)
     parser.add_argument("--max-new-tokens", type=int, default=512)
     parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument(
+        "--progress-every",
+        type=int,
+        default=25,
+        help="Print progress to stderr every N examples. Set 0 to disable.",
+    )
     parser.add_argument(
         "--device-map",
         default="auto",
@@ -60,12 +67,16 @@ def main(argv: list[str] | None = None) -> int:
         device_map=device_map,
     )
     model = PeftModel.from_pretrained(model, args.adapter)
+    if args.temperature <= 0:
+        model.generation_config.temperature = None
+        model.generation_config.top_p = 1.0
+        model.generation_config.top_k = 50
     model.eval()
 
     output_path = Path(args.output_jsonl)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as handle:
-        for row in rows:
+        for index, row in enumerate(rows, start=1):
             prompt_messages = _prompt_messages(row)
             prompt_text = tokenizer.apply_chat_template(
                 prompt_messages,
@@ -113,6 +124,21 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 + "\n"
             )
+            handle.flush()
+            if args.progress_every > 0 and (
+                index % args.progress_every == 0 or index == len(rows)
+            ):
+                print(
+                    json.dumps(
+                        {
+                            "progress": index,
+                            "total": len(rows),
+                            "output_jsonl": str(output_path),
+                        }
+                    ),
+                    file=sys.stderr,
+                    flush=True,
+                )
     print(json.dumps({"examples": len(rows), "output_jsonl": str(output_path)}, indent=2))
     return 0
 
