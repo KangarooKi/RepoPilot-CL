@@ -72,6 +72,7 @@ class LearnedCriticTest(unittest.TestCase):
         self.assertEqual(payload["failure_type_accuracy"], 1.0)
         self.assertEqual(payload["focus_recall"]["recall@1"], 0.0)
         self.assertEqual(payload["focus_recall"]["recall@2"], 1.0)
+        self.assertEqual(payload["focus_mrr"], 0.5)
         self.assertEqual(payload["query_nonempty_rate"], 1.0)
         self.assertEqual(payload["next_steps_nonempty_rate"], 1.0)
 

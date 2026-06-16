@@ -33,6 +33,7 @@ class CriticEvalSummary:
     failure_type_correct: int
     focus_total: int
     focus_hits: dict[str, int]
+    focus_mrr_sum: float
     query_nonempty: int
     next_steps_nonempty: int
     missing_reference: int
@@ -55,6 +56,11 @@ class CriticEvalSummary:
             key: _safe_div(value, self.focus_total)
             for key, value in self.focus_hits.items()
         }
+        payload["focus_mrr"] = (
+            self.focus_mrr_sum / float(self.focus_total)
+            if self.focus_total
+            else 0.0
+        )
         return payload
 
 
@@ -208,6 +214,7 @@ def evaluate_predictions(
     failure_type_total = 0
     failure_type_correct = 0
     focus_total = 0
+    focus_mrr_sum = 0.0
     query_nonempty = 0
     next_steps_nonempty = 0
     missing_reference = 0
@@ -234,6 +241,9 @@ def evaluate_predictions(
         pred_focus = _normalize_paths(prediction.get("focus_files", []))
         if ref_focus:
             focus_total += 1
+            rank = _first_relevant_rank(pred_focus, ref_focus)
+            if rank is not None:
+                focus_mrr_sum += 1.0 / float(rank)
             for key, k in zip(focus_hits, focus_ks):
                 focus_hits[key] += int(bool(set(pred_focus[:k]) & set(ref_focus)))
 
@@ -245,6 +255,7 @@ def evaluate_predictions(
         failure_type_correct=failure_type_correct,
         focus_total=focus_total,
         focus_hits=focus_hits,
+        focus_mrr_sum=focus_mrr_sum,
         query_nonempty=query_nonempty,
         next_steps_nonempty=next_steps_nonempty,
         missing_reference=missing_reference,
@@ -279,6 +290,7 @@ def render_eval_markdown(
                 f"({payload['next_steps_nonempty_rate']:.3f}) |"
             ),
             f"| Missing Reference | {summary.missing_reference} |",
+            f"| Focus MRR | {payload['focus_mrr']:.3f} |",
         ]
     )
     focus_recall = payload["focus_recall"]
@@ -391,6 +403,14 @@ def _normalize_path(path: str) -> str:
         normalized = normalized[2:]
     normalized = re.sub(r"/+", "/", normalized)
     return normalized.strip("/")
+
+
+def _first_relevant_rank(predicted: list[str], reference: list[str]) -> int | None:
+    reference_set = set(reference)
+    for index, path in enumerate(predicted, start=1):
+        if path in reference_set:
+            return index
+    return None
 
 
 def _valid_failure_type(value: str) -> bool:
